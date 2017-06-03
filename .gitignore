@@ -1,0 +1,23 @@
+# User-specific files - Visual Studio
+*.suo
+*.user
+*.sln.docstates
+
+# Thumbnail files - Windows
+Thumbs.db
+
+# Visual Studio build files
+windows/[Dd]ebug/
+
+# Visual C++ cache files
+windows/ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
