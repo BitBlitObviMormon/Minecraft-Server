@@ -59,6 +59,7 @@ public:
 	VarInt(const Int value);
 	VarInt(const VarLong& value);
 	~VarInt();
+	VarInt& operator=(const VarInt& right);
 	Int toInt() const;
 };
 
@@ -74,6 +75,7 @@ public:
 	VarLong(const Long value);
 	VarLong(const VarInt& value);
 	~VarLong();
+	VarLong& operator=(const VarLong& right);
 	Long toLong() const;
 };
 
@@ -85,11 +87,15 @@ class SerialString
 {
 protected:
 	VarInt length; // Length of the array
-	char*  data;   // A UTF-8 string with no null terminator
+	Byte*  data;   // A UTF-8 string with no null terminator
 public:
-	SerialString();
-	SerialString(String text);
+	SerialString(Byte* data = NULL);
+	SerialString(const String& text);
 	~SerialString();
+	const Int getLength() const;
+	const Int getSize() const;
+	char* makeData() const;
+	const String str() const;
 };
 
 /***********************************************
@@ -99,7 +105,7 @@ public:
 class Chat : public SerialString
 {
 public:
-	Chat();
+	Chat(Byte* data = NULL);
 	Chat(String text);
 	~Chat();
 };
@@ -138,15 +144,18 @@ public:
  * UUID                        *
  * An unsigned 128-bit integer *
  *******************************/
+class Client;
 class UUID
 {
 private:
 	Long v1;
 	Long v2;
 public:
-	UUID();
-	UUID(Long value1, Long value2);
+	UUID(Long value1 = 0, Long value2 = 0);
+	UUID(Client* client);
 	~UUID();
+	void recalculate(Client* client);
+	const String str();
 };
 
 /************************

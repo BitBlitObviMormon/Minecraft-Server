@@ -1,6 +1,6 @@
 #pragma once
 #include "../data/datatypes.h"
-#include "../client/clienteventhandler.h"
+#include "../server/serverstate.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -17,20 +17,15 @@
 	typedef int SOCKET;
 #endif
 
-class Server
+class Client
 {
-protected:
-	volatile Boolean running;	// Used to tell the server to shut down
-	SOCKET listenSocket;
-	ClientEventHandler* clientHandler;
-protected:
-	int listenForClients();
-	int acceptClients();
-	void addClient();
 public:
-	Server(ClientEventHandler* eventHandler = NULL);
-	~Server();
-	void start();
-	void startAsync();
-	void stop();
+	SOCKET socket;
+	String name;
+	ServerState state;
+	INT protocol;
+	UUID uuid;
+public:
+	Client(SOCKET newClient = NULL);
+	~Client();
 };

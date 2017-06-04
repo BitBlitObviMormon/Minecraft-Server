@@ -1,5 +1,7 @@
 #include "datatypes.h"
+#include "../client/client.h"
 #include <stdexcept>
+#include <iostream>
 
 /*******************************************
  * ParseNumVar                             *
@@ -128,7 +130,16 @@ Byte CountNumVarLength(const Byte* data, const Byte maxlength)
  * VarNum :: VarNum    *
  * Default Constructor *
  ***********************/
-VarNum::VarNum(Byte* data) : data(data) { length = CountNumVarLength(data, VARNUM_MAX_SIZE); }
+VarNum::VarNum(Byte* data) : data(NULL)
+{
+	length = CountNumVarLength(data, VARNUM_MAX_SIZE);
+
+	// Copy the array given
+	Byte* newData = new Byte[length];
+	for (int i = 0; i < length; i++)
+		newData[i] = data[i];
+	this->data = newData;
+}
 
 /*********************
  * VarNum :: VarNum  *
@@ -137,7 +148,7 @@ VarNum::VarNum(Byte* data) : data(data) { length = CountNumVarLength(data, VARNU
 VarNum::VarNum(const VarNum& value)
 {
 	// If the other value has no data then forget about copying
-	if (value.data == 0)
+	if (value.data == NULL)
 	{
 		length = 0;
 		data = NULL;
@@ -173,7 +184,7 @@ VarNum::~VarNum() { if (data != NULL) { delete[] data; data = NULL; } }
  * VarNum :: toNum        *
  * Converts VarNum to Num *
  **************************/
-Long VarNum::toNum() const { return parseNumVar(data, VARNUM_MAX_SIZE); }
+Long VarNum::toNum() const { return parseNumVar(data, length); }
 
 /*****************************
  * VarNum :: getSize         *
@@ -225,6 +236,29 @@ VarInt::VarInt(const VarLong& value) : VarNum(value)
 {
 	if (length > VARINT_MAX_SIZE)
 		throw new std::overflow_error("VarInt is too big");
+}
+
+/****************************
+ * VarInt :: operator=      *
+ * Copy Assignment Operator *
+ ****************************/
+VarInt& VarInt::operator=(const VarInt& right)
+{
+	// If the other value has no data then forget about copying
+	if (right.data == NULL)
+	{
+		length = 0;
+		data = NULL;
+		return *this;
+	}
+
+	// Copy the data from the value to the new long
+	length = right.length;
+	data = new Byte[length];
+	for (int i = 0; i < length; i++)
+		data[i] = right.data[i];
+
+	return *this;
 }
 
 /*********************
@@ -286,6 +320,29 @@ VarLong::VarLong(const VarInt& value) : VarNum(value)
 VarLong::~VarLong() {}
 
 /****************************
+ * VarLong :: operator=     *
+ * Copy Assignment Operator *
+ ****************************/
+VarLong& VarLong::operator=(const VarLong& right)
+{
+	// If the other value has no data then forget about copying
+	if (right.data == NULL)
+	{
+		length = 0;
+		data = NULL;
+		return *this;
+	}
+
+	// Copy the data from the value to the new long
+	length = right.length;
+	data = new Byte[length];
+	for (int i = 0; i < length; i++)
+		data[i] = right.data[i];
+
+	return *this;
+}
+
+/****************************
  * VarLong :: toLong        *
  * Converts VarLong to Long *
  ****************************/
@@ -295,15 +352,35 @@ Long VarLong::toLong() const { return toNum(); }
  * SerialString :: SerialString  *
  * Default Constructor           *
  *********************************/
-SerialString::SerialString() : length(0), data(0) {}
+SerialString::SerialString(Byte* data) : length(0), data(NULL)
+{
+	if (data != NULL)
+	{
+		// Get the length of the string
+		VarInt data1 = VarInt(data);
+		length = data1;
+		data += length.getSize();
+
+		// Copy the string to a new buffer
+		Int len = length.toInt();
+		this->data = new Byte[len];
+		for (int i = 0; i < len; i++)
+			this->data[i] = data[i];
+	}
+}
 
 /*********************************
  * SerialString :: SerialString  *
  * Constructor from UTF-8 String *
  *********************************/
-SerialString::SerialString(String text)
+SerialString::SerialString(const String& text)
 {
-	// TODO: Create the SerialString here
+	length = VarInt(text.length());
+	data = new Byte[text.length()];
+
+	// Copy the data from the string to this one
+	for (int i = 0; i < text.length(); i++)
+		data[i] = text[i];
 }
 
 /*********************************
@@ -312,11 +389,57 @@ SerialString::SerialString(String text)
  *********************************/
 SerialString::~SerialString() { if (data != NULL) { delete[] data; data = NULL; } }
 
+/*********************************
+ * SerialString :: getLength     *
+ * Returns the size of the array *
+ *********************************/
+const Int SerialString::getLength() const { return length.toInt(); }
+
+/********************************
+ * SerialString :: getSize      *
+ * Returns the size of the data *
+ ********************************/
+const Int SerialString::getSize() const { return length.toInt() + length.getSize(); }
+
+/*******************************
+ * SerialString :: getData     *
+ * Creates an array of data    *
+ * Has to be deleted after use *
+ *******************************/
+char* SerialString::makeData() const
+{
+	// Get the dimensions of the data and create an array to store it
+	Int end1 = length.getSize();
+	Int end2 = getSize();
+	const Byte* lengthData = length.getData();
+	char* moreData = new char[end2];
+
+	// Copy the contents of the length to the new array
+	int i;
+	for (i = 0; i < end1; i++)
+		moreData[i] = lengthData[i];
+
+	// Copy the contents of the data to the new array
+	for (int y = 0; i < end2; y++, i++)
+		moreData[i] = data[y];
+
+	return moreData;
+}
+
+/***********************
+ * SerialString :: str *
+ * Returns a string    *
+ ***********************/
+const String SerialString::str() const
+{
+	return String((const char*)data, length.toInt());
+}
+
 /***********************
  * Chat :: Chat        *
  * Default Constructor *
  ***********************/
-Chat::Chat() : SerialString() {}
+Chat::Chat(Byte* data) : SerialString(data) {}
 
 /*********************************
  * Chat :: Chat                  *
@@ -394,16 +517,37 @@ Angle::~Angle() {}
  * UUID :: UUID        *
  * Default Constructor *
  ***********************/
-UUID::UUID() {}
-
-/******************************
- * UUID :: UUID               *
- * Constructor from two Longs *
- ******************************/
 UUID::UUID(Long value1, Long value2) : v1(value1), v2(value2) {}
+
+/**************************
+ * UUID :: UUID           *
+ * Generate from a client *
+ **************************/
+UUID::UUID(Client* client) { recalculate(client); }
 
 /*******************
  * UUID :: ~UUID   *
  * Destructor      *
  *******************/
 UUID::~UUID() {}
+
+/**************************
+ * UUID :: recalculate    *
+ * Generate from a client *
+ **************************/
+void UUID::recalculate(Client* client)
+{
+	// TODO: Generate a UUID
+	v1 = 0;
+	v2 = 0;
+}
+
+/************************
+* UUID :: ~UUID         *
+* Returns a UUID String *
+*************************/
+const String UUID::str()
+{
+	// TODO: Generate UUID Strings
+	return "00000000-0000-0000-0000-000000000000";
+}

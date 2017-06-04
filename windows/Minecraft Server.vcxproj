@@ -64,15 +64,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.cpp" />
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clienteventhandler.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\main.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\game.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.cpp" />
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\servereventhandler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.h" />
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clienteventhandler.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\game.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.h" />
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\servereventhandler.h" />
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverstate.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

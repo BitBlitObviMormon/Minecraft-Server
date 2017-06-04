@@ -8,6 +8,7 @@ Thumbs.db
 
 # Visual Studio build files
 windows/[Dd]ebug/
+windows/[Rr]elease/
 
 # Visual C++ cache files
 windows/ipch/

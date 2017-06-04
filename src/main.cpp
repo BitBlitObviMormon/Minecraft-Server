@@ -26,7 +26,8 @@ int main()
 	cout << (Int)a6.getSize() << ", " << a6.toInt() << endl;
 	cout << (Int)a7.getSize() << ", " << a7.toInt() << endl;
 	cout << (Int)a8.getSize() << ", " << a8.toInt() << endl;
-	cout << (Int)a9.getSize() << ", " << a9.toInt() << "\n\n";
+	cout << (Int)a9.getSize() << ", " << a9.toInt() << endl;
+	cout << (Int)(a1 = a2).getSize() << ", " << (a1 = a2).toInt() << endl;
 
 	// Test the VarLongs
 	VarLong b1((Long)0);
@@ -50,7 +51,9 @@ int main()
 	cout << (Long)b8.getSize() << ", " << b8.toLong() << endl;
 	cout << (Long)b9.getSize() << ", " << b9.toLong() << endl;
 	cout << (Long)ba.getSize() << ", " << ba.toLong() << endl;
-	cout << (Long)bb.getSize() << ", " << bb.toLong() << endl;
+	cout << (Long)bb.getSize() << ", " << bb.toLong() << "\n\n";
+
+	server->start();
 
 	return 0;
 }
