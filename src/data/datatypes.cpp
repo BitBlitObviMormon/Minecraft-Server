@@ -549,5 +549,5 @@ void UUID::recalculate(Client* client)
 const String UUID::str()
 {
 	// TODO: Generate UUID Strings
-	return "00000000-0000-0000-0000-000000000000";
+	return "00000000-0000-3000-0000-000000000000";
 }
