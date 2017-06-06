@@ -379,7 +379,7 @@ SerialString::SerialString(const String& text)
 	data = new Byte[text.length()];
 
 	// Copy the data from the string to this one
-	for (int i = 0; i < text.length(); i++)
+	for (UInt i = 0; i < text.length(); i++)
 		data[i] = text[i];
 }
 
@@ -492,8 +492,14 @@ const Int Position::getY() const { return (data >> 26) & 0xFFF; }
 /************************
  * Position :: getZ     *
  * Get the Z coordinate *
-************************/
+ ************************/
 const Int Position::getZ() const { return data << 38 >> 38; }
+
+/************************
+ * Position :: getdata  *
+ * Returns the raw data *
+ ************************/
+const Long Position::getData() const { return data; }
 
 /***********************
  * Angle :: Angle      *

@@ -125,6 +125,7 @@ public:
 	const Int getX() const;
 	const Int getY() const;
 	const Int getZ() const;
+	const Long getData() const;
 };
 
 /**************************

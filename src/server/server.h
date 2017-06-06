@@ -23,12 +23,13 @@ protected:
 	volatile Boolean running;	// Used to tell the server to shut down
 	SOCKET listenSocket;
 	ClientEventHandler* clientHandler;
+	ServerEventHandler* serverHandler;
 protected:
 	int listenForClients();
 	int acceptClients();
 	void addClient();
 public:
-	Server(ClientEventHandler* eventHandler = NULL);
+	Server(ClientEventHandler* clientEventHandler = NULL, ServerEventHandler* serverEventHandler = NULL);
 	~Server();
 	void start();
 	void startAsync();

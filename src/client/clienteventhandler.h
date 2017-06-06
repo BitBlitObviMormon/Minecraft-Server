@@ -2,13 +2,11 @@
 
 #include "client.h"
 #include "../server/servereventhandler.h"
-#include <map>
 
 class ClientEventHandler
 {
 protected:
 	volatile Boolean running;
-	std::map<SOCKET, Client*> clients;
 	ServerEventHandler* serverHandler;
 	
 	/***************************
@@ -60,7 +58,7 @@ protected:
 	void playerBlockPlacement(Client* client, Byte* buffer, Int length);
 	void useItem(Client* client, Byte* buffer, Int length);
 public:
-	ClientEventHandler();
+	ClientEventHandler(ServerEventHandler* serverEventHandler = NULL);
 	~ClientEventHandler();
 	void addClient(SOCKET newClient);
 	Client* getClientFromSocket(SOCKET socket);

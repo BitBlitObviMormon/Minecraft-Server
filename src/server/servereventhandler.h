@@ -2,22 +2,28 @@
 
 #include "../data/datatypes.h"
 #include "../client/client.h"
+#include <map>
+#include <thread>
 
 class ClientEventHandler;
 class ServerEventHandler
 {
-protected:
+private:
+	std::thread tickClock;
+	Double tickDelay;
 	volatile Boolean running;
-	ClientEventHandler* clientHandler;
+	void runTickClock();
+protected:
+	std::map<SOCKET, Client*> clients;
 public:
 	/*****************
-	* SERVER EVENTS *
-	*****************/
-	void serverTick();
+	 * SERVER EVENTS *
+	 *****************/
+	void onTick(Double dt, Int ticksSkipped);
 
 	/***************************
-	* SERVER -> CLIENT EVENTS *
-	***************************/
+	 * SERVER -> CLIENT EVENTS *
+	 ***************************/
 	/* STATUS EVENTS */
 	void response(Client* client);
 	void pong(Client* client);
@@ -53,7 +59,7 @@ public:
 	void windowProperty(Client* client);
 	void setSlot(Client* client);
 	void setCooldown(Client* client);
-	void pluginMessage(Client* client);
+	void pluginMessage(Client* client, SerialString name, char* data, Int dataLen);
 	void namedSoundEffect(Client* client);
 	void disconnect(Client* client);
 	void entityStatus(Client* client);
@@ -62,6 +68,7 @@ public:
 	void changeGameState(Client* client);
 	void keepAlive(Client* client);
 	void chunkData(Client* client);
+	void chunkData(Client* client, Int x, Int z);
 	void effect(Client* client);
 	void particle(Client* client);
 	void joinGame(Client* client);
@@ -75,7 +82,7 @@ public:
 	void playerAbilities(Client* client);
 	void combatEvent(Client* client);
 	void playerListItem(Client* client);
-	void playerPositionAndLook(Client* client);
+	void playerPositionAndLook(Client* client, Double x, Double y, Double z, Float yaw, Float pitch, Byte flags);
 	void useBed(Client* client);
 	void destroyEntities(Client* client);
 	void removeEntityEffect(Client* client);
@@ -107,15 +114,19 @@ public:
 	void entityEffect(Client* client);
 
 	/* Constructors */
-	ServerEventHandler(ClientEventHandler* eventHandler = NULL);
+	ServerEventHandler();
 	~ServerEventHandler();
+
+	/* Our friend, the ClientEventHandler */
+	friend class ClientEventHandler;
 
 	/**********************************************************
 	 * These start and stop the server's tick loop.           *
 	 * They are needed to run logic outside of client events. *
+	 * The delay is in micro seconds                          *
 	 **********************************************************/
-	void startTick(Int delay);
-	void stopTick();
+	void startTickClock(Double delay = 0.05);
+	void stopTickClock();
 
 	/***********************************************************
 	 * ServerEventHandler :: triggerEvent                      *

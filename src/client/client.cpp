@@ -5,7 +5,7 @@
  * Client :: Client    *
  * Default constructor *
  ***********************/
-Client::Client(SOCKET newClient) : socket(newClient), state(Handshaking), protocol(0)
+Client::Client(SOCKET newClient) : socket(newClient), state(Handshaking)
 {
 	// Calculate the name
 	std::stringstream ss;

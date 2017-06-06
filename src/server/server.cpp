@@ -32,14 +32,22 @@ int sockQuit()
  * Server :: Server    *
  * Default Constructor *
  ***********************/
-Server::Server(ClientEventHandler* eventHandler) : listenSocket(INVALID_SOCKET), running(false), clientHandler(eventHandler)
+Server::Server(ClientEventHandler* clientEventHandler, ServerEventHandler* serverEventHandler)
+	: listenSocket(INVALID_SOCKET), running(false), clientHandler(clientEventHandler), serverHandler(serverEventHandler)
 {
-	// Create a default event handler if none was given
+	// Create a default server event handler if none was given
+	if (serverHandler == NULL)
+		serverHandler = new ServerEventHandler();
+
+	// Create a default client event handler if none was given
 	if (clientHandler == NULL)
-		clientHandler = new ClientEventHandler();
+		clientHandler = new ClientEventHandler(serverHandler);
 
 	// Initialize the network sockets
 	sockInit();
+
+	// Start up the server tick timer
+	serverHandler->startTickClock();
 }
 
 /********************
@@ -50,9 +58,13 @@ Server::~Server()
 {
 	stop();
 
-	// Delete the event handler
+	// Delete the client event handler
 	if (clientHandler != NULL)
 		delete clientHandler;
+
+	// Delete the server event handler
+	if (serverHandler != NULL)
+		delete serverHandler;
 
 	// Destroy the network sockets
 	sockQuit();

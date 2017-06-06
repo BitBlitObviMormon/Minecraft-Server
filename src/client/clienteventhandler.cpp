@@ -23,7 +23,7 @@ void ClientEventHandler::readPacket(Client* client, Byte* buffer, Int length)
 
 	// Check which state the client is currently in
 	int packid = varPack.toInt();
-	std::cout << packid << ": " << len << " bytes\n";
+	std::cout << "0x" << std::hex << packid << ": " << len << " bytes\n";
 	switch (client->state)
 	{
 	case Handshaking:
@@ -271,7 +271,14 @@ void ClientEventHandler::encryptionResponse(Client* client, Byte* buffer, Int le
  *****************************************/
 void ClientEventHandler::teleportConfirm(Client* client, Byte* buffer, Int length)
 {
+	// Just ignore the data for now, we don't care about the id
+	std::cout << client->name << " confirmed the teleport!\n";
 
+	// Update the client's inventory
+	serverHandler->windowItems(client);
+
+	// Give the client a complete rundown of the environment around them
+	serverHandler->chunkData(client);
 }
 
 /****************************************************
@@ -298,7 +305,7 @@ void ClientEventHandler::chatMessage(Client* client, Byte* buffer, Int length)
  ************************************************************************/
 void ClientEventHandler::clientStatus(Client* client, Byte* buffer, Int length)
 {
-
+	// Assume the client is opening its inventory
 }
 
 /*****************************************************
@@ -307,7 +314,42 @@ void ClientEventHandler::clientStatus(Client* client, Byte* buffer, Int length)
  *****************************************************/
 void ClientEventHandler::clientSettings(Client* client, Byte* buffer, Int length)
 {
+	// Interpret the first value as a string
+	SerialString locale = SerialString(buffer);
+	buffer += locale.getSize();
+	client->locale = locale.str();
 
+	// Interpret the second value as a Byte
+	client->viewDistance = *(buffer++);
+
+	// Interpret the third value as a VarInt
+	VarInt chatMode = VarInt(buffer);
+	buffer += chatMode.getSize();
+	client->chatMode = chatMode.toInt();
+
+	// Interpret the fourth value as a Boolean
+	client->chatColors = !!*(buffer++);
+
+	// Interpret the fifth value as a Byte
+	client->skinParts = *(buffer++);
+
+	// Interpret the sixth value as a VarInt
+	VarInt mainHand = VarInt(buffer);
+	client->mainHand = mainHand.toInt();
+
+	// Update the client's inventory
+	serverHandler->windowItems(client);
+
+	// Give the client a complete rundown of the environment around them
+	serverHandler->chunkData(client);
+
+	// Tell the client they're ready to spawn
+	serverHandler->playerPositionAndLook(client, 0.0, 60.0, 0.0, 0.0f, 0.0f, 0);
+	client->x = 0.0;
+	client->y = 60.0;
+	client->z = 0.0;
+	client->yaw = 0.0f;
+	client->pitch = 0.0f;
 }
 
 /*******************************************************************
@@ -352,7 +394,19 @@ void ClientEventHandler::closeWindow(Client* client, Byte* buffer, Int length)
  **********************************************************************************/
 void ClientEventHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 {
+	// Interpret the first value as a string
+	SerialString serial = SerialString(buffer);
+	buffer += serial.getSize();
+	String channel = serial.str();
 
+	// Decide which channel we received
+	if (channel == "MC|Brand")
+	{
+		// Expect the second value to be a string
+		client->brand = SerialString(buffer).str();
+	}
+	else	// We could not figure out the channel
+		std::cout << "Error: Unknown channel \"" << channel << "\"\n";
 }
 
 /*******************************************
@@ -388,7 +442,7 @@ void ClientEventHandler::playerPosition(Client* client, Byte* buffer, Int length
  *******************************************************/
 void ClientEventHandler::playerPositionAndLook(Client* client, Byte* buffer, Int length)
 {
-
+	// TODO: Do this here!
 }
 
 /**************************************************
@@ -540,7 +594,8 @@ void ClientEventHandler::useItem(Client* client, Byte* buffer, Int length)
  * ClientEventHandler :: ClientEventHandler *
  * Default Constructor                      *
  ********************************************/
-ClientEventHandler::ClientEventHandler() : running(false) {}
+ClientEventHandler::ClientEventHandler(ServerEventHandler* serverEventHandler)
+	: running(false), serverHandler(serverEventHandler) {}
 
 /********************************************
  * ClientEventHandler :: ClientEventHandler *
@@ -550,9 +605,6 @@ ClientEventHandler::~ClientEventHandler()
 {
 	// Stop the event handler
 	stop();
-
-	// Destroy the server's event handler
-	delete serverHandler;
 }
 
 /*************************************
@@ -562,7 +614,7 @@ ClientEventHandler::~ClientEventHandler()
 void ClientEventHandler::addClient(SOCKET newClient)
 {
 	// Add the client to the list of clients
-	clients.insert(std::make_pair(newClient, new Client(newClient)));
+	serverHandler->clients.insert(std::make_pair(newClient, new Client(newClient)));
 }
 
 /****************************************************
@@ -572,7 +624,7 @@ void ClientEventHandler::addClient(SOCKET newClient)
  ****************************************************/
 Client* ClientEventHandler::getClientFromSocket(SOCKET socket)
 {
-	return (*clients.find(socket)).second;
+	return (*serverHandler->clients.find(socket)).second;
 }
 
 /***********************************
@@ -587,10 +639,10 @@ void ClientEventHandler::start()
 	{
 		// Create a list of every client to listen to
 		fd_set clientList;
-		if (clients.size() > 0)
+		if (serverHandler->clients.size() > 0)
 		{
 			int i = 0;
-			for (std::map<SOCKET, Client*>::iterator it = clients.begin(); it != clients.end(); it++, i++)
+			for (std::map<SOCKET, Client*>::iterator it = serverHandler->clients.begin(); it != serverHandler->clients.end(); it++, i++)
 				clientList.fd_array[i] = it->first;
 			clientList.fd_count = i;
 			timeval timeout;
