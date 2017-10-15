@@ -445,10 +445,7 @@ Chat::Chat(Byte* data) : SerialString(data) {}
  * Chat :: Chat                  *
  * Constructor from UTF-8 String *
  *********************************/
-Chat::Chat(String text) : SerialString()
-{
-	// TODO: Create the Chat here
-}
+Chat::Chat(const String& text) : SerialString(text) {}
 
 /*****************
  * Chat :: ~Chat *
@@ -456,68 +453,69 @@ Chat::Chat(String text) : SerialString()
  *****************/
 Chat::~Chat() { if (data != NULL) { delete[] data; data = NULL; } }
 
-/************************
- * Position :: Position *
- * Default Constructor  *
- ************************/
-Position::Position() : data(0) {}
+/**************************************
+ * Serial Position :: Serial Position *
+ * Default Constructor                *
+ **************************************/
+SerialPosition::SerialPosition(Long data) : data(data) {}
 
-/****************************
- * Position :: Position     *
- * Constructor from 3 Ints  *
- ****************************/
-Position::Position(Int x, Int y, Int z) 
+/**************************************
+ * Serial Position :: Serial Position *
+ * Constructor from 3 Ints            *
+ **************************************/
+SerialPosition::SerialPosition(Int x, Int y, Int z) 
 {
 	data = ((Long)(x & 0x3FFFFFF) << 38) | ((Long)(y & 0xFFF) << 26) | (Long)(z & 0x3FFFFFF);
 }
 
-/*************************
- * Position :: ~Position *
- * Destructor            *
- *************************/
-Position::~Position() {}
+/*************************************
+ * SerialPosition :: ~SerialPosition *
+ * Destructor                        *
+ *************************************/
+SerialPosition::~SerialPosition() {}
+
+/**************************
+ * SerialPosition :: getX *
+ * Get the X coordinate   *
+ **************************/
+const Int SerialPosition::getX() const { return data >> 38; }
+
+/**************************
+ * SerialPosition :: getY *
+ * Get the Y coordinate   *
+ **************************/
+const Int SerialPosition::getY() const { return (data >> 26) & 0xFFF; }
+
+/**************************
+ * SerialPosition :: getZ *
+ * Get the Z coordinate   *
+ **************************/
+const Int SerialPosition::getZ() const { return data << 38 >> 38; }
+
+/*****************************
+ * SerialPosition :: getdata *
+ * Returns the raw data      *
+ *****************************/
+const Long SerialPosition::getData() const { return data; }
+
+/********************************
+ * SerialPosition :: toPosition *
+ * Returns the position         *
+ ********************************/
+const Position SerialPosition::toPosition() const { return Position(getX(), getY(), getZ()); }
+
 
 /************************
- * Position :: getX     *
- * Get the X coordinate *
+ * Position :: Position *
+ * Default Constructor  *
  ************************/
-const Int Position::getX() const { return data >> 38; }
+Position::Position(Int x, Int y, Int z) : x(x), y(y), z(z) {}
 
-/************************
- * Position :: getY     *
- * Get the Y coordinate *
- ************************/
-const Int Position::getY() const { return (data >> 26) & 0xFFF; }
-
-/************************
- * Position :: getZ     *
- * Get the Z coordinate *
- ************************/
-const Int Position::getZ() const { return data << 38 >> 38; }
-
-/************************
- * Position :: getdata  *
- * Returns the raw data *
- ************************/
-const Long Position::getData() const { return data; }
-
-/***********************
- * Angle :: Angle      *
- * Default Constructor *
- ***********************/
-Angle::Angle() {}
-
-/*************************
- * Angle :: Angle        *
- * Constructor from Byte *
- *************************/
-Angle::Angle(Byte angle) : angle(angle) {}
-
-/*******************
- * Angle :: ~Angle *
- * Destructor      *
- *******************/
-Angle::~Angle() {}
+/**************************
+ * PositionF :: PositionF *
+ * Default Constructor    *
+ **************************/
+PositionF::PositionF(Double x, Double y, Double z) : x(x), y(y), z(z) {}
 
 /***********************
  * UUID :: UUID        *
@@ -548,12 +546,24 @@ void UUID::recalculate(Client* client)
 	v2 = 0;
 }
 
-/************************
-* UUID :: ~UUID         *
-* Returns a UUID String *
-*************************/
-const String UUID::str()
+/*************************
+ * UUID :: str           *
+ * Returns a UUID String *
+ *************************/
+const String UUID::str() const
 {
 	// TODO: Generate UUID Strings
 	return "00000000-0000-3000-0000-000000000000";
 }
+
+/**************************
+ * UUID :: getFirst       *
+ * Returns the first long *
+ **************************/
+const Long UUID::getFirst() const { return v1; }
+
+/***************************
+ * UUID :: getSecond       *
+ * Returns the second long *
+ ***************************/
+const Long UUID::getSecond() const { return v2; }

@@ -6,8 +6,11 @@ using namespace std;
 /* Main entry point for the server */
 int main()
 {
-	Server* server = new Server();
+	EventHandler* eventHandler = new EventHandler();
+	NetworkHandler* networkHandler = new NetworkHandler(eventHandler);
+	Server server = Server(eventHandler, networkHandler);
 
+	/*
 	// Test the VarInts
 	VarInt a1(0);
 	VarInt a2(1);
@@ -52,8 +55,9 @@ int main()
 	cout << (Long)b9.getSize() << ", " << b9.toLong() << endl;
 	cout << (Long)ba.getSize() << ", " << ba.toLong() << endl;
 	cout << (Long)bb.getSize() << ", " << bb.toLong() << "\n\n";
+	*/
 
-	server->start();
+	server.start();
 
 	return 0;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include "clientevents.h"
 #include "../data/datatypes.h"
 #include "../server/serverstate.h"
 
@@ -20,26 +21,26 @@
 class Client
 {
 public:
-	String name;		  // The name of the player
-	String locale;		  // The language the player is set to
-	String brand;		  // The type of client (usually vanilla unless modded)
-	UUID uuid;			  // The unique id assigned to the player
-	Long uptime;		  // How many ticks the player was connected
-	Double x;			  // The player's absolute x position
-	Double y;			  // The player's absolute y position
-	Double z;			  // The player's absolute z position
-	Float yaw;			  // The player camera's yaw angle
-	Float pitch;		  // The player camera's pitch angle
-	SOCKET socket;		  // The socket the player is currently connected on
-	Int ticksSinceUpdate; // How many ticks it's been since a ping
-	Int protocol;		  // The network protocol the client is using
-	Int entityID;		  // The player's unique entity id
-	ServerState state;	  // Whether the player is connecting or playing
-	Byte viewDistance;	  // How far the player's client is set to view
-	Byte chatMode;		  // What kind of chat / command output the client receives
-	UByte skinParts;	  // Which skin parts are visible on the player model
-	Byte mainHand;		  // Which hand is the player's main hand
-	Boolean chatColors;	  // Whether to send chat colors or not
+	MainHand mainHand;			  // Which hand is the player's main hand
+	Boolean chatColors;			  // Whether to send chat colors or not
+	ChatMode chatMode;			  // What kind of chat / command output the client receives
+	ServerState state;			  // Whether the player is connecting or playing
+	Byte viewDistance;			  // How far the player's client is set to view
+	DisplayedSkinParts skinParts; // Which skin parts are visible on the player model
+	Int ticksSinceUpdate;		  // How many ticks it's been since a ping
+	Int protocolVersion;		  // The version of the network protocol the client is using
+	Int entityID;				  // The player's unique entity id
+	SOCKET socket;				  // The socket the player is currently connected on
+	Float yaw;					  // The player camera's yaw angle
+	Float pitch;				  // The player camera's pitch angle
+	Double x;					  // The player's absolute x position
+	Double y;					  // The player's absolute y position
+	Double z;					  // The player's absolute z position
+	Long uptime;				  // How many ticks the player was connected
+	UUID uuid;					  // The unique id assigned to the player
+	String name;				  // The name of the player
+	String locale;				  // The language the player is using (ie. en_US)
+	String brand;				  // The type of client (usually vanilla unless modded)
 public:
 	Client(SOCKET newClient = NULL);
 	~Client();

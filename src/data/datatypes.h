@@ -23,6 +23,7 @@ typedef uint64_t ULong;
 typedef float Float;
 typedef double Double;
 typedef std::string String;
+class Client;
 
 /**************************
  * VarNum                 *
@@ -106,7 +107,7 @@ class Chat : public SerialString
 {
 public:
 	Chat(Byte* data = NULL);
-	Chat(String text);
+	Chat(const String& text);
 	~Chat();
 };
 
@@ -116,16 +117,43 @@ public:
  *****************************/
 class Position
 {
+public:
+	Int x;
+	Int y;
+	Int z;
+	Position(Int x = 0, Int y = 0, Int z = 0);
+};
+
+/*****************************
+ * Position (Float)          *
+ * The position of an object *
+ *****************************/
+class PositionF
+{
+public:
+	Double x;
+	Double y;
+	Double z;
+	PositionF(Double x = 0, Double y = 0, Double z = 0);
+};
+
+/*****************************
+ * SerialPosition            *
+ * The position of an object *
+ *****************************/
+class SerialPosition
+{
 private:
 	Long data;
 public:
-	Position();
-	Position(Int x, Int y, Int z);
-	~Position();
+	SerialPosition(Long data = 0);
+	SerialPosition(Int x, Int y, Int z);
+	~SerialPosition();
 	const Int getX() const;
 	const Int getY() const;
 	const Int getZ() const;
 	const Long getData() const;
+	const Position toPosition() const;
 };
 
 /**************************
@@ -136,16 +164,12 @@ class Angle
 {
 public:
 	Byte angle;
-	Angle();
-	Angle(Byte angle);
-	~Angle();
 };
 
 /*******************************
  * UUID                        *
  * An unsigned 128-bit integer *
  *******************************/
-class Client;
 class UUID
 {
 private:
@@ -156,7 +180,9 @@ public:
 	UUID(Client* client);
 	~UUID();
 	void recalculate(Client* client);
-	const String str();
+	const String str() const;
+	const Long getFirst() const;
+	const Long getSecond() const;
 };
 
 /************************
@@ -166,6 +192,25 @@ public:
 class ChunkSection
 {
 private:
+public:
+	// TODO: Create ChunkSection
+};
+
+/************************
+ * SerialChunkSection   *
+ * A section of a chunk *
+ * optimized for space  *
+ ************************/
+class SerialChunkSection
+{
+private:
+	UByte bitsPerBlock;
+	Int paletteLength;
+	VarInt* palette;
+	Int dataArrayLength;
+	Long* dataArray;
+	Byte* blockLight;
+	Byte* skyLight;
 public:
 	// TODO: Create ChunkSection
 };

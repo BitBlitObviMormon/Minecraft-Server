@@ -24,13 +24,22 @@
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clienteventhandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\servereventhandler.cpp">
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\networkhandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverevents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,16 +50,25 @@
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clienteventhandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\servereventhandler.h">
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\networkhandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverevents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

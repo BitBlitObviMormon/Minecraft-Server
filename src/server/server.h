@@ -1,6 +1,6 @@
 #pragma once
 #include "../data/datatypes.h"
-#include "../client/clienteventhandler.h"
+#include "networkhandler.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -22,16 +22,16 @@ class Server
 protected:
 	volatile Boolean running;	// Used to tell the server to shut down
 	SOCKET listenSocket;
-	ClientEventHandler* clientHandler;
-	ServerEventHandler* serverHandler;
+	NetworkHandler* networkHandler;
+	EventHandler* eventHandler;
 protected:
 	int listenForClients();
 	int acceptClients();
 	void addClient();
 public:
-	Server(ClientEventHandler* clientEventHandler = NULL, ServerEventHandler* serverEventHandler = NULL);
+	Server(EventHandler* eventHandler = NULL, NetworkHandler* networkHandler = NULL);
 	~Server();
-	void start();
-	void startAsync();
+	void start(Double tps = 20.0);
+	void startAsync(Double tps = 20.0);
 	void stop();
 };

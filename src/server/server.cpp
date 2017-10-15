@@ -6,48 +6,42 @@
  * sockInit              *
  * Starts up the sockets *
  *************************/
-int sockInit()
-{
 #ifdef _WIN32
-	return WSAStartup(MAKEWORD(2, 2), &WSAData());
+#define sockInit() WSAStartup(MAKEWORD(2, 2), &WSAData())
 #else
-	return 1;
+#define sockInit() 1
 #endif
-}
 
 /************************
  * sockQuit             *
  * Destroys the sockets *
  ************************/
-int sockQuit()
-{
 #ifdef _WIN32
-	return WSACleanup();
+#define sockQuit() WSACleanup()
 #else
-	return 1;
+#define sockQuit() 1
 #endif
-}
 
 /***********************
  * Server :: Server    *
  * Default Constructor *
  ***********************/
-Server::Server(ClientEventHandler* clientEventHandler, ServerEventHandler* serverEventHandler)
-	: listenSocket(INVALID_SOCKET), running(false), clientHandler(clientEventHandler), serverHandler(serverEventHandler)
+Server::Server(EventHandler* eventHandler, NetworkHandler* networkHandler)
+	: listenSocket(INVALID_SOCKET), running(false), networkHandler(networkHandler), eventHandler(eventHandler)
 {
 	// Create a default server event handler if none was given
-	if (serverHandler == NULL)
-		serverHandler = new ServerEventHandler();
+	if (eventHandler == NULL)
+		eventHandler = new EventHandler();
 
 	// Create a default client event handler if none was given
-	if (clientHandler == NULL)
-		clientHandler = new ClientEventHandler(serverHandler);
+	if (networkHandler == NULL)
+		networkHandler = new NetworkHandler(eventHandler);
 
 	// Initialize the network sockets
 	sockInit();
 
 	// Start up the server tick timer
-	serverHandler->startTickClock();
+	eventHandler->startTickClock();
 }
 
 /********************
@@ -59,12 +53,12 @@ Server::~Server()
 	stop();
 
 	// Delete the client event handler
-	if (clientHandler != NULL)
-		delete clientHandler;
+	if (networkHandler != NULL)
+		delete networkHandler;
 
 	// Delete the server event handler
-	if (serverHandler != NULL)
-		delete serverHandler;
+	if (eventHandler != NULL)
+		delete eventHandler;
 
 	// Destroy the network sockets
 	sockQuit();
@@ -155,21 +149,24 @@ void Server::addClient()
 	std::cout << "Found client.\n";
 
 	// Set up the Client event network
-	clientHandler->addClient(client);
+	networkHandler->addClient(client);
 }
 
 /*********************
  * Server :: start   *
  * Starts the server *
  *********************/
-void Server::start()
+void Server::start(Double tps)
 {
 	// Begin listening for clients
 	running = true;
 	listenForClients();
 
 	// Start up the client handler on a different thread
-	clientHandler->startAsync();
+	networkHandler->startAsync();
+
+	// Start up the server event handler's clock on a different thread
+	eventHandler->startTickClock(1.0 / tps);
 
 	// Begin accepting clients
 	acceptClients();
@@ -179,7 +176,7 @@ void Server::start()
  * Server :: startAsync                    *
  * Starts the server on a different thread *
  *******************************************/
-void Server::startAsync() { new std::thread(&Server::start, this); }
+void Server::startAsync(Double tps) { new std::thread(&Server::start, this, tps); }
 
 /*************************
  * Server :: stop        *
@@ -187,7 +184,7 @@ void Server::startAsync() { new std::thread(&Server::start, this); }
  *************************/
 void Server::stop()
 {
-	if (clientHandler != NULL)
-		clientHandler->stop();
+	if (networkHandler != NULL)
+		networkHandler->stop();
 	running = false;
 }
