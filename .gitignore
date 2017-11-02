@@ -1,3 +1,7 @@
+# Text editor backup files
+*~
+\#*#
+
 # User-specific files - Visual Studio
 *.suo
 *.user
@@ -7,11 +11,15 @@
 Thumbs.db
 
 # Visual Studio build files
-windows/[Dd]ebug/
-windows/[Rr]elease/
+MSVS-2017/[Dd]ebug/
+MSVS-2017/[Rr]elease/
+MSVS-2013/[Dd]ebug/
+MSVS-2013/[Rr]elease/
 
 # Visual C++ cache files
-windows/ipch/
+MSVS-2017/.vs/
+MSVS-2017/ipch/
+MSVS-2013/ipch/
 *.aps
 *.ncb
 *.opensdf

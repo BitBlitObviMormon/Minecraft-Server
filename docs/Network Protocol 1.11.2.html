@@ -1899,7 +1899,7 @@ if z &gt;= 2^25 { z -= 2^26 }
 <li> <b>5</b>: Set type of flower in flower pot</li>
 <li> <b>6</b>: Set base color and patterns on a banner</li>
 <li> <b>7</b>: Set the data for a Structure tile entity</li>
-<li> <b>8</b>: Set the destination for a end gateway</li>
+<li> <b>8</b>: Set the destination for an end gateway</li>
 <li> <b>9</b>: Set the text on a sign</li>
 <li> <b>10</b>: Declare a shulker box (unclear if there is any actual data)</li></ul>
 <h4><span class="mw-headline" id="Block_Action">Block Action</span></h4>
@@ -6525,14 +6525,14 @@ if z &gt;= 2^25 { z -= 2^26 }
 </td>
 <td> <a href="http://wiki.vg/Chat" title="Chat">Chat</a>
 </td>
-<td> To remove the header, send a empty translatable component: {"translate":""}
+<td> To remove the header, send an empty translatable component: {"translate":""}
 </td></tr>
 <tr>
 <td> Footer
 </td>
 <td> <a href="http://wiki.vg/Chat" title="Chat">Chat</a>
 </td>
-<td> To remove the footer, send a empty translatable component: {"translate":""}
+<td> To remove the footer, send an empty translatable component: {"translate":""}
 </td></tr></tbody></table>
 <h4><span class="mw-headline" id="Collect_Item">Collect Item</span></h4>
 <p>Sent by the server when someone picks up an item lying on the ground — its sole purpose appears to be the animation of the item flying towards you. It doesn't destroy the entity in the client memory, and it doesn't add it to your inventory. The server only checks for items to be picked up after each <a href="./Network Protocol 1.11.2.html#Player_Position">Player Position</a> (and <a href="./Network Protocol 1.11.2.html#Player_Position_And_Look">Player Position And Look</a>) packet sent by the client.

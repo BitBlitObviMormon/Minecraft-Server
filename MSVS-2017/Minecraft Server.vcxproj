@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,13 +18,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -64,29 +64,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\blockentities.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\main.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\networkhandler.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.cpp" />
-    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverevents.cpp" />
+    <ClCompile Include="..\src\client\client.cpp" />
+    <ClCompile Include="..\src\client\clientevents.cpp" />
+    <ClCompile Include="..\src\data\datatypes.cpp" />
+    <ClCompile Include="..\src\data\entity\blockentities.cpp" />
+    <ClCompile Include="..\src\data\entity\entities.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\server\eventhandler.cpp" />
+    <ClCompile Include="..\src\server\networkhandler.cpp" />
+    <ClCompile Include="..\src\server\server.cpp" />
+    <ClCompile Include="..\src\server\serverevents.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\blockentities.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\misc\deprecated.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\networkhandler.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverevents.h" />
-    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\serverstate.h" />
+    <ClInclude Include="..\src\client\client.h" />
+    <ClInclude Include="..\src\client\clientevents.h" />
+    <ClInclude Include="..\src\data\datatypes.h" />
+    <ClInclude Include="..\src\data\entity\blockentities.h" />
+    <ClInclude Include="..\src\data\entity\entities.h" />
+    <ClInclude Include="..\src\misc\deprecated.h" />
+    <ClInclude Include="..\src\server\eventhandler.h" />
+    <ClInclude Include="..\src\server\networkhandler.h" />
+    <ClInclude Include="..\src\server\server.h" />
+    <ClInclude Include="..\src\server\serverevents.h" />
+    <ClInclude Include="..\src\server\serverstate.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

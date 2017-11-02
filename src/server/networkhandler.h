@@ -2,6 +2,7 @@
 
 #include "../client/client.h"
 #include "../data/entity/entities.h"
+#include "../data/entity/blockentities.h"
 #include "serverevents.h"
 #include "eventhandler.h"
 
