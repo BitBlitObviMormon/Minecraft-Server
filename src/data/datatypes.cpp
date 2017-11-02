@@ -567,3 +567,131 @@ const Long UUID::getFirst() const { return v1; }
  * Returns the second long *
  ***************************/
 const Long UUID::getSecond() const { return v2; }
+
+/*****************************************************************
+ * ChunkSection :: setBlock                                      *
+ * Sets the block at the specified index to the specified id     *
+ * Any block id that is < 0 or > 4095 causes undefined behavior! *
+ *****************************************************************/
+void ChunkSection::setBlock(int index, Short blockid)
+{
+	// Create a new array when necessary
+	if (!blocks)
+		fillBlocks();
+
+	// Set the block to the new block and the current block state
+	blocks[index] = (blocks[index] & 0xF) | (blockid << 4);
+}
+
+/*****************************************************************************
+ * ChunkSection :: setBlock                                                  *
+ * Sets the block at the specified index to the specified id and block state *
+ * Any block id that is < 0 or > 4095 causes undefined behavior!             *
+ * Any block state that is < 0 or > 15 causes undefined behavior!            *
+ *****************************************************************************/
+void ChunkSection::setBlock(int index, Short blockid, Byte blockstate)
+{
+	// Create a new array when necessary
+	if (!blocks)
+		fillBlocks();
+
+	// Set the block to the new block and the current block state
+	blocks[index] = (blockid << 4) | blockstate;
+}
+
+/*******************************************************************
+ * ChunkSection :: setBlockState                                   *
+ * Sets the block state at the specified index to the specified id *
+ * Any block state that is < 0 or > 15 causes undefined behavior!  *
+ *******************************************************************/
+void ChunkSection::setBlockState(int index, Byte blockstate)
+{
+	// Create a new array when necessary
+	if (!blocks)
+		fillBlocks();
+
+	// Set the block to the current block with the new block state
+	blocks[index] = (blocks[index] & 0xFFF0) | blockstate;
+}
+
+/*********************************************************************
+ * ChunkSection :: setBlockLighting                                  *
+ * Sets the block lighting at the specified index to the given value *
+ * Any value that is < 0 or > 15 causes undefined behavior!          *
+ *********************************************************************/
+void ChunkSection::setBlockLighting(int index, Byte value)
+{
+	// Create a new array when necessary
+	if (!lights)
+		fillLighting();
+
+	// Set the lighting to the new block lighting and the current sky lighting
+	lights[index] = (lights[index] & 0xF) | (value << 4);
+}
+
+/*******************************************************************
+ * ChunkSection :: setSkyLighting                                  *
+ * Sets the sky lighting at the specified index to the given value *
+ * Any value that is < 0 or > 15 causes undefined behavior!        *
+ *******************************************************************/
+void ChunkSection::setSkyLighting(int index, Byte value)
+{
+	// Create a new array when necessary
+	if (!lights)
+		fillLighting();
+
+	// Set the lighting to the current block lighting and the new sky lighting
+	lights[index] = (lights[index] & 0xF0) | value;
+}
+
+/****************************************************************
+ * ChunkSection :: setLighting                                  *
+ * Sets the lighting at the specified index to the given values *
+ * Any value that is < 0 or > 15 causes undefined behavior!     *
+ ****************************************************************/
+void ChunkSection::setLighting(int index, Byte blockLightValue, Byte skyLightValue)
+{
+	// Create a new array when necessary
+	if (!lights)
+		fillLighting();
+
+	// Set the lighting to the current block lighting and the new sky lighting
+	lights[index] = (blockLightValue << 4) | skyLightValue;
+}
+
+/******************************************************************
+ * ChunkSection :: fillBlocks                                     *
+ * Fills the chunk with the given block and block state           *
+ * Any block id that is < 0 or > 4095 causes undefined behavior!  *
+ * Any block state that is < 0 or > 15 causes undefined behavior! *
+ ******************************************************************/
+void ChunkSection::fillBlocks(Short blockid, Byte blockstate)
+{
+	// Create a new array when necessary
+	if (!blocks)
+		blocks = new Short[4096];
+
+	Short value = (blockid << 4) | blockstate;
+
+	// Set every block to the given block state and id
+	for (int i = 0; i < 4096; i++)
+		blocks[i] = value;
+}
+
+/************************************************************
+ * ChunkSection :: fillLighting                             *
+ * Sets all of the lighting to the given values             *
+ * Any value that is < 0 or > 15 causes undefined behavior! *
+ ************************************************************/
+void ChunkSection::fillLighting(Byte blockLightValue, Byte skyLightValue)
+{
+	// Create a new array when necessary
+	if (!lights)
+		lights = new Byte[4096];
+
+	Byte value = (blockLightValue << 4) | skyLightValue;
+
+	// Set all of the lighting to the given block and sky lighting values
+	for (int i = 0; i < 4096; i++)
+		lights[i] = value;
+}

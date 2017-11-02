@@ -68,7 +68,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	std::cout << client->name << ": 0x" << std::hex << packid << " - " << std::dec << len << " bytes\n";
 	switch (client->state)
 	{
-	case Handshaking:
+	case ServerState::Handshaking:
 		// Check which packet the client was referring to
 		switch (packid)
 		{
@@ -83,7 +83,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 			break;
 		}
 		break;
-	case Status:
+	case ServerState::Status:
 		switch (packid)
 		{
 		case 0x00:	// Request
@@ -97,7 +97,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 			break;
 		}
 		break;
-	case Login:
+	case ServerState::Login:
 		switch (packid)
 		{
 		case 0x00:	// Login Start
@@ -111,7 +111,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 			break;
 		}
 		break;
-	case Play:
+	case ServerState::Play:
 		switch (packid)
 		{
 		case 0x00:	// Teleport Confirm
@@ -870,6 +870,8 @@ void NetworkHandler::start()
 				std::cout << "Error receiving client message: " << WSAGetLastError() << "\n";
 			}
 		}
+		else
+			Sleep(100); // TODO: Replace with conditional wakeup from Server->listenForClients
 	}
 }
 

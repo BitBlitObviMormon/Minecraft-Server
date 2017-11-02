@@ -166,7 +166,7 @@ void EventHandler::invalidLength(InvalidLengthEventArgs e)
  *************************************************/
 void EventHandler::handshake(HandShakeEventArgs e)
 {
-	if (e.state != Login && e.state != Status)
+	if (e.state != ServerState::Login && e.state != ServerState::Status)
 		;	// TODO: Disconnect the user
 }
 

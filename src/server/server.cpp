@@ -82,7 +82,6 @@ int Server::listenForClients()
 	int port = 1234;
 	sockaddr_in server = *new sockaddr_in;
 	server.sin_family = AF_INET;
-//	server.sin_addr.S_un.S_addr = inet_addr("0.0.0.0");
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
 	server.sin_port = htons(port);
 	if (bind(listenSocket, (SOCKADDR*)&server, sizeof(server)) == SOCKET_ERROR)

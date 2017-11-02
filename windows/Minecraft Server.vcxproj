@@ -67,6 +67,7 @@
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.cpp" />
+    <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\blockentities.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\main.cpp" />
     <ClCompile Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.cpp" />
@@ -78,7 +79,9 @@
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\client.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\client\clientevents.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\datatypes.h" />
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\blockentities.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\data\entity\entities.h" />
+    <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\misc\deprecated.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\eventhandler.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\networkhandler.h" />
     <ClInclude Include="..\..\..\..\..\Jason%27s Hot Stuff\Desktop\Git Projects\Minecraft Server\src\server\server.h" />

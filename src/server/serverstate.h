@@ -1,5 +1,5 @@
 #pragma once
-enum ServerState
+enum class ServerState
 {
 	Handshaking = 0, 
 	Status = 1,

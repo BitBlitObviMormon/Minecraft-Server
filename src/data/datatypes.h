@@ -188,19 +188,51 @@ public:
 /************************
  * ChunkSection         *
  * A section of a chunk *
+ * optimized for memory *
  ************************/
+class SerialChunkSection;
 class ChunkSection
 {
 private:
+	// If the chunk is empty, the block array is null
+	Byte*  lights; // First nibble is block lighting; second nibble is sky lighting
+	Short* blocks; // First 3 nibbles is block; last nibble is block data
 public:
+	ChunkSection() : lights(NULL), blocks(NULL) {}
+	~ChunkSection() { if (lights) delete[] lights; if (blocks) delete[] blocks; }
+	Boolean empty() { return !blocks; }
+	void deleteBlocks() { if (blocks) delete[] blocks; blocks = NULL; }
+	void deleteLights() { if (lights) delete[] lights; lights = NULL; }
+	Short getBlock(int index) { return blocks[index] & 0xFFF0; }
+	Byte getBlockState(int index) { return blocks[index] & 0xF; }
+	Byte getBlockLighting(int index) { return lights[index] & 0xF0; }
+	Byte getSkyLighting(int index) { return lights[index] & 0xF; }
+	Short getBlock(int x, int y, int z) { return getBlock(z * 256 + y * 16 + x); }
+	Byte getBlockState(int x, int y, int z) { return getBlockState(z * 256 + y * 16 + x); }
+	Byte getBlockLighting(int x, int y, int z) { return getBlockLighting(z * 256 + y * 16 + x); }
+	Byte getSkyLighting(int x, int y, int z) { return getSkyLighting(z * 256 + y * 16 + x); }
+	void setBlock(int index, Short blockid);
+	void setBlock(int index, Short blockid, Byte blockstate);
+	void setBlockState(int index, Byte blockstate);
+	void setBlockLighting(int index, Byte value);
+	void setSkyLighting(int index, Byte value);
+	void setLighting(int index, Byte blockLightValue, Byte skyLightValue);
+	void setBlock(int x, int y, int z, Short blockid) { setBlock(z * 256 + y * 16 + x, blockid); }
+	void setBlock(int x, int y, int z, Short blockid, Byte blockstate) { setBlock(z * 256 + y * 16 + x, blockid, blockstate); }
+	void setBlockState(int x, int y, int z, Byte blockstate) { setBlockState(z * 256 + y * 16 + x, blockstate); }
+	void setBlockLighting(int x, int y, int z, Byte value) { setBlockLighting(z * 256 + y * 16 + x, value); }
+	void setSkyLighting(int x, int y, int z, Byte value) { setSkyLighting(z * 256 + y * 16 + x, value); }
+	void setLighting(int x, int y, int z, Byte blockLightValue, Byte skyLightValue) { setLighting(z * 256 + y * 16 + x, blockLightValue, skyLightValue); }
+	void fillBlocks(Short blockid = 0, Byte blockstate = 0);
+	void fillLighting(Byte blockLightValue = 0, Byte skyLightValue = 15);
 	// TODO: Create ChunkSection
 };
 
-/************************
- * SerialChunkSection   *
- * A section of a chunk *
- * optimized for space  *
- ************************/
+/**************************
+ * SerialChunkSection     *
+ * A section of a chunk   *
+ * optimized for networks *
+ **************************/
 class SerialChunkSection
 {
 private:
@@ -209,8 +241,8 @@ private:
 	VarInt* palette;
 	Int dataArrayLength;
 	Long* dataArray;
-	Byte* blockLight;
-	Byte* skyLight;
+	Byte* blockLights;
+	Byte* skyLights;
 public:
 	// TODO: Create ChunkSection
 };

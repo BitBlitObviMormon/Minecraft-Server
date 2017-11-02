@@ -215,28 +215,11 @@ public:
 	String title;
 };
 
+/*******************
+ * Player          *
+ * A player entity *
+ *******************/
 class Player : public Entity
 {
 public:
-};
-
-enum class BlockEntityType
-{
-	MobSpawner = 1,
-	CommandBlock = 2,
-	Beacon = 3,
-	MobHead = 4,
-	FlowerPot = 5,
-	Banner = 6,
-	StructureTile = 7,
-	EndGateway = 8,
-	Sign = 9,
-	ShulkerBox = 10
-};
-
-class BlockEntity
-{
-public:
-	Position pos;
-	BlockEntityType type;
 };
