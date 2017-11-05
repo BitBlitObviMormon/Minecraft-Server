@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include "vld.h"
 
 // Size definitions
 #define VARINT_MAX_SIZE			5
@@ -148,6 +149,7 @@ private:
 public:
 	SerialPosition(Long data = 0);
 	SerialPosition(Int x, Int y, Int z);
+	SerialPosition(Position pos);
 	~SerialPosition();
 	const Int getX() const;
 	const Int getY() const;

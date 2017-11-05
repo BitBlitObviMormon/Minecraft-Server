@@ -468,6 +468,12 @@ SerialPosition::SerialPosition(Int x, Int y, Int z)
 	data = ((Long)(x & 0x3FFFFFF) << 38) | ((Long)(y & 0xFFF) << 26) | (Long)(z & 0x3FFFFFF);
 }
 
+/**************************************
+ * Serial Position :: Serial Position *
+ * Constructor from Position          *
+ **************************************/
+SerialPosition::SerialPosition(Position pos) { SerialPosition(pos.x, pos.y, pos.z); }
+
 /*************************************
  * SerialPosition :: ~SerialPosition *
  * Destructor                        *

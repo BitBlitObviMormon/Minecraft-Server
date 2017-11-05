@@ -5,6 +5,7 @@
 #include "../data/entity/blockentities.h"
 #include "serverevents.h"
 #include "eventhandler.h"
+#include "vld.h"
 
 class EventHandler;
 class NetworkHandler
@@ -113,7 +114,7 @@ public:
 	void sendChunkData(Client* client); // TODO: Add args
 	void sendEffect(Client* client, EffectID effectID, Position pos, Int data = 0, Boolean disableRelativeVolume = false);
 	void sendParticle(Client* client, Particle particle, Int num, Byte* data = NULL, Int dataLen = 0);
-	void sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte MaxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);
+	void sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);
 	void sendMap(Client* client, Map map);
 	void sendEntityRelativeMove(Client* client, Int entityID, PositionF deltaPos, Boolean isOnGround);
 	void sendEntityLookAndRelativeMove(Client* client, Int entityID, PositionF deltaPos, Byte yaw, Byte pitch, Boolean isOnGround);

@@ -1,6 +1,7 @@
 #pragma once
 #include "../server/serverstate.h"
 #include "../data/datatypes.h"
+#include "vld.h"
 
 class Client;
 class ClientEventArgs
@@ -276,6 +277,9 @@ public:
 	Boolean canFly;
 	Boolean isFlying;
 	Boolean isCreative;
+	PlayerAbilities(Boolean invulnerable = false, Boolean canFly = false, Boolean isFlying = false, Boolean isCreative = false)
+		: invulnerable(invulnerable), canFly(canFly), isFlying(isFlying), isCreative(isCreative) {}
+	Byte getFlags() { return invulnerable << 3 || canFly << 2 || isFlying << 1 || isCreative; }
 };
 
 class PlayerAbilitiesEventArgs : public ClientEventArgs

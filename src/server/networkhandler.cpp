@@ -44,6 +44,64 @@ Short parseShort(Byte* data)
 	return (data[0] << 8) + data[1];
 }
 
+/***************************
+ * writeDouble             *
+ * Writes a double to data *
+ ***************************/
+// TODO: Verify cross-platform validity
+void writeDouble(String& data, Double num)
+{
+	data.append((char*)&num, 8);
+}
+
+/**************************
+ * writeFloat             *
+ * Writes a float to data *
+ **************************/
+// TODO: Verify cross-platform validity
+void writeFloat(String& data, Float num)
+{
+	data.append((char*)&num, 4);
+}
+
+/*************************
+ * writeLong             *
+ * Writes a long to data *
+ *************************/
+void writeLong(String& data, Long num)
+{
+	data.append(1, (num >> 56) & 0xFF);
+	data.append(1, (num >> 48) & 0xFF);
+	data.append(1, (num >> 40) & 0xFF);
+	data.append(1, (num >> 32) & 0xFF);
+	data.append(1, (num >> 24) & 0xFF);
+	data.append(1, (num >> 16) & 0xFF);
+	data.append(1, (num >> 8) & 0xFF);
+	data.append(1, num & 0xFF);
+}
+
+/*************************
+ * writeInt              *
+ * Writes an int to data *
+ *************************/
+void writeInt(String& data, Int num)
+{
+	data.append(1, (num >> 24) & 0xFF);
+	data.append(1, (num >> 16) & 0xFF);
+	data.append(1, (num >> 8) & 0xFF);
+	data.append(1, num & 0xFF);
+}
+
+/**************************
+ * writeShort             *
+ * Writes a short to data *
+ **************************/
+void writeShort(String& data, Short num)
+{
+	data.append(1, (num >> 8) & 0xFF);
+	data.append(1, num & 0xFF);
+}
+
 /*************************************************************
  * NetworkHandler :: readPacket                              *
  * Reads the packet and fires off any events it gets from it *
@@ -238,6 +296,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 
 		// Read the next packet
 		readPacket(client, tempBuf, length);
+//		delete[] tempBuf;
 	}
 
 	// Delete the buffer passed
@@ -352,7 +411,7 @@ void NetworkHandler::loginStart(Client* client, Byte* buffer, Int length)
 	LoginStartEventArgs e = LoginStartEventArgs();
 	SerialString name = SerialString(buffer);
 	e.client = client;
-	e.name = client->name;
+	e.name = name.str();
 
 	// Prompt the server to let the client in
 	eventHandler->triggerEvent(&EventHandler::loginStart, eventHandler, e);
@@ -385,10 +444,11 @@ void NetworkHandler::encryptionResponse(Client* client, Byte* buffer, Int length
 	e.verifyToken = copyBuffer(buffer, e.verifyTokenLen);
 	
 	// Notify the server of the client's response before deleting the associated data
-	// TODO: Implement thread-safe deletion
-	eventHandler->triggerEvent(&EventHandler::encryptionResponse, eventHandler, e);
-	delete[] e.sharedSecret;
-	delete[] e.verifyToken;
+	eventHandler->triggerEvent([&] () {
+		eventHandler->encryptionResponse(e);
+		delete[] e.sharedSecret;
+		delete[] e.verifyToken;
+	});
 }
 
 /*****************************************
@@ -564,36 +624,34 @@ void NetworkHandler::closeWindow(Client* client, Byte* buffer, Int length)
 void NetworkHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 {
 	// Get the channel of the plugin message
-	PluginMessageEventArgs* e = new PluginMessageEventArgs;
-	e->client = client;
+	PluginMessageEventArgs e;
+	e.client = client;
 	SerialString channel = SerialString(buffer);
-	e->channel = channel.str();
+	e.channel = channel.str();
 	buffer += channel.getSize();
-	e->length = length - channel.getSize();
+	e.length = length - channel.getSize();
 
 	// If the length is not long enough for the data then notify the server of an error
-	if (e->length < 0)
+	if (e.length < 0)
 	{
 		InvalidLengthEventArgs e2;
 		e2.client = client;
 		e2.eventCause = "pluginMessage";
-		e2.e = e;
-		e2.length = e->length;
+		e2.e = &e;
+		e2.length = e.length;
 		eventHandler->triggerEvent(&EventHandler::invalidLength, eventHandler, e2);
-
-		// Delete the event args when no longer used
-		// TODO: Figure out a thread-safe way of doing this
-		delete e;
 		return;
 	}
 
 	// Get the message's data
-	e->data = copyBuffer(buffer, e->length);
+	e.data = copyBuffer(buffer, e.length);
 
-	// Delete the event args and buffer when no longer used
-	// TODO: Figure out a thread-safe way of doing this
-	delete[] e->data;
-	delete e;
+	// Tell the server the client is sending a plugin message
+	eventHandler->triggerEvent([&]()
+	{
+		eventHandler->pluginMessage(e);
+		delete[] e.data;
+	});
 }
 
 /*******************************************
@@ -782,6 +840,197 @@ void NetworkHandler::useItem(Client* client, Byte* buffer, Int length)
 
 }
 
+/***************************************************
+ * NetworkHandler :: sendLoginSuccess              *
+ * Tell the client that their login was successful *
+ ***************************************************/
+void NetworkHandler::sendLoginSuccess(Client* client, UUID uuid, String username)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(64);
+	VarInt packid = VarInt(0x2);
+	SerialString suuid = SerialString(uuid.str());
+	SerialString susername = SerialString(username);
+	VarInt length = VarInt(packid.getSize() + suuid.getSize() + susername.getSize());
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append(suuid.makeData(), suuid.getSize());
+	data.append(susername.makeData(), susername.getSize());
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/************************************
+ * NetworkHandler :: sendJoinGame   *
+ * Tell the client to join the game *
+ ************************************/
+void NetworkHandler::sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(64);
+	VarInt packid = VarInt(0x23);
+	SerialString slevelType = SerialString(levelType.str());
+	VarInt length = VarInt(12 + slevelType.getSize() + packid.getSize());
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	writeInt(data, entityID);
+	data.append(1, (char)gamemode);
+	writeInt(data, (Int)dimension);
+	data.append(1, (char)difficulty);
+	data.append(1, maxPlayers);
+	data.append(slevelType.makeData(), slevelType.getSize());
+	data.append(1, (char)reducedDebugInfo);
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/***************************************
+ * NetworkHandler :: sendPluginMessage *
+ * Send a plugin message to the client *
+ ***************************************/
+void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* data2, Int dataLen)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(256);
+	VarInt packid = VarInt(0x18);
+	SerialString schannel = SerialString(channel);
+	VarInt length = VarInt(packid.getSize() + schannel.getSize() + dataLen);
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append(schannel.makeData(), schannel.getSize());
+	data.append((char*)data2, dataLen);
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/*******************************************
+ * NetworkHandler :: sendServerDifficulty  *
+ * Tell the client the server's difficulty *
+ *******************************************/
+void NetworkHandler::sendServerDifficulty(Client* client, Difficulty difficulty)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(8);
+	VarInt packid = VarInt(0x0d);
+	VarInt length = VarInt(packid.getSize() + 1);
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append(1, (char)difficulty);
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/*********************************************
+ * NetworkHandler :: sendSpawnPosition       *
+ * Notify the client where the spawnpoint is *
+ *********************************************/
+void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(16);
+	VarInt packid = VarInt(0x43);
+	SerialPosition spos = SerialPosition(pos);
+	VarInt length = VarInt(packid.getSize() + 8);
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	writeLong(data, spos.getData());
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/********************************************
+ * NetworkHandler :: sendPlayerAbilities    *
+ * Tells the client what it's allowed to do *
+ ********************************************/
+void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abilities, Float flyingSpeed, Float fovModifier)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(16);
+	VarInt packid = VarInt(0x2b);
+	VarInt length = VarInt(packid.getSize() + 9);
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append(1, abilities.getFlags());
+	writeFloat(data, flyingSpeed);
+	writeFloat(data, fovModifier);
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/********************************************
+ * NetworkHandler :: sendPlayerAbilities    *
+ * Tells the client what it's allowed to do *
+ ********************************************/
+void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Float yaw, Float pitch, PlayerPositionAndLookFlags flags, Int teleportID)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(64);
+	VarInt packid = VarInt(0x2e);
+	VarInt steleportID = VarInt(teleportID);
+	VarInt length = VarInt(packid.getSize() + steleportID.getSize() + 33);
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	writeDouble(data, pos.x);
+	writeDouble(data, pos.y);
+	writeDouble(data, pos.z);
+	writeFloat(data, yaw);
+	writeFloat(data, pitch);
+	data.append(1, flags.getFlags());
+	data.append((char*)steleportID.getData(), steleportID.getSize());
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/***********************************
+ * NetworkHandler :: sendKeepAlive *
+ * Prompt the client to respond    *
+ ***********************************/
+void NetworkHandler::sendKeepAlive(Client* client, int id)
+{
+	// Serialize the data
+	String data = "";
+	data.reserve(12);
+	VarInt packid = VarInt(0x1f);
+	VarInt sid = VarInt(id);
+	VarInt length = VarInt(packid.getSize() + sid.getSize());
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append((char*)sid.getData(), sid.getSize());
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
 /********************************************
  * NetworkHandler :: NetworkHandler         *
  * Default Constructor                      *
@@ -863,6 +1112,8 @@ void NetworkHandler::start()
 						// Attempt to read the varPack
 						readPacket(client, (Byte*)buf, dataRead);
 					}
+
+//					delete[] buf;
 				}
 			}
 			else if (returnVal == SOCKET_ERROR)

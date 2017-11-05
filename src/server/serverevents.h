@@ -2,6 +2,7 @@
 #include <vector>
 #include "../server/serverstate.h"
 #include "../data/datatypes.h"
+#include "vld.h"
 
 enum class Direction
 {
@@ -364,6 +365,9 @@ public:
 	Boolean zIsRelative;
 	Boolean yawIsRelative;
 	Boolean pitchIsRelative;
+	PlayerPositionAndLookFlags(Boolean xIsRelative, Boolean yIsRelative, Boolean zIsRelative, Boolean yawIsRelative, Boolean pitchIsRelative)
+		: xIsRelative(xIsRelative), yIsRelative(yIsRelative), zIsRelative(zIsRelative), yawIsRelative(yawIsRelative), pitchIsRelative(pitchIsRelative) {}
+	Byte getFlags() { return xIsRelative << 4 || yIsRelative << 3 || zIsRelative << 2 || yawIsRelative << 1 || pitchIsRelative; }
 };
 
 enum class StatusEffect

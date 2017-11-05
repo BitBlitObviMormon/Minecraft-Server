@@ -2,6 +2,7 @@
 
 #include "../../server/serverevents.h"
 #include "../datatypes.h"
+#include "vld.h"
 
 /*********************
  * Block Entity Type *

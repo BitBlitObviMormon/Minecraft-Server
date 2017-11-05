@@ -37,6 +37,9 @@ Server::Server(EventHandler* eventHandler, NetworkHandler* networkHandler)
 	if (networkHandler == NULL)
 		networkHandler = new NetworkHandler(eventHandler);
 
+	// Seed the event handler with the network handler
+	eventHandler->seedNetwork(networkHandler);
+
 	// Initialize the network sockets
 	sockInit();
 

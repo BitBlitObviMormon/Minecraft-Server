@@ -6,7 +6,9 @@
 #include "networkhandler.h"
 #include <map>
 #include <thread>
+#include "vld.h"
 
+class Server;
 class NetworkHandler;
 class EventHandler
 {
@@ -15,8 +17,10 @@ private:
 	Double tickDelay;
 	volatile Boolean running;
 	void runTickClock();
+	void seedNetwork(NetworkHandler* networkHandler);
 protected:
 	std::map<SOCKET, Client*> clients;
+	NetworkHandler* networkHandler;
 
 	/*****************
 	 * SERVER EVENTS *
@@ -81,6 +85,7 @@ public:
 
 	/* Our friend, the NetworkHandler */
 	friend class NetworkHandler;
+	friend class Server;
 
 	/**********************************************************
 	 * These start and stop the server's tick loop.           *
@@ -98,5 +103,15 @@ public:
 	void triggerEvent(T&& fn, EventHandler* eventHandler, P e)
 	{
 		((eventHandler)->*(fn))(e);
+	}
+
+	/***********************************************************
+	 * EventHandler :: triggerEvent                            *
+	 * Runs the given event (may be run on a different thread) *
+	 ***********************************************************/
+	template <typename T>
+	void triggerEvent(T&& fn)
+	{
+		fn();
 	}
 };

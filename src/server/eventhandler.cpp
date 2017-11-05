@@ -96,6 +96,12 @@ void EventHandler::runTickClock()
 	}
 }
 
+/*************************************************************
+ * EventHandler :: seedNetwork                               *
+ * Gives the event handler a network to send packets through *
+ *************************************************************/
+void EventHandler::seedNetwork(NetworkHandler* netHandler) { networkHandler = netHandler; }
+
 /********************************
  * EventHandler :: onTick       *
  * A tick in the game's loop    *
@@ -115,19 +121,20 @@ void EventHandler::onTick(Double dt, Int ticksSkipped)
 
 		// TODO: Update the things that need to be updated every tick
 
-
 		// If the client has been out for too long, disconnect it. :(
 		if (client->ticksSinceUpdate > static_cast<Double>(DISCONNECT_TIME / tickDelay))
 		{
 			// TODO: Hate to do this, but implement a disconnect.
 		}
-		// TODO: Update the things that are only updated once in a while
+		// Update the things that are only updated once in a while
 		else if (client->ticksSinceUpdate > 20)
 		{
 			// Ask if the player is still alive
-//			keepAlive(client);
+			// TODO: Prompt for a random number and test for it
+			// TODO: Uncomment code when eventhandler no longer runs on several threads
+//			networkHandler->sendKeepAlive(client, 0);
 
-			// Give the client the time
+			// TODO: Give the client the time
 //			timeUpdate(client);
 		}
 	}
@@ -166,8 +173,9 @@ void EventHandler::invalidLength(InvalidLengthEventArgs e)
  *************************************************/
 void EventHandler::handshake(HandShakeEventArgs e)
 {
-	if (e.state != ServerState::Login && e.state != ServerState::Status)
-		;	// TODO: Disconnect the user
+	// Store some info on the client
+	e.client->state = e.state;
+	e.client->protocolVersion = e.protocolVersion;
 }
 
 /*************************************************
@@ -212,7 +220,35 @@ void EventHandler::encryptionResponse(EncryptionResponseEventArgs e)
  *************************************************/
 void EventHandler::loginStart(LoginStartEventArgs e)
 {
+	// Set some information for the client
+	e.client->name = e.name;
+	e.client->state = ServerState::Play;
+	e.client->gamemode = Gamemode::Survival;
+	e.client->dimension = Dimension::Overworld;
+	e.client->abilities = PlayerAbilities(true, false, false, false); // Invulnerable, but not creative nor flying
+	e.client->pos = PositionF(0.0, -999.0, 0.0); // TODO: Remove this in favor of respawn flag
+	e.client->uptime = 0;
+	e.client->ticksSinceUpdate = 0;
 
+	// Don't doubt the client, just let them in. ;-)
+	// TODO: Create a hash from the client's name
+	networkHandler->sendLoginSuccess(e.client, UUID(e.client), e.name);
+
+	// Let the client join the game
+	networkHandler->sendJoinGame(e.client, e.client->entityID, e.client->gamemode, e.client->dimension, Difficulty::Peaceful, 8, LevelType::Default);
+
+	// Tell the client the server's brand name
+	SerialString brand = SerialString("BareBonesMC");
+	networkHandler->sendPluginMessage(e.client, "MC|Brand", (Byte*)brand.makeData(), brand.getSize());
+
+	// Tell the client the map's difficulty again (in case the client is deaf)
+	networkHandler->sendServerDifficulty(e.client, Difficulty::Peaceful);
+
+	// Tell the client where the respawn point is (not necessarily where the server will spawn him)
+	networkHandler->sendSpawnPosition(e.client, Position(0, 64, 0));
+
+	// Tell the client what his capabilities are
+	networkHandler->sendPlayerAbilities(e.client, e.client->abilities, 1.0, 1.0);
 }
 
 /*************************************************
@@ -248,7 +284,22 @@ void EventHandler::clickWindow(ClickWindowEventArgs e)
  **************************************************/
 void EventHandler::clientSettings(ClientSettingsEventArgs e)
 {
+	// Save the settings
+	e.client->chatColors = e.chatColors;
+	e.client->chatMode = e.chatMode;
+	e.client->skinParts = e.displayedSkinParts;
+	e.client->locale = e.locale;
+	e.client->mainHand = e.mainHand;
+	e.client->viewDistance = e.viewDistance;
 
+	// If the player hasn't spawned yet then spawn them
+	// TODO: Check if no chunks are loaded or use flag instead
+	if (e.client->pos.y < -900.0)
+	{
+		// TODO: Use an actual keep alive and teleport id
+		networkHandler->sendKeepAlive(e.client, 0);
+		networkHandler->sendPlayerPositionAndLook(e.client, PositionF(0.0, 64.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+	}
 }
 
 /*************************************************
@@ -320,7 +371,8 @@ void EventHandler::heldItemChange(HeldItemChangeEventArgs e)
  *************************************************/
 void EventHandler::keepAlive(KeepAliveEventArgs e)
 {
-
+	e.client->ticksSinceUpdate = 0;
+	networkHandler->sendKeepAlive(e.client, 0);
 }
 
 /*************************************************
@@ -447,7 +499,14 @@ void EventHandler::tabComplete(TabCompleteEventArgs e)
  ****************************************************/
 void EventHandler::teleportConfirm(TeleportConfirmEventArgs e)
 {
-
+	// TODO: Use actual teleport id and check whether they are spawning, respawning, or teleporting using a flag
+	if (e.client->pos.y == -999.0)
+	{
+		e.client->pos.y = 64.0;
+		e.client->yaw = 0.0;
+		e.client->pitch = 0.0;
+		networkHandler->sendPlayerPositionAndLook(e.client, e.client->pos, e.client->yaw, e.client->pitch, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+	}
 }
 
 /*************************************************

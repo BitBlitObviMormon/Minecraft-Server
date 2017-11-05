@@ -1,6 +1,7 @@
 #pragma once
 #include "../data/datatypes.h"
 #include "networkhandler.h"
+#include "vld.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
