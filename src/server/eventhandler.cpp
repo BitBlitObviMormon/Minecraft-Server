@@ -167,6 +167,17 @@ void EventHandler::invalidLength(InvalidLengthEventArgs e)
 	// TODO: Chastise the client for being reckless
 }
 
+/*************************************
+ * EventHandler :: clientDisconnect  *
+ * The client has disconnected       *
+ *************************************/
+void EventHandler::clientDisconnect(ClientDisconnectEventArgs e)
+{
+	// Erase the client
+	// TODO: Alert all other players of the disconnect
+	clients.erase(e.client->socket);
+}
+
 /*************************************************
  * EventHandler :: handshake                     *
  * The client is greeting the server             *

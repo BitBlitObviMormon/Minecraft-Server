@@ -32,6 +32,8 @@ public:
 	ClientEventArgs* e; // The causing event's data
 };
 
+class ClientDisconnectEventArgs : public ClientEventArgs {};
+
 class HandShakeEventArgs : public ClientEventArgs
 {
 public:

@@ -296,11 +296,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 
 		// Read the next packet
 		readPacket(client, tempBuf, length);
-//		delete[] tempBuf;
 	}
-
-	// Delete the buffer passed
-	delete[] buffer;
 }
 
 /*************************************
@@ -318,9 +314,7 @@ void NetworkHandler::invalidPacket(Client* client, Byte* buffer, Int length, Int
 	e.data = data;
 
 	// Trigger the event before deleting the associated data
-	// TODO: Implement thread-safe deletion
 	eventHandler->triggerEvent(&EventHandler::invalidPacket, eventHandler, e);
-	delete[] data;
 }
 
 /*************************************
@@ -1058,6 +1052,22 @@ void NetworkHandler::addClient(SOCKET newClient)
 	eventHandler->clients.insert(std::make_pair(newClient, new Client(newClient)));
 }
 
+/**************************************
+ * NetworkHandler :: disconnectClient *
+ * Disconnects and deletes a client   *
+ **************************************/
+void NetworkHandler::disconnectClient(Client* client)
+{
+	// Disconnect the client's socket
+	shutdown(client->socket, SD_BOTH);
+	closesocket(client->socket);
+
+	// Trigger the client disconnected event so that the event handler can clean up the client's data.
+	ClientDisconnectEventArgs e;
+	e.client = client;
+	eventHandler->triggerEvent(&EventHandler::clientDisconnect, eventHandler, e);
+}
+
 /****************************************************
  * NetworkHandler :: getClientFromSocket            *
  * Searches for a client using the given socket     *
@@ -1065,16 +1075,18 @@ void NetworkHandler::addClient(SOCKET newClient)
  ****************************************************/
 Client* NetworkHandler::getClientFromSocket(SOCKET socket)
 {
-	return (*eventHandler->clients.find(socket)).second;
+	return eventHandler->clients.find(socket)->second;
 }
 
 /***********************************
  * NetworkHandler :: start         *
  * Starts up the client event loop *
  ***********************************/
+#define BUFFER_SIZE 65536
 void NetworkHandler::start()
 {
 	running = true;
+	char buf[BUFFER_SIZE];
 
 	while (running)
 	{
@@ -1100,20 +1112,22 @@ void NetworkHandler::start()
 					Client* client = getClientFromSocket(clientList.fd_array[i]);
 
 					// Read some data from the client
-					char* buf = new char[256];
-					int dataRead = recv(client->socket, buf, 256, NULL);
+					int dataRead = recv(client->socket, buf, BUFFER_SIZE, NULL);
 					if (dataRead == SOCKET_ERROR)
 					{
 						std::cout << "Error reading data from " << client->name
-							      << ": " << WSAGetLastError() << "\n";
+							<< ": " << WSAGetLastError() << "\n";
 					}
 					else if (dataRead > 0)
 					{
 						// Attempt to read the varPack
 						readPacket(client, (Byte*)buf, dataRead);
 					}
-
-//					delete[] buf;
+					// The client is not sending bytes... it disconnected.
+					else
+					{
+						disconnectClient(client);
+					}
 				}
 			}
 			else if (returnVal == SOCKET_ERROR)

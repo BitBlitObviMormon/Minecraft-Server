@@ -34,6 +34,7 @@ protected:
 	void invalidPacket(InvalidPacketEventArgs e);
 	void invalidState(InvalidStateEventArgs e);
 	void invalidLength(InvalidLengthEventArgs e);
+	void clientDisconnect(ClientDisconnectEventArgs e);
 
 	/* HANDSHAKING EVENTS */
 	void handshake(HandShakeEventArgs e);

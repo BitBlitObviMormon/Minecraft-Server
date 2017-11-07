@@ -7,6 +7,10 @@
 #include "eventhandler.h"
 #include "vld.h"
 
+#ifdef _WIN32
+#else
+#define closesocket(x) close(x)
+#endif
 class EventHandler;
 class NetworkHandler
 {
@@ -228,6 +232,7 @@ public:
 	NetworkHandler(EventHandler* eventHandler = NULL);
 	~NetworkHandler();
 	void addClient(SOCKET newClient);
+	void disconnectClient(Client* client);
 	Client* getClientFromSocket(SOCKET socket);
 	void start();
 	void startAsync();
