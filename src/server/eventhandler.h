@@ -79,6 +79,9 @@ protected:
 	void useEntity(UseEntityEventArgs e);
 	void useItem(UseItemEventArgs e);
 	void vehicleMove(VehicleMoveEventArgs e);
+
+	/* DATA-PASSING EVENTS */
+	ChunkSection& getChunk(GetChunkEventArgs& e);
 public:
 	/* Constructors */
 	EventHandler();

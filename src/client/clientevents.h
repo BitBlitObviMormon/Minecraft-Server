@@ -443,3 +443,10 @@ public:
 	Byte* sharedSecret;
 	Byte* verifyToken;
 };
+
+class GetChunkEventArgs : public ClientEventArgs
+{
+public:
+	Position pos;
+	ChunkSection chunk;
+};

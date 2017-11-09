@@ -579,14 +579,14 @@ const Long UUID::getSecond() const { return v2; }
  * Sets the block at the specified index to the specified id     *
  * Any block id that is < 0 or > 4095 causes undefined behavior! *
  *****************************************************************/
-void ChunkSection::setBlock(int index, Short blockid)
+void ChunkSection::setBlock(int index, BlockID blockid)
 {
 	// Create a new array when necessary
 	if (!blocks)
 		fillBlocks();
 
 	// Set the block to the new block and the current block state
-	blocks[index] = (blocks[index] & 0xF) | (blockid << 4);
+	blocks[index] = (blocks[index] & 0xF) | ((Short)blockid << 4);
 }
 
 /*****************************************************************************
@@ -595,14 +595,14 @@ void ChunkSection::setBlock(int index, Short blockid)
  * Any block id that is < 0 or > 4095 causes undefined behavior!             *
  * Any block state that is < 0 or > 15 causes undefined behavior!            *
  *****************************************************************************/
-void ChunkSection::setBlock(int index, Short blockid, Byte blockstate)
+void ChunkSection::setBlock(int index, BlockID blockid, Byte blockstate)
 {
 	// Create a new array when necessary
 	if (!blocks)
 		fillBlocks();
 
 	// Set the block to the new block and the current block state
-	blocks[index] = (blockid << 4) | blockstate;
+	blocks[index] = ((Short)blockid << 4) | blockstate;
 }
 
 /*******************************************************************

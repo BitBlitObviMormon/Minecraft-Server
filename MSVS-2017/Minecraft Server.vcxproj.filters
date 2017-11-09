@@ -45,6 +45,9 @@
     <ClCompile Include="..\src\server\serverevents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\data\block\blocks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\data\entity\blockentities.h">
@@ -78,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\server\serverstate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\data\block\blocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

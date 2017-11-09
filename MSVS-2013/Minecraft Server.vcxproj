@@ -66,6 +66,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\client\client.cpp" />
     <ClCompile Include="..\src\client\clientevents.cpp" />
+    <ClCompile Include="..\src\data\block\blocks.cpp" />
     <ClCompile Include="..\src\data\datatypes.cpp" />
     <ClCompile Include="..\src\data\entity\blockentities.cpp" />
     <ClCompile Include="..\src\data\entity\entities.cpp" />
@@ -78,6 +79,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\client\client.h" />
     <ClInclude Include="..\src\client\clientevents.h" />
+    <ClInclude Include="..\src\data\block\blocks.h" />
     <ClInclude Include="..\src\data\datatypes.h" />
     <ClInclude Include="..\src\data\entity\blockentities.h" />
     <ClInclude Include="..\src\data\entity\entities.h" />

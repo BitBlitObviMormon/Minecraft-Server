@@ -307,6 +307,8 @@ void EventHandler::clientSettings(ClientSettingsEventArgs e)
 	// TODO: Check if no chunks are loaded or use flag instead
 	if (e.client->pos.y < -900.0)
 	{
+		// Send chunks over
+
 		// TODO: Use an actual keep alive and teleport id
 		networkHandler->sendKeepAlive(e.client, 0);
 		networkHandler->sendPlayerPositionAndLook(e.client, PositionF(0.0, 64.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
@@ -556,11 +558,27 @@ void EventHandler::vehicleMove(VehicleMoveEventArgs e)
 
 }
 
+/*****************************************
+ * EventHandler :: getChunk              *
+ * Returns a chunk at the given position *
+ *****************************************/
+ChunkSection& EventHandler::getChunk(GetChunkEventArgs& e)
+{
+	if (e.pos.x == 0 && e.pos.y == 12 && e.pos.z == 0)
+	{
+		for (int i = 0; i < 256; i++)
+			e.chunk.setBlock(i, BlockID::Cobblestone);
+		e.chunk.fillLighting(0, 15);
+	}
+
+	return e.chunk;
+}
+
 /********************************************
  * EventHandler :: EventHandler             *
  * Default Constructor                      *
  ********************************************/
-EventHandler::EventHandler() : running(false) {}
+EventHandler::EventHandler() : running(false), networkHandler(NULL) {}
 
 /********************************************
  * EventHandler :: EventHandler             *

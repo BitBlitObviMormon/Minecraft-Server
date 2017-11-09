@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include "block/blocks.h"
 #include "vld.h"
 
 // Size definitions
@@ -205,22 +206,22 @@ public:
 	Boolean empty() { return !blocks; }
 	void deleteBlocks() { if (blocks) delete[] blocks; blocks = NULL; }
 	void deleteLights() { if (lights) delete[] lights; lights = NULL; }
-	Short getBlock(int index) { return blocks[index] & 0xFFF0; }
+	BlockID getBlock(int index) { return (BlockID)(blocks[index] & 0xFFF0); }
 	Byte getBlockState(int index) { return blocks[index] & 0xF; }
 	Byte getBlockLighting(int index) { return lights[index] & 0xF0; }
 	Byte getSkyLighting(int index) { return lights[index] & 0xF; }
-	Short getBlock(int x, int y, int z) { return getBlock(z * 256 + y * 16 + x); }
-	Byte getBlockState(int x, int y, int z) { return getBlockState(z * 256 + y * 16 + x); }
-	Byte getBlockLighting(int x, int y, int z) { return getBlockLighting(z * 256 + y * 16 + x); }
-	Byte getSkyLighting(int x, int y, int z) { return getSkyLighting(z * 256 + y * 16 + x); }
-	void setBlock(int index, Short blockid);
-	void setBlock(int index, Short blockid, Byte blockstate);
+	BlockID getBlock(int x, int y, int z) { return getBlock(y * 256 + z * 16 + x); }
+	Byte getBlockState(int x, int y, int z) { return getBlockState(y * 256 + z * 16 + x); }
+	Byte getBlockLighting(int x, int y, int z) { return getBlockLighting(y * 256 + z * 16 + x); }
+	Byte getSkyLighting(int x, int y, int z) { return getSkyLighting(y * 256 + z * 16 + x); }
+	void setBlock(int index, BlockID blockid);
+	void setBlock(int index, BlockID blockid, Byte blockstate);
 	void setBlockState(int index, Byte blockstate);
 	void setBlockLighting(int index, Byte value);
 	void setSkyLighting(int index, Byte value);
 	void setLighting(int index, Byte blockLightValue, Byte skyLightValue);
-	void setBlock(int x, int y, int z, Short blockid) { setBlock(z * 256 + y * 16 + x, blockid); }
-	void setBlock(int x, int y, int z, Short blockid, Byte blockstate) { setBlock(z * 256 + y * 16 + x, blockid, blockstate); }
+	void setBlock(int x, int y, int z, BlockID blockid) { setBlock(z * 256 + y * 16 + x, blockid); }
+	void setBlock(int x, int y, int z, BlockID blockid, Byte blockstate) { setBlock(z * 256 + y * 16 + x, blockid, blockstate); }
 	void setBlockState(int x, int y, int z, Byte blockstate) { setBlockState(z * 256 + y * 16 + x, blockstate); }
 	void setBlockLighting(int x, int y, int z, Byte value) { setBlockLighting(z * 256 + y * 16 + x, value); }
 	void setSkyLighting(int x, int y, int z, Byte value) { setSkyLighting(z * 256 + y * 16 + x, value); }
