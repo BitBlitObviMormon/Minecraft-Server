@@ -1,9 +1,8 @@
 #pragma once
-#include "clientevents.h"
-#include "../data/datatypes.h"
-#include "../server/serverstate.h"
-#include "../server/serverevents.h"
-#include "vld.h"
+
+#include "data/datatypes.h"
+#include "client/clientevents.h"
+#include "server/serverevents.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN

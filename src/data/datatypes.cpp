@@ -1,5 +1,6 @@
-#include "datatypes.h"
-#include "../client/client.h"
+#include "debug.h"
+#include "data/datatypes.h"
+#include "client/client.h"
 #include <stdexcept>
 #include <iostream>
 

@@ -1,4 +1,7 @@
-#include "server.h"
+#include "debug.h"
+#include "server/server.h"
+#include "server/eventhandler.h"
+#include "server/networkhandler.h"
 #include <iostream>
 #include <thread>
 
@@ -158,7 +161,7 @@ void Server::addClient()
  * Server :: start   *
  * Starts the server *
  *********************/
-void Server::start(Double tps)
+void Server::start(double tps)
 {
 	// Begin listening for clients
 	running = true;
@@ -178,7 +181,7 @@ void Server::start(Double tps)
  * Server :: startAsync                    *
  * Starts the server on a different thread *
  *******************************************/
-void Server::startAsync(Double tps) { new std::thread(&Server::start, this, tps); }
+void Server::startAsync(double tps) { new std::thread(&Server::start, this, tps); }
 
 /*************************
  * Server :: stop        *

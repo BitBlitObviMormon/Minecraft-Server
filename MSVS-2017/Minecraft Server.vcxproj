@@ -44,6 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -56,6 +57,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -66,7 +68,8 @@
   <ItemGroup>
     <ClCompile Include="..\src\client\client.cpp" />
     <ClCompile Include="..\src\client\clientevents.cpp" />
-    <ClCompile Include="..\src\data\block\blocks.cpp" />
+    <ClCompile Include="..\src\data\biomes.cpp" />
+    <ClCompile Include="..\src\data\blocks.cpp" />
     <ClCompile Include="..\src\data\datatypes.cpp" />
     <ClCompile Include="..\src\data\entity\blockentities.cpp" />
     <ClCompile Include="..\src\data\entity\entities.cpp" />
@@ -77,18 +80,19 @@
     <ClCompile Include="..\src\server\serverevents.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\client\client.h" />
-    <ClInclude Include="..\src\client\clientevents.h" />
-    <ClInclude Include="..\src\data\block\blocks.h" />
-    <ClInclude Include="..\src\data\datatypes.h" />
-    <ClInclude Include="..\src\data\entity\blockentities.h" />
-    <ClInclude Include="..\src\data\entity\entities.h" />
-    <ClInclude Include="..\src\misc\deprecated.h" />
-    <ClInclude Include="..\src\server\eventhandler.h" />
-    <ClInclude Include="..\src\server\networkhandler.h" />
-    <ClInclude Include="..\src\server\server.h" />
-    <ClInclude Include="..\src\server\serverevents.h" />
-    <ClInclude Include="..\src\server\serverstate.h" />
+    <ClInclude Include="..\include\client\client.h" />
+    <ClInclude Include="..\include\client\clientevents.h" />
+    <ClInclude Include="..\include\data\biomes.h" />
+    <ClInclude Include="..\include\data\blocks.h" />
+    <ClInclude Include="..\include\data\datatypes.h" />
+    <ClInclude Include="..\include\data\entity\blockentities.h" />
+    <ClInclude Include="..\include\data\entity\entities.h" />
+    <ClInclude Include="..\include\debug.h" />
+    <ClInclude Include="..\include\deprecated.h" />
+    <ClInclude Include="..\include\server\eventhandler.h" />
+    <ClInclude Include="..\include\server\networkhandler.h" />
+    <ClInclude Include="..\include\server\server.h" />
+    <ClInclude Include="..\include\server\serverevents.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

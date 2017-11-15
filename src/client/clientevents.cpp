@@ -1,4 +1,5 @@
-#include "clientevents.h"
+#include "debug.h"
+#include "client/clientevents.h"
 
 DisplayedSkinParts::DisplayedSkinParts(Byte byte)
 {

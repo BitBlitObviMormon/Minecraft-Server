@@ -1,8 +1,15 @@
 #pragma once
+
 #include <vector>
-#include "../server/serverstate.h"
-#include "../data/datatypes.h"
-#include "vld.h"
+#include "data/datatypes.h"
+
+enum class ServerState
+{
+	Handshaking = 0,
+	Status = 1,
+	Login = 2,
+	Play = 3
+};
 
 enum class Direction
 {
@@ -24,6 +31,7 @@ enum class Animation
 
 class Statistic
 {
+public:
 	String statName;
 	Int value;
 };

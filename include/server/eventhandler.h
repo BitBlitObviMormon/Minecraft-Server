@@ -1,14 +1,12 @@
 #pragma once
 
-#include "../data/datatypes.h"
-#include "../client/client.h"
-#include "../client/clientevents.h"
-#include "networkhandler.h"
+#include "data/datatypes.h"
+#include "client/client.h"
+#include "client/clientevents.h"
+#include "server/server.h"
 #include <map>
 #include <thread>
-#include "vld.h"
 
-class Server;
 class NetworkHandler;
 class EventHandler
 {
@@ -81,8 +79,7 @@ protected:
 	void vehicleMove(VehicleMoveEventArgs e);
 
 	/* DATA-PASSING EVENTS */
-	ChunkSection& getChunkSection(GetChunkSectionEventArgs& e);
-	ChunkColumn& getChunkColumn(GetChunkColumnEventArgs& e);
+	ChunkSection& getChunk(GetChunkEventArgs& e);
 public:
 	/* Constructors */
 	EventHandler();

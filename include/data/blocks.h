@@ -1,7 +1,5 @@
 #pragma once
 
-#include "vld.h"
-
 enum class BlockID
 {
 	Air = 0,

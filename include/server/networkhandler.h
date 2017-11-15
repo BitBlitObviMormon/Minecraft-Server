@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../client/client.h"
-#include "../data/entity/entities.h"
-#include "../data/entity/blockentities.h"
-#include "serverevents.h"
-#include "eventhandler.h"
-#include "vld.h"
+#include "client/client.h"
+#include "data/entity/entities.h"
+#include "data/entity/blockentities.h"
+#include "server/serverevents.h"
 
 #ifdef _WIN32
 #else
@@ -116,6 +114,7 @@ public:
 	void sendChangeGameState(Client* client, GameStateReason reason, Float value); // FLOAT?? TODO: See if value should be int
 	void sendKeepAlive(Client* client, Int id);
 	void sendChunkData(Client* client); // TODO: Add args
+	void sendChunkColumn(Client* client, Int x, Int z, ChunkColumn column);
 	void sendEffect(Client* client, EffectID effectID, Position pos, Int data = 0, Boolean disableRelativeVolume = false);
 	void sendParticle(Client* client, Particle particle, Int num, Byte* data = NULL, Int dataLen = 0);
 	void sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);

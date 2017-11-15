@@ -1,7 +1,4 @@
 #pragma once
-#include "../data/datatypes.h"
-#include "networkhandler.h"
-#include "vld.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -18,10 +15,12 @@
 	typedef int SOCKET;
 #endif
 
+class EventHandler;
+class NetworkHandler;
 class Server
 {
 protected:
-	volatile Boolean running;	// Used to tell the server to shut down
+	volatile bool running;	// Used to tell the server to shut down
 	SOCKET listenSocket;
 	NetworkHandler* networkHandler;
 	EventHandler* eventHandler;
@@ -32,7 +31,7 @@ protected:
 public:
 	Server(EventHandler* eventHandler = NULL, NetworkHandler* networkHandler = NULL);
 	~Server();
-	void start(Double tps = 20.0);
-	void startAsync(Double tps = 20.0);
+	void start(double tps = 20.0);
+	void startAsync(double tps = 20.0);
 	void stop();
 };

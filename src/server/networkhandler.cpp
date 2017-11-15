@@ -1,4 +1,6 @@
-#include "networkhandler.h"
+#include "debug.h"
+#include "server/networkhandler.h"
+#include "server/eventhandler.h"
 #include <iostream>
 #include <thread>
 
@@ -908,6 +910,17 @@ void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* dat
 	// Send the packet
 	send(client->socket, data.c_str(), data.size(), NULL);
 }
+
+/******************************************
+ * NetworkHandler :: sendChunkColumn      *
+ * Sends a column of chunks to the client *
+ ******************************************/
+void NetworkHandler::sendChunkColumn(Client* client, Int x, Int z, ChunkColumn column)
+{
+	// Serialize the data
+
+}
+
 
 /*******************************************
  * NetworkHandler :: sendServerDifficulty  *

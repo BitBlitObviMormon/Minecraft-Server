@@ -2,10 +2,7 @@
 
 #include <stdint.h>
 #include <string>
-#include "data/biomes.h"
 #include "data/blocks.h"
-#include "data/entity/blockentities.h"
-#include "vld.h"
 
 // Size definitions
 #define VARINT_MAX_SIZE			5
@@ -238,13 +235,10 @@ public:
  *************************************/
 class ChunkColumn
 {
-private:
-	ChunkSection* chunks[16];
-	Biome* biomes;
-	BlockEntity* blockEntities;
 public:
-	ChunkColumn() {}
-	~ChunkColumn() {}
+	ChunkSection* chunks[16];
+	ChunkColumn() { for (int i = 0; i < 16; i++) chunks[i] = NULL; }
+	~ChunkColumn() {} // Note that ChunkColumn does not delete any of the chunks
 };
 
 /**************************

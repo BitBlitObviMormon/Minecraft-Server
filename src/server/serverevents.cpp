@@ -1,4 +1,5 @@
-#include "serverevents.h"
+#include "debug.h"
+#include "server/serverevents.h"
 
 /* WindowType Enum */
 const WindowType WindowType::Container        = "minecraft::container";

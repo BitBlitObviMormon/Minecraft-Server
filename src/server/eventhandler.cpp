@@ -1,4 +1,6 @@
-#include "eventhandler.h"
+#include "debug.h"
+#include "server/eventhandler.h"
+#include "server/networkhandler.h"
 #include <ctime>
 
 #define DISCONNECT_TIME 10.0

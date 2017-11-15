@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../../server/serverevents.h"
-#include "../datatypes.h"
-#include "vld.h"
+#include "server/serverevents.h"
+#include "data/datatypes.h"
 
 /**************************************
  * Object Type                        *

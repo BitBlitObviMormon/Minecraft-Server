@@ -1,7 +1,7 @@
 #pragma once
-#include "server/serverstate.h"
+
+#include "server/serverevents.h"
 #include "data/datatypes.h"
-#include "vld.h"
 
 class Client;
 class ClientEventArgs
@@ -444,14 +444,9 @@ public:
 	Byte* verifyToken;
 };
 
-class GetChunkSectionEventArgs : public ClientEventArgs
+class GetChunkEventArgs : public ClientEventArgs
 {
 public:
 	Position pos;
 	ChunkSection chunk;
-};
-
-class GetChunkColumnEventArgs : public ClientEventArgs
-{
-
 };

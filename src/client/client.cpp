@@ -1,4 +1,5 @@
-#include "client.h"
+#include "debug.h"
+#include "client/client.h"
 #include <sstream>
 
 /***********************
