@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../data/datatypes.h"
-#include "../client/client.h"
-#include "../client/clientevents.h"
-#include "networkhandler.h"
+#include "data/datatypes.h"
+#include "client/client.h"
+#include "client/clientevents.h"
+#include "server/networkhandler.h"
 #include <map>
 #include <thread>
 #include "vld.h"

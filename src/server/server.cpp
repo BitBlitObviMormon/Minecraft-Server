@@ -1,9 +1,9 @@
 #include "debug.h"
 #include "server/server.h"
-#include "server/eventhandler.h"
-#include "server/networkhandler.h"
 #include <iostream>
 #include <thread>
+
+
 
 /*************************
  * sockInit              *

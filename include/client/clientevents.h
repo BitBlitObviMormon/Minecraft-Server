@@ -1,7 +1,7 @@
 #pragma once
 
-#include "server/serverevents.h"
 #include "data/datatypes.h"
+#include "server/serverevents.h"
 
 class Client;
 class ClientEventArgs

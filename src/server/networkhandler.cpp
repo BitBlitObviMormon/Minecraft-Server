@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "server/networkhandler.h"
 #include "server/eventhandler.h"
+#include "data/networkpackets.h"
 #include <iostream>
 #include <thread>
 
@@ -132,10 +133,10 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 		// Check which packet the client was referring to
 		switch (packid)
 		{
-		case 0x00:	// Handshaking
+		case (int)ClientHandshakePacket::Handshake:
 			handShake(client, buf, len);
 			break;
-		case 0xFE:	// Legacy Handshaking
+		case (int)ClientHandshakePacket::LegacyServerPing:
 			handShakeLegacy(client, buf, len);
 			break;
 		default:	// Invalid Packet
@@ -146,10 +147,10 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	case ServerState::Status:
 		switch (packid)
 		{
-		case 0x00:	// Request
+		case (int)ClientStatusPacket::Request:
 			request(client, buf, len);
 			break;
-		case 0x01:	// Ping
+		case (int)ClientStatusPacket::Ping:
 			ping(client, buf, len);
 			break;
 		default:	// Invalid Packet
@@ -160,10 +161,10 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	case ServerState::Login:
 		switch (packid)
 		{
-		case 0x00:	// Login Start
+		case (int)ClientLoginPacket::LoginStart:
 			loginStart(client, buf, len);
 			break;
-		case 0x01:	// Encryption Response
+		case (int)ClientLoginPacket::EncryptionResponse:
 			encryptionResponse(client, buf, len);
 			break;
 		default:	// Invalid Packet
@@ -174,97 +175,103 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	case ServerState::Play:
 		switch (packid)
 		{
-		case 0x00:	// Teleport Confirm
+		case (int)ClientPlayPacket::TeleportConfirm:
 			teleportConfirm(client, buf, len);
 			break;
-		case 0x01:	// Tab Complete
+		case (int)ClientPlayPacket::TabComplete:
 			tabComplete(client, buf, len);
 			break;
-		case 0x02:	// Chat Message
+		case (int)ClientPlayPacket::ChatMessage:
 			chatMessage(client, buf, len);
 			break;
-		case 0x03:	// Client Status
-			// 0: Perform respawn
-			// 1: Request stats
-			// 2: Open inventory
+		case (int)ClientPlayPacket::ClientStatus:
 			clientStatus(client, buf, len);
 			break;
-		case 0x04:	// Client Settings
+		case (int)ClientPlayPacket::ClientSettings:
 			clientSettings(client, buf, len);
 			break;
-		case 0x05:	// Confirm Transaction (apology)
+		case (int)ClientPlayPacket::ConfirmTransaction:
 			confirmTransaction(client, buf, len);
 			break;
-		case 0x06:	// Enchant Item
+		case (int)ClientPlayPacket::EnchantItem:
 			enchantItem(client, buf, len);
 			break;
-		case 0x07:	// Click Window
+		case (int)ClientPlayPacket::ClickWindow:
 			clickWindow(client, buf, len);
 			break;
-		case 0x08:	// Close Window
+		case (int)ClientPlayPacket::CloseWindow:
 			closeWindow(client, buf, len);
 			break;
-		case 0x09:	// Plugin Message (Mod Message)
+		case (int)ClientPlayPacket::PluginMessage:
 			pluginMessage(client, buf, len);
 			break;
-		case 0x0a:	// Use Entity
+		case (int)ClientPlayPacket::UseEntity:
 			useEntity(client, buf, len);
 			break;
-		case 0x0b:	// Keep Alive
+		case (int)ClientPlayPacket::KeepAlive:
 			keepAlive(client, buf, len);
 			break;
-		case 0x0c:	// Player Position
+		case (int)ClientPlayPacket::PlayerPosition:
 			playerPosition(client, buf, len);
 			break;
-		case 0x0d:	// Player Position and Look
+		case (int)ClientPlayPacket::PlayerPositionAndLook:
 			playerPositionAndLook(client, buf, len);
 			break;
-		case 0x0e:	// Player Look
+		case (int)ClientPlayPacket::PlayerLook:
 			playerLook(client, buf, len);
 			break;
-		case 0x0f:	// Player on Ground
+		case (int)ClientPlayPacket::Player:
 			playerOnGround(client, buf, len);
 			break;
-		case 0x10:	// Vehicle Move
+		case (int)ClientPlayPacket::VehicleMove:
 			vehicleMove(client, buf, len);
 			break;
-		case 0x11:	// Steer Boat
+		case (int)ClientPlayPacket::SteerBoat:
 			steerBoat(client, buf, len);
 			break;
-		case 0x12:	// Player Abilities
+		case (int)ClientPlayPacket::CraftRecipeRequest:
+			craftRecipeRequest(client, buf, len);
+			break;
+		case (int)ClientPlayPacket::PlayerAbilities:
 			playerAbilities(client, buf, len);
 			break;
-		case 0x13:	// Player Digging (Drop Item, Shoot Arrow, Finish Eating, Swap Item in Hand)
+		case (int)ClientPlayPacket::PlayerDigging:
 			playerDigging(client, buf, len);
 			break;
-		case 0x14:	// Entity Action
+		case (int)ClientPlayPacket::EntityAction:
 			entityAction(client, buf, len);
 			break;
-		case 0x15:	// Steer Vehicle
+		case (int)ClientPlayPacket::SteerVehicle:
 			steerVehicle(client, buf, len);
 			break;
-		case 0x16:	// Resource Pack Status
+		case (int)ClientPlayPacket::CraftingBookData:
+			craftingBookData(client, buf, len);
+			break;
+		case (int)ClientPlayPacket::ResourcePackStatus:
 			resourcePackStatus(client, buf, len);
 			break;
-		case 0x17:	// Held Item Change
+		case (int)ClientPlayPacket::AdvancementTab:
+			advancementTab(client, buf, len);
+			break;
+		case (int)ClientPlayPacket::HeldItemChange:
 			heldItemChange(client, buf, len);
 			break;
-		case 0x18:	// Creative Inventory Action
+		case (int)ClientPlayPacket::CreativeInventoryAction:
 			creativeInventoryAction(client, buf, len);
 			break;
-		case 0x19:	// Update Sign
+		case (int)ClientPlayPacket::UpdateSign:
 			updateSign(client, buf, len);
 			break;
-		case 0x1a:	// Animation
+		case (int)ClientPlayPacket::Animation:
 			animation(client, buf, len);
 			break;
-		case 0x1b:	// Spectate
+		case (int)ClientPlayPacket::Spectate:
 			spectate(client, buf, len);
 			break;
-		case 0x1c:	// Player Block Placement
+		case (int)ClientPlayPacket::PlayerBlockPlacement:
 			playerBlockPlacement(client, buf, len);
 			break;
-		case 0x1d:	// Use Item
+		case (int)ClientPlayPacket::UseItem:
 			useItem(client, buf, len);
 			break;
 		default:	// Invalid Packet
@@ -723,6 +730,15 @@ void NetworkHandler::steerBoat(Client* client, Byte* buffer, Int length)
 
 }
 
+/******************************************
+ * NetworkHandler :: craftRecipeRequest   *
+ * The client is asking to craft a recipe *
+ ******************************************/
+void NetworkHandler::craftRecipeRequest(Client* client, Byte* buffer, Int length)
+{
+
+}
+
 /*******************************************************************
  * NetworkHandler :: playerAbilities                               *
  * The client wants to take no damage, fly, or enter creative mode *
@@ -760,11 +776,29 @@ void NetworkHandler::steerVehicle(Client* client, Byte* buffer, Int length)
 
 }
 
+/*******************************************
+ * NetworkHandler :: craftingBookData      *
+ * The client is reading the crafting book *
+ *******************************************/
+void NetworkHandler::craftingBookData(Client* client, Byte* buffer, Int length)
+{
+
+}
+
 /*********************************************************************************
  * NetworkHandler :: resourcePackStatus                                          *
  * The client is giving back the status of a supposedly downloaded resource pack *
  *********************************************************************************/
 void NetworkHandler::resourcePackStatus(Client* client, Byte* buffer, Int length)
+{
+
+}
+
+/************************************************
+ * NetworkHandler :: advancementTab             *
+ * The client is using the advancements tab...? *
+ ************************************************/
+void NetworkHandler::advancementTab(Client* client, Byte* buffer, Int length)
 {
 
 }
@@ -952,7 +986,7 @@ void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
 	// Serialize the data
 	String data = "";
 	data.reserve(16);
-	VarInt packid = VarInt(0x43);
+	VarInt packid = VarInt(0x46);
 	SerialPosition spos = SerialPosition(pos);
 	VarInt length = VarInt(packid.getSize() + 8);
 
@@ -974,7 +1008,7 @@ void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abiliti
 	// Serialize the data
 	String data = "";
 	data.reserve(16);
-	VarInt packid = VarInt(0x2b);
+	VarInt packid = VarInt(0x2c);
 	VarInt length = VarInt(packid.getSize() + 9);
 
 	// Append the data to the string

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include "data/datatypes.h"
+#include <vector>
 
 enum class ServerState
 {

@@ -1,4 +1,6 @@
 #pragma once
+#include "server/eventhandler.h"
+#include "server/networkhandler.h"
 
 #ifdef _WIN32 // WINDOWS
 	#ifndef WIN32_LEAN_AND_MEAN
@@ -15,8 +17,6 @@
 	typedef int SOCKET;
 #endif
 
-class EventHandler;
-class NetworkHandler;
 class Server
 {
 protected:

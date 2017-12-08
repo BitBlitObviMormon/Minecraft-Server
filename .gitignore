@@ -11,10 +11,14 @@
 Thumbs.db
 
 # Visual Studio build files
-MSVS-2017/[Dd]ebug/
-MSVS-2017/[Rr]elease/
 MSVS-2013/[Dd]ebug/
 MSVS-2013/[Rr]elease/
+MSVS-2013/Bare-Bones-Minecraft-Server/[Dd]ebug/
+MSVS-2013/Bare-Bones-Minecraft-Server/[Rr]elease/
+MSVS-2017/[Dd]ebug/
+MSVS-2017/[Rr]elease/
+MSVS-2017/Bare-Bones-Minecraft-Server/[Dd]ebug/
+MSVS-2017/Bare-Bones-Minecraft-Server/[Rr]elease/
 
 # Visual C++ cache files
 MSVS-2017/.vs/

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "data/blocks.h"
 #include <stdint.h>
 #include <string>
-#include "data/blocks.h"
 
 // Size definitions
 #define VARINT_MAX_SIZE			5

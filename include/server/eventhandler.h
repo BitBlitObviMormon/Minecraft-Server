@@ -1,12 +1,11 @@
 #pragma once
 
-#include "data/datatypes.h"
 #include "client/client.h"
 #include "client/clientevents.h"
-#include "server/server.h"
 #include <map>
 #include <thread>
 
+class Server;
 class NetworkHandler;
 class EventHandler
 {

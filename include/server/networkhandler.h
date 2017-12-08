@@ -1,6 +1,7 @@
 #pragma once
 
 #include "client/client.h"
+#include "data/datatypes.h"
 #include "data/entity/entities.h"
 #include "data/entity/blockentities.h"
 #include "server/serverevents.h"
@@ -57,11 +58,14 @@ protected:
 	void playerOnGround(Client* client, Byte* buffer, Int length);
 	void vehicleMove(Client* client, Byte* buffer, Int length);
 	void steerBoat(Client* client, Byte* buffer, Int length);
+	void craftRecipeRequest(Client* client, Byte* buffer, Int length);
 	void playerAbilities(Client* client, Byte* buffer, Int length);
 	void playerDigging(Client* client, Byte* buffer, Int length);
 	void entityAction(Client* client, Byte* buffer, Int length);
 	void steerVehicle(Client* client, Byte* buffer, Int length);
+	void craftingBookData(Client* client, Byte* buffer, Int length);
 	void resourcePackStatus(Client* client, Byte* buffer, Int length);
+	void advancementTab(Client* client, Byte* buffer, Int length);
 	void heldItemChange(Client* client, Byte* buffer, Int length);
 	void creativeInventoryAction(Client* client, Byte* buffer, Int length);
 	void updateSign(Client* client, Byte* buffer, Int length);
@@ -125,6 +129,7 @@ public:
 	void sendEntity(Client* client, Int entityID);
 	void sendVehicleMove(Client* client, PositionF position, Float yaw, Float pitch);
 	void sendOpenSignEditor(Client* client, Position pos);
+	void sendCraftRecipeResponse(Client* client, Byte windowID, Int recipeID);
 	void sendPlayerAbilities(Client* client, PlayerAbilities abilities, Float flyingSpeed, Float fovModifier);
 	void sendEnterCombatEvent(Client* client);
 	void sendEndCombatEvent(Client* client, Int duration, Int entityID);
@@ -136,6 +141,7 @@ public:
 	void sendResourcePack(Client* client, String url, String hash);
 	void sendRespawn(Client* client, Dimension dimension, Difficulty difficulty, Gamemode gamemode, LevelType level);
 	void sendEntityHeadLook(Client* client, Int entityID, Float yaw);
+	void sendSelectAdvancementTab(Client* client, String id = "");
 	void sendWorldBorder(Client* client); // TODO: Add args
 	void sendCamera(Client* client, Int entityID);
 	void sendHeldItemChange(Client* client, Byte hotbarSlot);
@@ -164,6 +170,7 @@ public:
 	void sendPlayerListHeaderAndFooter(Client* client, String header, String footer);
 	void sendCollectItem(Client* client, Int collectedID, Int collectorID, Int count);
 	void sendEntityTeleport(Client* client, Int entityID, PositionF pos, Float yaw, Float pitch, Boolean onGround);
+	void sendAdvancements(Client* client); // TODO: Add args
 	void sendEntityProperties(Client* client); // TODO: Add args
 	void sendEntityEffect(Client* client, Int entityID, StatusEffect effect, Int level, Int duration, StatusEffectFlags flags);
 
@@ -187,6 +194,12 @@ public:
 
 	template <class T> // Any IEnumerable like vector<Position>
 	void sendExplosion(Client* client, PositionF pos, Float radius, PositionF newClientVelocity, T blocksToRemove)
+	{
+
+	}
+
+	template <class T>
+	void sendUnlockRecipes(Client* client, T recipes1, T recipes2, Boolean craftingBookOpen, Boolean filteringCraftable) // Any IEnumerable like vector<Int>
 	{
 
 	}
