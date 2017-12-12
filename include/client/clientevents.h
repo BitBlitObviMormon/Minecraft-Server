@@ -227,7 +227,7 @@ public:
 class KeepAliveEventArgs : public ClientEventArgs
 {
 public:
-	Int id;
+	Long id;
 };
 
 class PlayerOnGroundEventArgs : public ClientEventArgs
@@ -444,9 +444,25 @@ public:
 	Byte* verifyToken;
 };
 
-class GetChunkEventArgs : public ClientEventArgs
+class GetChunkSectionEventArgs : public ClientEventArgs
 {
 public:
 	Position pos;
-	ChunkSection chunk;
+	ChunkSection* chunk;
+};
+
+class GetChunkEventArgs : public ClientEventArgs
+{
+public:
+	Int x;
+	Int z;
+	ChunkColumn chunk;
+};
+
+class GetBiomeEventArgs : public ClientEventArgs
+{
+public:
+	Int x;
+	Int z;
+	BiomeID* biomes;
 };

@@ -1,6 +1,7 @@
 #include "debug.h"
 #include "server/eventhandler.h"
 #include "server/networkhandler.h"
+#include <iostream>
 #include <ctime>
 
 #define DISCONNECT_TIME 10.0
@@ -33,16 +34,6 @@ void toBytes(const Long value, char* bytes)
 	bytes[7] = value & 0xFF;
 }
 
-/*******************************
- * toBytes                     *
- * Converts a float to 4 bytes *
- *******************************/
-void toBytes(const float value, char* bytes)
-{
-	Int val = reinterpret_cast<const Int&>(value);
-	toBytes(val, bytes);
-}
-
 /********************************
  * toBytes                      *
  * Converts a double to 8 bytes *
@@ -50,6 +41,16 @@ void toBytes(const float value, char* bytes)
 void toBytes(const double value, char* bytes)
 {
 	Long val = reinterpret_cast<const Long&>(value);
+	toBytes(val, bytes);
+}
+
+/*******************************
+ * toBytes                     *
+ * Converts a float to 4 bytes *
+ *******************************/
+void toBytes(const float value, char* bytes)
+{
+	Int val = reinterpret_cast<const Int&>(value);
 	toBytes(val, bytes);
 }
 
@@ -134,7 +135,7 @@ void EventHandler::onTick(Double dt, Int ticksSkipped)
 			// Ask if the player is still alive
 			// TODO: Prompt for a random number and test for it
 			// TODO: Uncomment code when eventhandler no longer runs on several threads
-//			networkHandler->sendKeepAlive(client, 0);
+			networkHandler->sendKeepAlive(client, 0);
 
 			// TODO: Give the client the time
 //			timeUpdate(client);
@@ -279,7 +280,10 @@ void EventHandler::animation(AnimationEventArgs e)
  *************************************************/
 void EventHandler::chatMessage(ChatMessageEventArgs e)
 {
-
+	// Forward the message to every client that is in play mode
+	for (std::map<SOCKET, Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
+		if (it->second->state == ServerState::Play)
+			networkHandler->sendChatMessage(it->second, e.client->name + String(": ") + e.message);
 }
 
 /*************************************************
@@ -309,11 +313,15 @@ void EventHandler::clientSettings(ClientSettingsEventArgs e)
 	// TODO: Check if no chunks are loaded or use flag instead
 	if (e.client->pos.y < -900.0)
 	{
-		// Send chunks over
+		// Send the chunks over
+		for (int x = -3; x <= 3; ++x)
+			for (int z = -3; z <= 3; ++z)
+				networkHandler->sendChunk(e.client, x, z, true, true);
 
 		// TODO: Use an actual keep alive and teleport id
 		networkHandler->sendKeepAlive(e.client, 0);
-		networkHandler->sendPlayerPositionAndLook(e.client, PositionF(0.0, 64.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+		networkHandler->sendPlayerPositionAndLook(e.client, PositionF(0.0, 255.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+		networkHandler->sendChatMessage(e.client, "Welcome to \\u00a74Super \\u00a76\\u00a7lSMASH \\u00a74Craft\\u00a7r!", ChatMessageType::GameInfo);
 	}
 }
 
@@ -387,7 +395,6 @@ void EventHandler::heldItemChange(HeldItemChangeEventArgs e)
 void EventHandler::keepAlive(KeepAliveEventArgs e)
 {
 	e.client->ticksSinceUpdate = 0;
-	networkHandler->sendKeepAlive(e.client, 0);
 }
 
 /*************************************************
@@ -517,9 +524,9 @@ void EventHandler::teleportConfirm(TeleportConfirmEventArgs e)
 	// TODO: Use actual teleport id and check whether they are spawning, respawning, or teleporting using a flag
 	if (e.client->pos.y == -999.0)
 	{
-		e.client->pos.y = 64.0;
+		e.client->pos.y = 255.0;
 		e.client->yaw = 0.0;
-		e.client->pitch = 0.0;
+		e.client->pitch = 90.0;
 		networkHandler->sendPlayerPositionAndLook(e.client, e.client->pos, e.client->yaw, e.client->pitch, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
 	}
 }
@@ -561,19 +568,52 @@ void EventHandler::vehicleMove(VehicleMoveEventArgs e)
 }
 
 /*****************************************
- * EventHandler :: getChunk              *
+ * EventHandler :: getChunkSection       *
  * Returns a chunk at the given position *
  *****************************************/
-ChunkSection& EventHandler::getChunk(GetChunkEventArgs& e)
+ChunkSection& EventHandler::getChunkSection(GetChunkSectionEventArgs& e)
 {
+//	if (e.pos.x > -2 && e.pos.x < 2 && e.pos.y == 12 && e.pos.z > -2 && e.pos.z < 2)
 	if (e.pos.x == 0 && e.pos.y == 12 && e.pos.z == 0)
 	{
-		for (int i = 0; i < 256; i++)
-			e.chunk.setBlock(i, BlockID::Cobblestone);
-		e.chunk.fillLighting(0, 15);
+		e.chunk->fillBlocks(BlockID::Cobblestone, 0);
+		e.chunk->fillLighting(7, 7);
+	}
+
+	return *e.chunk;
+}
+
+/************************************************
+ * EventHandler :: getChunk                     *
+ * Returns a chunk column at the given position *
+ ************************************************/
+ChunkColumn& EventHandler::getChunk(GetChunkEventArgs& e)
+{
+	// Grab the chunks for all of the z-levels
+	GetChunkSectionEventArgs e2;
+	e2.client = e.client;
+	e2.pos = Position(e.x, 0, e.z);
+	for (int i = 0; i < 16; ++i)
+	{
+		e2.pos.y = i;
+		e2.chunk = &e.chunk.chunks[i];
+		getChunkSection(e2);
 	}
 
 	return e.chunk;
+}
+
+/*****************************************
+ * EventHandler :: getBiomes             *
+ * Returns the biomes at the given chunk *
+ *****************************************/
+BiomeID* EventHandler::getBiomes(GetBiomeEventArgs& e)
+{
+	// Grab the biome for all the given blocks in a chunk
+	for (int i = 0; i < 256; ++i)
+		e.biomes[i] = BiomeID::Beach;
+
+	return e.biomes;
 }
 
 /********************************************

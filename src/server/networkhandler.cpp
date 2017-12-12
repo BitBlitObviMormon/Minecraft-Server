@@ -47,26 +47,6 @@ Short parseShort(Byte* data)
 	return (data[0] << 8) + data[1];
 }
 
-/***************************
- * writeDouble             *
- * Writes a double to data *
- ***************************/
-// TODO: Verify cross-platform validity
-void writeDouble(String& data, Double num)
-{
-	data.append((char*)&num, 8);
-}
-
-/**************************
- * writeFloat             *
- * Writes a float to data *
- **************************/
-// TODO: Verify cross-platform validity
-void writeFloat(String& data, Float num)
-{
-	data.append((char*)&num, 4);
-}
-
 /*************************
  * writeLong             *
  * Writes a long to data *
@@ -103,6 +83,26 @@ void writeShort(String& data, Short num)
 {
 	data.append(1, (num >> 8) & 0xFF);
 	data.append(1, num & 0xFF);
+}
+
+/***************************
+ * writeDouble             *
+ * Writes a double to data *
+ ***************************/
+// TODO: Verify cross-platform validity
+void writeDouble(String& data, Double num)
+{
+	writeLong(data, reinterpret_cast<const Long&>(num));
+}
+
+/**************************
+ * writeFloat             *
+ * Writes a float to data *
+ **************************/
+// TODO: Verify cross-platform validity
+void writeFloat(String& data, Float num)
+{
+	writeInt(data, reinterpret_cast<const Int&>(num));
 }
 
 /*************************************************************
@@ -672,7 +672,10 @@ void NetworkHandler::useEntity(Client* client, Byte* buffer, Int length)
  ***********************************************************/
 void NetworkHandler::keepAlive(Client* client, Byte* buffer, Int length)
 {
-
+	KeepAliveEventArgs e;
+	e.client = client;
+	e.id = parseInt(buffer);
+	eventHandler->triggerEvent(&EventHandler::keepAlive, eventHandler, e);
 }
 
 /*********************************************
@@ -690,8 +693,7 @@ void NetworkHandler::playerPosition(Client* client, Byte* buffer, Int length)
  *******************************************************/
 void NetworkHandler::playerPositionAndLook(Client* client, Byte* buffer, Int length)
 {
-	// TODO: Do this here!
-	std::cout << client->name << ": Confirmed the spawn!\n";
+//	sendPlayerPositionAndLook(client, PositionF(0.0, 255.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
 }
 
 /**************************************************
@@ -878,17 +880,48 @@ void NetworkHandler::sendLoginSuccess(Client* client, UUID uuid, String username
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(64);
-	VarInt packid = VarInt(0x2);
+	VarInt packid = VarInt((Int)ServerLoginPacket::LoginSuccess);
 	SerialString suuid = SerialString(uuid.str());
 	SerialString susername = SerialString(username);
 	VarInt length = VarInt(packid.getSize() + suuid.getSize() + susername.getSize());
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
 	data.append((char*)packid.getData(), packid.getSize());
 	data.append(suuid.makeData(), suuid.getSize());
 	data.append(susername.makeData(), susername.getSize());
+
+	// Send the packet
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/*************************************
+ * NetworkHandler :: sendChatMessage *
+ * Send a message to the client      *
+ *************************************/
+void NetworkHandler::sendChatMessage(Client* client, String message, ChatMessageType type, Boolean isJson)
+{
+	// Serialize the data
+	String data = "";
+	VarInt packid = VarInt((Int)ServerPlayPacket::ChatMessage);
+	SerialString smessage;
+
+	// If the text is in JSON format then send it directly
+	if (isJson)
+		smessage = SerialString(message);
+	// If the text is not in JSON then make it so.
+	else
+		smessage = SerialString(String("{ \"text\": \"") + message + String("\" }"));
+
+	VarInt length = VarInt(packid.getSize() + smessage.getSize() + 1);
+	data.reserve(length.toInt() + length.getSize());
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	data.append(smessage.makeData(), smessage.getSize());
+	data.append(1, (char)type);
 
 	// Send the packet
 	send(client->socket, data.c_str(), data.size(), NULL);
@@ -902,10 +935,10 @@ void NetworkHandler::sendJoinGame(Client* client, Int entityID, Gamemode gamemod
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(64);
-	VarInt packid = VarInt(0x23);
+	VarInt packid = VarInt((Int)ServerPlayPacket::JoinGame);
 	SerialString slevelType = SerialString(levelType.str());
 	VarInt length = VarInt(12 + slevelType.getSize() + packid.getSize());
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -930,10 +963,10 @@ void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* dat
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(256);
-	VarInt packid = VarInt(0x18);
+	VarInt packid = VarInt((Int)ServerPlayPacket::PluginMessage);
 	SerialString schannel = SerialString(channel);
 	VarInt length = VarInt(packid.getSize() + schannel.getSize() + dataLen);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -949,10 +982,140 @@ void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* dat
  * NetworkHandler :: sendChunkColumn      *
  * Sends a column of chunks to the client *
  ******************************************/
-void NetworkHandler::sendChunkColumn(Client* client, Int x, Int z, ChunkColumn column)
+void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column, Boolean createChunk, Boolean inOverworld)
 {
-	// Serialize the data
+	// Figure out which chunks are not empty and serialize their data
+	int bitmask = 0;
+	int counter = 0;
+	String chunkdata = "";
+	chunkdata.reserve(0x20000);
+	for (int ch = 0; ch < 16; ++ch)
+	{
+		// If the chunk is filled then serialize its data using the global palette
+		if (!column.chunks[ch].empty())
+		{
+			bitmask |= 1 << ch;
+			counter++;
 
+			// TODO: Create and send a palette
+//			VarInt paletteLength = VarInt(0);
+//			chunkdata.append(1, MAX_BITS_PER_BLOCK);
+//			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
+			VarInt paletteLength = VarInt(1);
+			VarInt block = VarInt((UInt)BlockID::Cobblestone << 4);
+			chunkdata.append(1, 1); // Bits per block
+			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
+			chunkdata.append((char*)block.getData(), block.getSize());
+
+			/* Serialize the blocks using the palette
+			const int maxBits = MAX_BITS_PER_BLOCK;
+			int totalBytes = 0;
+			for (int i = 0, bitIndex = 0; i < 4096; ++i)
+			{
+				// Insert bits until there are no more left for this block
+				int bitsLeft = MAX_BITS_PER_BLOCK;
+				while (bitsLeft > 0)
+				{
+					if (bitIndex == 0)
+					{
+
+					}
+					else
+					{
+
+					}
+				}
+			} */
+
+			// Insert a constant inside
+			VarInt chunkdataSize = VarInt(64); // 64 * bitsize
+			chunkdata.append((char*)chunkdataSize.getData(), chunkdataSize.getSize());
+			for (int i = 0; i < 512; ++i)
+				chunkdata.append(1, '\xff');
+//			for (int i = 0; i < 256; ++i)
+//				writeLong(chunkdata, 0x1111111111111111);
+
+			// Send the block light data
+			for (int i = 0; i < 256; i += 2)
+				chunkdata.append(1, (char)(column.chunks[ch].getBlockLighting(i + 1) << 4 | column.chunks[ch].getBlockLighting(i)));
+
+			// Send the sky light data if we're sending an overworld chunk
+			if (inOverworld)
+				for (int i = 0; i < 256; i += 2)
+					chunkdata.append(1, (char)(column.chunks[ch].getSkyLighting(i + 1) << 4 | column.chunks[ch].getSkyLighting(i)));
+		}
+	}
+
+	// If we're creating a chunk then send the biome data
+	if (createChunk)
+	{
+		// If the biome data is empty then initialize it to the void
+		if (column.noBiomes())
+			column.fillBiomes();
+
+		// Send the biome data
+		chunkdata.append((char*)&column.getBiome(0), 256);
+	}
+
+	// TODO: serialize block entities
+
+	// Serialize the data
+	String data = "";
+	VarInt packid = VarInt((Int)ServerPlayPacket::ChunkData);
+	VarInt sbitmask = VarInt(bitmask);
+	VarInt columndatasize = VarInt(chunkdata.size());
+	VarInt numBlockEntities = VarInt(0);
+	VarInt length = VarInt(packid.getSize() + sbitmask.getSize() + columndatasize.getSize() + numBlockEntities.getSize() + chunkdata.size() + 9);
+	data.reserve(length.toInt() + length.getSize());
+	
+	// Append the data to a string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	writeInt(data, x);
+	writeInt(data, z);
+	data.append(1, (char)createChunk);
+	data.append((char*)sbitmask.getData(), sbitmask.getSize());
+	data.append((char*)columndatasize.getData(), columndatasize.getSize());
+	data.append(chunkdata);
+	data.append((char*)numBlockEntities.getData(), numBlockEntities.getSize());
+
+	std::cout << length.toInt() << ", " << data.size() << ", " << counter << "\n";
+
+	// Send the data
+	send(client->socket, data.c_str(), data.size(), NULL);
+}
+
+/******************************************
+ * NetworkHandler :: sendChunkColumn      *
+ * Sends a column of chunks to the client *
+ ******************************************/
+void NetworkHandler::sendChunk(Client* client, Int x, Int z, Boolean createChunk, Boolean inOverworld)
+{
+	// Get the chunk column before sending it
+	GetChunkEventArgs e;
+	e.client = client;
+	e.x = x;
+	e.z = z;
+	eventHandler->getChunk(e);
+
+	// If we're creating a chunk then grab its biome data
+	if (createChunk)
+	{
+		// Create the biome array if needed
+		if (e.chunk.noBiomes())
+			e.chunk.fillBiomes();
+
+		// Get the biome data
+		GetBiomeEventArgs e2;
+		e2.client = client;
+		e2.x = x;
+		e2.z = z;
+		e2.biomes = &e.chunk.getBiome(0);
+		eventHandler->getBiomes(e2);
+	}
+
+	// Send the chunk column
+	sendChunk(client, x, z, e.chunk, createChunk, inOverworld);
 }
 
 
@@ -964,9 +1127,9 @@ void NetworkHandler::sendServerDifficulty(Client* client, Difficulty difficulty)
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(8);
-	VarInt packid = VarInt(0x0d);
+	VarInt packid = VarInt((Int)ServerPlayPacket::Difficulty);
 	VarInt length = VarInt(packid.getSize() + 1);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -985,10 +1148,10 @@ void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(16);
-	VarInt packid = VarInt(0x46);
+	VarInt packid = VarInt((Int)ServerPlayPacket::SpawnPosition);
 	SerialPosition spos = SerialPosition(pos);
 	VarInt length = VarInt(packid.getSize() + 8);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -1007,9 +1170,9 @@ void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abiliti
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(16);
-	VarInt packid = VarInt(0x2c);
+	VarInt packid = VarInt((Int)ServerPlayPacket::PlayerAbilities);
 	VarInt length = VarInt(packid.getSize() + 9);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -1030,10 +1193,10 @@ void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Fl
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(64);
-	VarInt packid = VarInt(0x2e);
+	VarInt packid = VarInt((Int)ServerPlayPacket::PlayerPositionAndLook);
 	VarInt steleportID = VarInt(teleportID);
 	VarInt length = VarInt(packid.getSize() + steleportID.getSize() + 33);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
@@ -1054,19 +1217,18 @@ void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Fl
  * NetworkHandler :: sendKeepAlive *
  * Prompt the client to respond    *
  ***********************************/
-void NetworkHandler::sendKeepAlive(Client* client, int id)
+void NetworkHandler::sendKeepAlive(Client* client, Long id)
 {
 	// Serialize the data
 	String data = "";
-	data.reserve(12);
-	VarInt packid = VarInt(0x1f);
-	VarInt sid = VarInt(id);
-	VarInt length = VarInt(packid.getSize() + sid.getSize());
+	VarInt packid = VarInt((Int)ServerPlayPacket::KeepAlive);
+	VarInt length = VarInt(packid.getSize() + 8);
+	data.reserve(length.toInt() + length.getSize());
 
 	// Append the data to the string
 	data.append((char*)length.getData(), length.getSize());
 	data.append((char*)packid.getData(), packid.getSize());
-	data.append((char*)sid.getData(), sid.getSize());
+	writeLong(data, id);
 
 	// Send the packet
 	send(client->socket, data.c_str(), data.size(), NULL);
@@ -1164,6 +1326,7 @@ void NetworkHandler::start()
 					{
 						std::cout << "Error reading data from " << client->name
 							<< ": " << WSAGetLastError() << "\n";
+						disconnectClient(client);
 					}
 					else if (dataRead > 0)
 					{

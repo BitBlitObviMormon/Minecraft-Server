@@ -1,6 +1,8 @@
 #pragma once
+#include <stdint.h>
+#define MAX_BITS_PER_BLOCK 13
 
-enum class BlockID
+enum class BlockID : uint16_t
 {
 	Air = 0,
 	Stone = 1,

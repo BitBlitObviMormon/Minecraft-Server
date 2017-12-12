@@ -385,6 +385,41 @@ SerialString::SerialString(const String& text)
 }
 
 /*********************************
+ * SerialString :: SerialString  *
+ * Constructor from SerialString *
+ *********************************/
+SerialString::SerialString(const SerialString& str)
+{
+	// Allocate the data
+	int len = str.getLength();
+	data = new Byte[len];
+	length = VarInt(len);
+
+	// Copy the data
+	for (int i = 0; i < len; ++i)
+		data[i] = str.data[i];
+}
+
+/**********************************
+ * SerialString :: equal operator *
+ * Copy SerialString              *
+ **********************************/
+SerialString& SerialString::operator=(const SerialString& rhs)
+{
+	// Allocate the data
+	int len = rhs.getLength();
+	data = new Byte[len];
+	length = VarInt(len);
+
+	// Copy the data
+	for (int i = 0; i < len; ++i)
+		data[i] = rhs.data[i];
+
+	return *this;
+}
+
+
+/*********************************
  * SerialString :: ~SerialString *
  * Destructor                    *
  *********************************/
@@ -633,7 +668,8 @@ void ChunkSection::setBlockLighting(int index, Byte value)
 		fillLighting();
 
 	// Set the lighting to the new block lighting and the current sky lighting
-	lights[index] = (lights[index] & 0xF) | (value << 4);
+	lights[index] &= 0xF0;
+	lights[index] |= value << 4;
 }
 
 /*******************************************************************
@@ -648,7 +684,8 @@ void ChunkSection::setSkyLighting(int index, Byte value)
 		fillLighting();
 
 	// Set the lighting to the current block lighting and the new sky lighting
-	lights[index] = (lights[index] & 0xF0) | value;
+	lights[index] &= 0xF;
+	lights[index] |= value;
 }
 
 /****************************************************************
@@ -672,13 +709,13 @@ void ChunkSection::setLighting(int index, Byte blockLightValue, Byte skyLightVal
  * Any block id that is < 0 or > 4095 causes undefined behavior!  *
  * Any block state that is < 0 or > 15 causes undefined behavior! *
  ******************************************************************/
-void ChunkSection::fillBlocks(Short blockid, Byte blockstate)
+void ChunkSection::fillBlocks(BlockID blockid, Byte blockstate)
 {
 	// Create a new array when necessary
 	if (!blocks)
 		blocks = new Short[4096];
 
-	Short value = (blockid << 4) | blockstate;
+	Short value = ((Short)blockid << 4) | blockstate;
 
 	// Set every block to the given block state and id
 	for (int i = 0; i < 4096; i++)

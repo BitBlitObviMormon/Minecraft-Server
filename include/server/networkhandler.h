@@ -103,7 +103,7 @@ public:
 	void sendBossBar(Client* client, BossBar bar, BossBarAction action);
 	void sendServerDifficulty(Client* client, Difficulty difficulty);
 	void sendTabComplete(Client* client, String result);
-	void sendChatMessage(Client* client, String message, ChatMessageType type = ChatMessageType::Chat);
+	void sendChatMessage(Client* client, String message, ChatMessageType type = ChatMessageType::Chat, Boolean isJson = false);
 	void sendConfirmTransaction(Client* client, Byte windowID, Short actionNum, Boolean accepted);
 	void sendCloseWindow(Client* client, Byte windowID);
 	void sendOpenWindow(Client* client, Window window);
@@ -116,9 +116,10 @@ public:
 	void sendEntityStatus(Client* client, Int entityID, Byte entityStatus);
 	void sendUnloadChunk(Client* client, Int x, Int y);
 	void sendChangeGameState(Client* client, GameStateReason reason, Float value); // FLOAT?? TODO: See if value should be int
-	void sendKeepAlive(Client* client, Int id);
+	void sendKeepAlive(Client* client, Long id);
 	void sendChunkData(Client* client); // TODO: Add args
-	void sendChunkColumn(Client* client, Int x, Int z, ChunkColumn column);
+	void sendChunk(Client* client, Int x, Int z, Boolean createChunk = false, Boolean inOverworld = true);
+	void sendChunk(Client* client, Int x, Int z, ChunkColumn& column, Boolean createChunk = false, Boolean inOverworld = true);
 	void sendEffect(Client* client, EffectID effectID, Position pos, Int data = 0, Boolean disableRelativeVolume = false);
 	void sendParticle(Client* client, Particle particle, Int num, Byte* data = NULL, Int dataLen = 0);
 	void sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);

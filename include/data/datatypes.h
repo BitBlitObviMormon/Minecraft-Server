@@ -1,6 +1,7 @@
 #pragma once
 
 #include "data/blocks.h"
+#include "data/biomes.h"
 #include <stdint.h>
 #include <string>
 
@@ -93,7 +94,9 @@ protected:
 public:
 	SerialString(Byte* data = NULL);
 	SerialString(const String& text);
+	SerialString(const SerialString& str);
 	~SerialString();
+	SerialString& operator=(const SerialString& rhs);
 	const Int getLength() const;
 	const Int getSize() const;
 	char* makeData() const;
@@ -205,10 +208,12 @@ public:
 	Boolean empty() { return !blocks; }
 	void deleteBlocks() { if (blocks) delete[] blocks; blocks = NULL; }
 	void deleteLights() { if (lights) delete[] lights; lights = NULL; }
-	BlockID getBlock(int index) { return (BlockID)(blocks[index] & 0xFFF0); }
+	Short getBlockData(int index) { return blocks[index]; }
+	Short getBlockData(int x, int y, int z) { return getBlockData(y * 256 + z * 16 + x); }
+	BlockID getBlock(int index) { return (BlockID)(((UByte)blocks[index]) >> 4); }
 	Byte getBlockState(int index) { return blocks[index] & 0xF; }
-	Byte getBlockLighting(int index) { return lights[index] & 0xF0; }
-	Byte getSkyLighting(int index) { return lights[index] & 0xF; }
+	Byte getBlockLighting(int index) { return ((UByte)lights[index]) >> 4; }
+	Byte getSkyLighting(int index) { return (UByte)lights[index] & 0xF; }
 	BlockID getBlock(int x, int y, int z) { return getBlock(y * 256 + z * 16 + x); }
 	Byte getBlockState(int x, int y, int z) { return getBlockState(y * 256 + z * 16 + x); }
 	Byte getBlockLighting(int x, int y, int z) { return getBlockLighting(y * 256 + z * 16 + x); }
@@ -219,14 +224,14 @@ public:
 	void setBlockLighting(int index, Byte value);
 	void setSkyLighting(int index, Byte value);
 	void setLighting(int index, Byte blockLightValue, Byte skyLightValue);
-	void setBlock(int x, int y, int z, BlockID blockid) { setBlock(z * 256 + y * 16 + x, blockid); }
-	void setBlock(int x, int y, int z, BlockID blockid, Byte blockstate) { setBlock(z * 256 + y * 16 + x, blockid, blockstate); }
-	void setBlockState(int x, int y, int z, Byte blockstate) { setBlockState(z * 256 + y * 16 + x, blockstate); }
-	void setBlockLighting(int x, int y, int z, Byte value) { setBlockLighting(z * 256 + y * 16 + x, value); }
-	void setSkyLighting(int x, int y, int z, Byte value) { setSkyLighting(z * 256 + y * 16 + x, value); }
-	void setLighting(int x, int y, int z, Byte blockLightValue, Byte skyLightValue) { setLighting(z * 256 + y * 16 + x, blockLightValue, skyLightValue); }
-	void fillBlocks(Short blockid = 0, Byte blockstate = 0);
-	void fillLighting(Byte blockLightValue = 0, Byte skyLightValue = 15);
+	void setBlock(int x, int y, int z, BlockID blockid) { setBlock(y * 256 + z * 16 + x, blockid); }
+	void setBlock(int x, int y, int z, BlockID blockid, Byte blockstate) { setBlock(y * 256 + z * 16 + x, blockid, blockstate); }
+	void setBlockState(int x, int y, int z, Byte blockstate) { setBlockState(y * 256 + z * 16 + x, blockstate); }
+	void setBlockLighting(int x, int y, int z, Byte value) { setBlockLighting(y * 256 + z * 16 + x, value); }
+	void setSkyLighting(int x, int y, int z, Byte value) { setSkyLighting(y * 256 + z * 16 + x, value); }
+	void setLighting(int x, int y, int z, Byte blockLightValue, Byte skyLightValue) { setLighting(y * 256 + z * 16 + x, blockLightValue, skyLightValue); }
+	void fillBlocks(BlockID blockid = BlockID::Air, Byte blockstate = 0);
+	void fillLighting(Byte blockLightValue = 15, Byte skyLightValue = 15);
 };
 
 /*************************************
@@ -235,10 +240,18 @@ public:
  *************************************/
 class ChunkColumn
 {
+protected:
+	BiomeID* biomes;
 public:
-	ChunkSection* chunks[16];
-	ChunkColumn() { for (int i = 0; i < 16; i++) chunks[i] = NULL; }
-	~ChunkColumn() {} // Note that ChunkColumn does not delete any of the chunks
+	ChunkSection chunks[16];
+	ChunkColumn() : biomes(NULL) {}
+	~ChunkColumn() { if (biomes) delete[] biomes; }
+	Boolean noBiomes() { return !biomes; }
+	BiomeID& getBiome(int index) { return biomes[index]; }
+	BiomeID& getBiome(int x, int z) { return getBiome(z * 16 + x); }
+	void fillBiomes(BiomeID biome = BiomeID::TheVoid) { if (!biomes) biomes = new BiomeID[256]; for (int i = 0; i < 256; ++i) biomes[i] = biome; }
+	void setBiome(int index, BiomeID biome) { if (!biomes) biomes = new BiomeID[256]; biomes[index] = biome; }
+	void setBiome(int x, int z, BiomeID biome) { setBiome(z * 16 + x, biome); }
 };
 
 /**************************

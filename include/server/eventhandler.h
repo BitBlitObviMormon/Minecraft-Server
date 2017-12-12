@@ -78,7 +78,9 @@ protected:
 	void vehicleMove(VehicleMoveEventArgs e);
 
 	/* DATA-PASSING EVENTS */
-	ChunkSection& getChunk(GetChunkEventArgs& e);
+	ChunkSection& getChunkSection(GetChunkSectionEventArgs& e);
+	ChunkColumn& getChunk(GetChunkEventArgs& e);
+	BiomeID* getBiomes(GetBiomeEventArgs& e);
 public:
 	/* Constructors */
 	EventHandler();
