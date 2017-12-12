@@ -574,7 +574,8 @@ void EventHandler::vehicleMove(VehicleMoveEventArgs e)
 ChunkSection& EventHandler::getChunkSection(GetChunkSectionEventArgs& e)
 {
 //	if (e.pos.x > -2 && e.pos.x < 2 && e.pos.y == 12 && e.pos.z > -2 && e.pos.z < 2)
-	if (e.pos.x == 0 && e.pos.y == 12 && e.pos.z == 0)
+//	if (e.pos.x == 0 && e.pos.y == 12 && e.pos.z == 0)
+	if (e.pos.y == 12)
 	{
 		e.chunk->fillBlocks(BlockID::Cobblestone, 0);
 		e.chunk->fillLighting(7, 7);
