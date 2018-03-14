@@ -68,7 +68,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\driver\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\client\client.h" />
