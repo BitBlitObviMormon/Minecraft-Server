@@ -2,6 +2,7 @@
 #include "server/networkhandler.h"
 #include "server/eventhandler.h"
 #include "data/networkpackets.h"
+#include "data/bitstream.h"
 #include <iostream>
 #include <thread>
 
@@ -60,6 +61,22 @@ void writeLong(String& data, Long num)
 	data.append(1, (num >> 24) & 0xFF);
 	data.append(1, (num >> 16) & 0xFF);
 	data.append(1, (num >> 8) & 0xFF);
+	data.append(1, num & 0xFF);
+}
+
+/*************************
+ * writeLong             *
+ * Writes a long to data *
+ *************************/
+void writeLongB(String& data, Long num)
+{
+	data.append(1, (num >> 8) & 0xFF);
+	data.append(1, (num >> 16) & 0xFF);
+	data.append(1, (num >> 24) & 0xFF);
+	data.append(1, (num >> 32) & 0xFF);
+	data.append(1, (num >> 40) & 0xFF);
+	data.append(1, (num >> 48) & 0xFF);
+	data.append(1, (num >> 56) & 0xFF);
 	data.append(1, num & 0xFF);
 }
 
@@ -998,14 +1015,14 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 			counter++;
 
 			// TODO: Create and send a palette
-//			VarInt paletteLength = VarInt(0);
-//			chunkdata.append(1, MAX_BITS_PER_BLOCK);
-//			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
-			VarInt paletteLength = VarInt(1);
-			VarInt block = VarInt((UInt)BlockID::Cobblestone << 4);
-			chunkdata.append(1, 1); // Bits per block
+			VarInt paletteLength = VarInt(0);
+			chunkdata.append(1, MAX_BITS_PER_BLOCK);
 			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
-			chunkdata.append((char*)block.getData(), block.getSize());
+//			VarInt paletteLength = VarInt(1);
+//			VarInt block = VarInt((UInt)BlockID::Cobblestone << 4);
+//			chunkdata.append(1, 1); // Bits per block
+//			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
+//			chunkdata.append((char*)block.getData(), block.getSize());
 
 			/* Serialize the blocks using the palette
 			const int maxBits = MAX_BITS_PER_BLOCK;
@@ -1028,20 +1045,46 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 			} */
 
 			// Insert a constant inside
-			VarInt chunkdataSize = VarInt(64); // 64 * bitsize
+			VarInt chunkdataSize = VarInt(64 * MAX_BITS_PER_BLOCK); // 64 * bitsize
 			chunkdata.append((char*)chunkdataSize.getData(), chunkdataSize.getSize());
-			for (int i = 0; i < 512; ++i)
-				chunkdata.append(1, '\xff');
+
+			// Stuff the blocks into a global palette
+			BitStream bs;
+			for (int i = 0; i < 4096; ++i)
+				bs.push_back(column.chunks[ch].getBlockData(i), MAX_BITS_PER_BLOCK);
+
+			// Insert the block data
+			chunkdata.append(bs.str());
+
+			/* for (int i = 0; i < 64; ++i)
+			{
+				writeLong(chunkdata, 0x01800C0060030018);
+				writeLong(chunkdata, 0x00C006003001800C);
+				writeLong(chunkdata, 0x006003001800C006);
+				writeLong(chunkdata, 0x003001800C006003);
+				writeLong(chunkdata, 0x001800C006003001);
+				writeLong(chunkdata, 0x800C006003001800);
+				writeLong(chunkdata, 0xC006003001800C00);
+				writeLong(chunkdata, 0x6003001800C00600);
+				writeLong(chunkdata, 0x3001800C00600300);
+				writeLong(chunkdata, 0x1800C00600300180);
+				writeLong(chunkdata, 0x0C006003001800C0);
+				writeLong(chunkdata, 0x06003001800C0060);
+				writeLong(chunkdata, 0x03001800C0060030);
+			} */
+//			for (int i = 0; i < 512; ++i)
+//				chunkdata.append("\x01\x80\x0C\x00\x60\x03\x00\x18\x00\xC0\x06\x00\x30", 13);
+//				chunkdata.append(1, '\xff');
 //			for (int i = 0; i < 256; ++i)
 //				writeLong(chunkdata, 0x1111111111111111);
 
 			// Send the block light data
-			for (int i = 0; i < 256; i += 2)
+			for (int i = 0; i < 4096; i += 2)
 				chunkdata.append(1, (char)(column.chunks[ch].getBlockLighting(i + 1) << 4 | column.chunks[ch].getBlockLighting(i)));
 
 			// Send the sky light data if we're sending an overworld chunk
 			if (inOverworld)
-				for (int i = 0; i < 256; i += 2)
+				for (int i = 0; i < 4096; i += 2)
 					chunkdata.append(1, (char)(column.chunks[ch].getSkyLighting(i + 1) << 4 | column.chunks[ch].getSkyLighting(i)));
 		}
 	}

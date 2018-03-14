@@ -612,7 +612,7 @@ BiomeID* EventHandler::getBiomes(GetBiomeEventArgs& e)
 {
 	// Grab the biome for all the given blocks in a chunk
 	for (int i = 0; i < 256; ++i)
-		e.biomes[i] = BiomeID::Beach;
+		e.biomes[i] = BiomeID::TheVoid;
 
 	return e.biomes;
 }

@@ -154,6 +154,7 @@
     <ClInclude Include="..\..\include\data\biomes.h" />
     <ClInclude Include="..\..\include\data\blocks.h" />
     <ClInclude Include="..\..\include\data\datatypes.h" />
+    <ClInclude Include="..\..\include\data\bitstream.h" />
     <ClInclude Include="..\..\include\data\entity\blockentities.h" />
     <ClInclude Include="..\..\include\data\entity\entities.h" />
     <ClInclude Include="..\..\include\data\networkpackets.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="..\..\src\data\biomes.cpp" />
     <ClCompile Include="..\..\src\data\blocks.cpp" />
     <ClCompile Include="..\..\src\data\datatypes.cpp" />
+    <ClCompile Include="..\..\src\data\bitstream.cpp" />
     <ClCompile Include="..\..\src\data\entity\blockentities.cpp" />
     <ClCompile Include="..\..\src\data\entity\entities.cpp" />
     <ClCompile Include="..\..\src\server\eventhandler.cpp" />

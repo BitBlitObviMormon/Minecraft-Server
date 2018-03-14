@@ -201,7 +201,7 @@ class ChunkSection
 private:
 	// If the chunk is empty, the block array is null
 	Byte*  lights; // First nibble is block lighting; second nibble is sky lighting
-	Short* blocks; // First 3 nibbles is block; last nibble is block data
+	Short* blocks; // First 3 nibbles is block id; last nibble is block metadata
 public:
 	ChunkSection() : lights(NULL), blocks(NULL) {}
 	~ChunkSection() { if (lights) delete[] lights; if (blocks) delete[] blocks; }
