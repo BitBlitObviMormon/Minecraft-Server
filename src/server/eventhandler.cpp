@@ -578,7 +578,7 @@ ChunkSection& EventHandler::getChunkSection(GetChunkSectionEventArgs& e)
 	if (e.pos.y == 12)
 	{
 		e.chunk->fillBlocks(BlockID::Cobblestone, 0);
-		e.chunk->fillLighting(7, 7);
+		e.chunk->fillLighting(1, 15);
 	}
 
 	return *e.chunk;

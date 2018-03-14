@@ -1014,69 +1014,35 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 			bitmask |= 1 << ch;
 			counter++;
 
-			// TODO: Create and send a palette
+			/* TODO: Create and send a palette
 			VarInt paletteLength = VarInt(0);
 			chunkdata.append(1, MAX_BITS_PER_BLOCK);
-			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
-//			VarInt paletteLength = VarInt(1);
-//			VarInt block = VarInt((UInt)BlockID::Cobblestone << 4);
-//			chunkdata.append(1, 1); // Bits per block
-//			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
-//			chunkdata.append((char*)block.getData(), block.getSize());
+			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize()); */
 
-			/* Serialize the blocks using the palette
-			const int maxBits = MAX_BITS_PER_BLOCK;
-			int totalBytes = 0;
-			for (int i = 0, bitIndex = 0; i < 4096; ++i)
-			{
-				// Insert bits until there are no more left for this block
-				int bitsLeft = MAX_BITS_PER_BLOCK;
-				while (bitsLeft > 0)
-				{
-					if (bitIndex == 0)
-					{
-
-					}
-					else
-					{
-
-					}
-				}
-			} */
-
-			// Insert a constant inside
+			/* Stuff the blocks into a global palette
 			VarInt chunkdataSize = VarInt(64 * MAX_BITS_PER_BLOCK); // 64 * bitsize
 			chunkdata.append((char*)chunkdataSize.getData(), chunkdataSize.getSize());
-
-			// Stuff the blocks into a global palette
 			BitStream bs;
 			for (int i = 0; i < 4096; ++i)
-				bs.push_back(column.chunks[ch].getBlockData(i), MAX_BITS_PER_BLOCK);
+				bs.push_back(column.chunks[ch].getBlockData(i), MAX_BITS_PER_BLOCK); */
+
+			// Create and send a 1-block palette
+			VarInt paletteLength = VarInt(1);
+			VarInt cobblePalette = VarInt((Int)BlockID::TNT << 4);
+			chunkdata.append(1, 1);
+			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
+			chunkdata.append((char*)cobblePalette.getData(), cobblePalette.getSize());
+
+			// Send all of the blocks from that palette
+			VarInt chunkdataSize = VarInt(64); // 64 * bitsize
+			chunkdata.append((char*)chunkdataSize.getData(), chunkdataSize.getSize());
 
 			// Insert the block data
-			chunkdata.append(bs.str());
-
-			/* for (int i = 0; i < 64; ++i)
-			{
-				writeLong(chunkdata, 0x01800C0060030018);
-				writeLong(chunkdata, 0x00C006003001800C);
-				writeLong(chunkdata, 0x006003001800C006);
-				writeLong(chunkdata, 0x003001800C006003);
-				writeLong(chunkdata, 0x001800C006003001);
-				writeLong(chunkdata, 0x800C006003001800);
-				writeLong(chunkdata, 0xC006003001800C00);
-				writeLong(chunkdata, 0x6003001800C00600);
-				writeLong(chunkdata, 0x3001800C00600300);
-				writeLong(chunkdata, 0x1800C00600300180);
-				writeLong(chunkdata, 0x0C006003001800C0);
-				writeLong(chunkdata, 0x06003001800C0060);
-				writeLong(chunkdata, 0x03001800C0060030);
-			} */
-//			for (int i = 0; i < 512; ++i)
-//				chunkdata.append("\x01\x80\x0C\x00\x60\x03\x00\x18\x00\xC0\x06\x00\x30", 13);
-//				chunkdata.append(1, '\xff');
-//			for (int i = 0; i < 256; ++i)
-//				writeLong(chunkdata, 0x1111111111111111);
+//			BitStream bs;
+//			for (int i = 0; i < 64; ++i)
+//				bs << (Long)0xFFFFFFFFFFFFFFFF;
+			chunkdata.append(512, '\xff');
+//			chunkdata.append(bs.str());
 
 			// Send the block light data
 			for (int i = 0; i < 4096; i += 2)
