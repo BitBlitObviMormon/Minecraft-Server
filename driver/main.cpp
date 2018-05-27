@@ -1,26 +1,63 @@
+#include "debug.h"
 #include "server/server.h"
-#include <cassert>
-#include <climits>
+#include <iostream>
+
+// Set to true to run all of the given tests
+#define RUN_TESTS 0
+
+#if(RUN_TESTS)
+	#include "tests/varnum/varnumtest.h"
+	#include "tests/jobqueue/jobqueuetest.h"
+	#include "tests/bitstream/bitstreamtest.h"
+	#include "tests/atomicset/atomicsettest.h"
+
+	// Comment any of these definitions to run that test
+//	#define VarNumTest()
+	#define JobQueueTest()
+	#define BitStreamTest()
+	#define AtomicSetTest()
+
+	// Runs all of the tests to make sure that certain code works
+	void RunTests()
+	{
+		// Test the VarNums
+		VarNumTest();
+
+		// Test the JobQueue
+		JobQueueTest();
+
+		// Test the BitStream
+		BitStreamTest();
+
+		// Test the AtomicSet
+		AtomicSetTest();
+
+		// Wait for the user to press enter before exiting
+		system("pause");
+		exit(0);
+	}
+#else
+	#define RunTests()
+#endif
+
+class Game : public EventHandler
+{
+private:
+public:
+	Game() : EventHandler() {}
+};
+
 
 int main()
 {
-	/* TODO: Fix memory leak so that this test can run
-	for (unsigned int i = 0; i < UINT_MAX; ++i)
-	{
-		VarInt v = VarInt(i);
-		assert(v.toInt() == i);
-	}
-
-	for (unsigned long long int i = 0; i < ULLONG_MAX; ++i)
-	{
-		VarLong v = VarLong(i);
-		assert(v.toLong() == i);
-	} */
+	// Run the tests, if they exist
+	RunTests();
 
 	// Create the server and its handlers then start the server
-	EventHandler* eventHandler = new EventHandler();
-	NetworkHandler* networkHandler = new NetworkHandler(eventHandler);
-	Server server = Server(eventHandler, networkHandler);
+//	Game game();
+	EventHandler* game = new EventHandler();
+	NetworkHandler* networkHandler = new NetworkHandler(game);
+	Server server = Server(game, networkHandler);
 	server.start();
 
 	return 0;

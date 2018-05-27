@@ -40,13 +40,14 @@ protected:
 	VarNum(const Long value);
 	VarNum(const Int value);
 	VarNum(const VarNum& value);
+	VarNum(VarNum&& value);
 	~VarNum();
 	Long toNum() const;
 public:
 	const Byte getSize() const;
 	const Byte* getData() const;
-	friend VarNum& makeNumVar(Long value, const Byte maxlength);
-	friend VarNum& makeNumVar(Int value, const Byte maxlength);
+	friend void makeNumVar(Long value, const Byte maxlength, VarNum& num);
+	friend void makeNumVar(Int value, const Byte maxlength, VarNum& num);
 };
 
 /**********************************
@@ -195,7 +196,6 @@ public:
  * A section of a chunk *
  * optimized for memory *
  ************************/
-class SerialChunkSection;
 class ChunkSection
 {
 private:

@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../include;$(ProjectDir)/..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -58,7 +58,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../include;$(ProjectDir)/..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,11 +68,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\tests\atomicset\atomicsettest.cpp" />
+    <ClCompile Include="..\tests\bitstream\bitstreamtest.cpp" />
+    <ClCompile Include="..\tests\jobqueue\jobqueuetest.cpp" />
+    <ClCompile Include="..\tests\varnum\varnumtest.cpp" />
     <ClCompile Include="..\driver\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\tests\atomicset\atomicsettest.h" />
+    <ClInclude Include="..\tests\bitstream\bitstreamtest.h" />
+    <ClInclude Include="..\tests\jobqueue\jobqueuetest.h" />
+    <ClInclude Include="..\tests\varnum\varnumtest.h" />
     <ClInclude Include="..\include\client\client.h" />
     <ClInclude Include="..\include\client\clientevents.h" />
+    <ClInclude Include="..\include\data\atomicset.h" />
     <ClInclude Include="..\include\data\biomes.h" />
     <ClInclude Include="..\include\data\blocks.h" />
     <ClInclude Include="..\include\data\networkpackets.h" />

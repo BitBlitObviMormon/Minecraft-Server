@@ -13,10 +13,25 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Test Files">
+      <UniqueIdentifier>{9d60af80-9b3f-4d81-9f42-b3df73d33ff2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\main.cpp">
+    <ClCompile Include="..\driver\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\atomicset\atomicsettest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\bitstream\bitstreamtest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\jobqueue\jobqueuetest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\varnum\varnumtest.cpp">
+      <Filter>Test Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +76,18 @@
     </ClInclude>
     <ClInclude Include="..\include\data\networkpackets.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\atomicset\atomicsettest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\bitstream\bitstreamtest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\jobqueue\jobqueuetest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\varnum\varnumtest.h">
+      <Filter>Test Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -48,6 +48,26 @@ Short parseShort(Byte* data)
 	return (data[0] << 8) + data[1];
 }
 
+/****************************
+ * parseDouble              *
+ * Reads a double from data *
+ ****************************/
+Double parseDouble(Byte* data)
+{
+	Long num = parseLong(data);
+	return reinterpret_cast<Double&>(num);
+}
+
+/***************************
+ * parseFloat              *
+ * Reads a float from data *
+ ***************************/
+Float parseFloat(Byte* data)
+{
+	Int num = parseInt(data);
+	return reinterpret_cast<Float&>(num);
+}
+
 /*************************
  * writeLong             *
  * Writes a long to data *
@@ -143,8 +163,8 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 
 	// Check which state the client is currently in
 	int packid = varPack.toInt();
-	std::cout << client->name << ": 0x" << std::hex << packid << " - " << std::dec << len << " bytes\n";
-	switch (client->state)
+	std::cout << client->getName() << ": 0x" << std::hex << packid << " - " << std::dec << len << " bytes\n";
+	switch (client->getState())
 	{
 	case ServerState::Handshaking:
 		// Check which packet the client was referring to
@@ -307,7 +327,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	// If the packet's length is smaller than reality allows then complain
 	if (tempLen < 1)
 	{
-		std::cout << "Error: Erroneous packet from " << client->name
+		std::cout << "Error: Erroneous packet from " << client->getName()
 			      << ": Has a length of " << tempLen << " bytes.\n"
 				  << "\tExpected a length of " << length << " bytes.\n";
 	}
@@ -340,7 +360,7 @@ void NetworkHandler::invalidPacket(Client* client, Byte* buffer, Int length, Int
 	e.data = data;
 
 	// Trigger the event before deleting the associated data
-	eventHandler->triggerEvent(&EventHandler::invalidPacket, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::invalidPacket, eventHandler, e);
 }
 
 /*************************************
@@ -352,8 +372,8 @@ void NetworkHandler::invalidState(Client* client, Byte* buffer, Int length)
 	// Tell the server that the client is in an invalid state
 	InvalidStateEventArgs e;
 	e.client = client;
-	e.state = client->state;
-	eventHandler->triggerEvent(&EventHandler::invalidState, eventHandler, e);
+	e.state = client->getState();
+	eventHandler->runOnServerThread(&EventHandler::invalidState, eventHandler, e);
 }
 
 /***********************************
@@ -378,7 +398,7 @@ void NetworkHandler::handShake(Client* client, Byte* buffer, Int length)
 
 	// Trigger the server's handshake event
 	e.state = (ServerState)VarInt(buffer).toInt();
-	eventHandler->triggerEvent(&EventHandler::handshake, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::handshake, eventHandler, e);
 }
 
 /****************************************
@@ -392,7 +412,7 @@ void NetworkHandler::handShakeLegacy(Client* client, Byte* buffer, Int length)
 	e.payload = *buffer;
 
 	// Trigger the server's legacy server list ping event
-	eventHandler->triggerEvent(&EventHandler::legacyServerListPing, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::legacyServerListPing, eventHandler, e);
 }
 
 /*****************************************
@@ -404,7 +424,7 @@ void NetworkHandler::request(Client* client, Byte* buffer, Int length)
 	// Alert the server of the client's request
 	RequestEventArgs e;
 	e.client = client;
-	eventHandler->triggerEvent(&EventHandler::request, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::request, eventHandler, e);
 }
 
 /************************************
@@ -417,7 +437,7 @@ void NetworkHandler::ping(Client* client, Byte* buffer, Int length)
 	PingEventArgs e;
 	e.client = client;
 	e.payload = parseLong(buffer);
-	eventHandler->triggerEvent(&EventHandler::ping, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::ping, eventHandler, e);
 }
 
 
@@ -434,7 +454,7 @@ void NetworkHandler::loginStart(Client* client, Byte* buffer, Int length)
 	e.name = name.str();
 
 	// Prompt the server to let the client in
-	eventHandler->triggerEvent(&EventHandler::loginStart, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::loginStart, eventHandler, e);
 }
 
 
@@ -464,8 +484,9 @@ void NetworkHandler::encryptionResponse(Client* client, Byte* buffer, Int length
 	e.verifyToken = copyBuffer(buffer, e.verifyTokenLen);
 	
 	// Notify the server of the client's response before deleting the associated data
-	eventHandler->triggerEvent([&] () {
-		eventHandler->encryptionResponse(e);
+	EventHandler* handler = eventHandler;
+	eventHandler->runOnServerThread([handler, e] () {
+		handler->encryptionResponse(e);
 		delete[] e.sharedSecret;
 		delete[] e.verifyToken;
 	});
@@ -483,7 +504,7 @@ void NetworkHandler::teleportConfirm(Client* client, Byte* buffer, Int length)
 	e.teleportID = VarInt(buffer).toInt();
 
 	// Alert the server of the client's confirmation
-	eventHandler->triggerEvent(&EventHandler::teleportConfirm, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::teleportConfirm, eventHandler, e);
 }
 
 /****************************************************
@@ -508,7 +529,7 @@ void NetworkHandler::tabComplete(Client* client, Byte* buffer, Int length)
 		e.lookedAtBlock = SerialPosition(parseLong(buffer)).toPosition();
 
 	// Send the information to the server
-	eventHandler->triggerEvent(&EventHandler::tabComplete, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::tabComplete, eventHandler, e);
 }
 
 /*****************************************
@@ -523,7 +544,7 @@ void NetworkHandler::chatMessage(Client* client, Byte* buffer, Int length)
 	e.message = SerialString(buffer).str();
 
 	// Send the data to the server for interpreting / broadcasting
-	eventHandler->triggerEvent(&EventHandler::chatMessage, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::chatMessage, eventHandler, e);
 }
 
 /************************************************************************
@@ -538,7 +559,7 @@ void NetworkHandler::clientStatus(Client* client, Byte* buffer, Int length)
 	e.action = (ClientStatusAction)VarInt(buffer).toInt();
 
 	// Send the event to the server
-	eventHandler->triggerEvent(&EventHandler::clientStatus, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::clientStatus, eventHandler, e);
 }
 
 /*****************************************************
@@ -572,7 +593,7 @@ void NetworkHandler::clientSettings(Client* client, Byte* buffer, Int length)
 	e.mainHand = (MainHand)VarInt(buffer).toInt();
 
 	// Notify the server of the client's requested settings
-	eventHandler->triggerEvent(&EventHandler::clientSettings, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::clientSettings, eventHandler, e);
 }
 
 /*******************************************************************
@@ -594,7 +615,7 @@ void NetworkHandler::confirmTransaction(Client* client, Byte* buffer, Int length
 	e.accepted = !!*buffer;
 
 	// Notify the server of the client's confirmation
-	eventHandler->triggerEvent(&EventHandler::confirmTransaction, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::confirmTransaction, eventHandler, e);
 }
 
 /***************************************
@@ -610,7 +631,7 @@ void NetworkHandler::enchantItem(Client* client, Byte* buffer, Int length)
 	e.enchantment = (EnchantmentPos)*buffer;
 
 	// Notify the server that the client wants to enchant an item
-	eventHandler->triggerEvent(&EventHandler::enchantItem, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::enchantItem, eventHandler, e);
 }
 
 /*******************************************
@@ -634,7 +655,7 @@ void NetworkHandler::closeWindow(Client* client, Byte* buffer, Int length)
 	e.windowID = *buffer;
 
 	// Tell the server the client wants to close the window
-	eventHandler->triggerEvent(&EventHandler::closeWindow, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::closeWindow, eventHandler, e);
 }
 
 /**********************************************************************************
@@ -659,7 +680,7 @@ void NetworkHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 		e2.eventCause = "pluginMessage";
 		e2.e = &e;
 		e2.length = e.length;
-		eventHandler->triggerEvent(&EventHandler::invalidLength, eventHandler, e2);
+		eventHandler->runOnServerThread(&EventHandler::invalidLength, eventHandler, e2);
 		return;
 	}
 
@@ -667,9 +688,10 @@ void NetworkHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 	e.data = copyBuffer(buffer, e.length);
 
 	// Tell the server the client is sending a plugin message
-	eventHandler->triggerEvent([&]()
+	EventHandler* handler = eventHandler;
+	eventHandler->runOnServerThread([handler, e]()
 	{
-		eventHandler->pluginMessage(e);
+		handler->pluginMessage(e);
 		delete[] e.data;
 	});
 }
@@ -689,10 +711,11 @@ void NetworkHandler::useEntity(Client* client, Byte* buffer, Int length)
  ***********************************************************/
 void NetworkHandler::keepAlive(Client* client, Byte* buffer, Int length)
 {
+	// Parse the packet, a single int
 	KeepAliveEventArgs e;
 	e.client = client;
 	e.id = parseInt(buffer);
-	eventHandler->triggerEvent(&EventHandler::keepAlive, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::keepAlive, eventHandler, e);
 }
 
 /*********************************************
@@ -701,7 +724,18 @@ void NetworkHandler::keepAlive(Client* client, Byte* buffer, Int length)
  *********************************************/
 void NetworkHandler::playerPosition(Client* client, Byte* buffer, Int length)
 {
+	// Get the position
+	PlayerPositionEventArgs e;
+	e.client = client;
+	e.position.x = parseDouble(buffer);
+	e.position.y = parseDouble(buffer += 8);
+	e.position.z = parseDouble(buffer += 8);
 
+	// Determine if the client is on the floor
+	e.onGround = !!*(buffer += 8);
+
+	// Trigger the event
+	eventHandler->runOnServerThread(&EventHandler::playerPosition, eventHandler, e);
 }
 
 /*******************************************************
@@ -710,7 +744,22 @@ void NetworkHandler::playerPosition(Client* client, Byte* buffer, Int length)
  *******************************************************/
 void NetworkHandler::playerPositionAndLook(Client* client, Byte* buffer, Int length)
 {
-//	sendPlayerPositionAndLook(client, PositionF(0.0, 255.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+	// Get the position
+	PlayerPositionAndLookEventArgs e;
+	e.client = client;
+	e.position.x = parseDouble(buffer);
+	e.position.y = parseDouble(buffer += 8);
+	e.position.z = parseDouble(buffer += 8);
+
+	// Get the head angle
+	e.yaw = parseFloat(buffer += 8);
+	e.pitch = parseFloat(buffer += 4);
+
+	// Determine if the client is on the floor
+	e.onGround = !!*(buffer += 4);
+
+	// Trigger the event
+	eventHandler->runOnServerThread(&EventHandler::playerPositionAndLook, eventHandler, e);
 }
 
 /**************************************************
@@ -719,16 +768,32 @@ void NetworkHandler::playerPositionAndLook(Client* client, Byte* buffer, Int len
  **************************************************/
 void NetworkHandler::playerLook(Client* client, Byte* buffer, Int length)
 {
+	// Get the head angle
+	PlayerLookEventArgs e;
+	e.client = client;
+	e.yaw = parseFloat(buffer);
+	e.pitch = parseFloat(buffer += 4);
 
+	// Determine if the client is on the floor
+	e.onGround = !!*(buffer += 4);
+
+	// Trigger the event
+	eventHandler->runOnServerThread(&EventHandler::playerLook, eventHandler, e);
 }
 
-/*******************************************
- * NetworkHandler :: playerOnGround        *
- * The client is either jumping or landing *
- *******************************************/
+/**************************************************************
+ * NetworkHandler :: playerOnGround                           *
+ * The client is stating whether it's in air or on/in a block *
+ **************************************************************/
 void NetworkHandler::playerOnGround(Client* client, Byte* buffer, Int length)
 {
+	// Determine if the client is on the floor
+	PlayerOnGroundEventArgs e;
+	e.client = client;
+	e.onGround = !!*buffer;
 
+	// Trigger the event
+	eventHandler->runOnServerThread(&EventHandler::playerOnGround, eventHandler, e);
 }
 
 /**************************************
@@ -896,7 +961,7 @@ void NetworkHandler::useItem(Client* client, Byte* buffer, Int length)
 void NetworkHandler::sendLoginSuccess(Client* client, UUID uuid, String username)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerLoginPacket::LoginSuccess);
 	SerialString suuid = SerialString(uuid.str());
 	SerialString susername = SerialString(username);
@@ -910,7 +975,7 @@ void NetworkHandler::sendLoginSuccess(Client* client, UUID uuid, String username
 	data.append(susername.makeData(), susername.getSize());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /*************************************
@@ -920,7 +985,7 @@ void NetworkHandler::sendLoginSuccess(Client* client, UUID uuid, String username
 void NetworkHandler::sendChatMessage(Client* client, String message, ChatMessageType type, Boolean isJson)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::ChatMessage);
 	SerialString smessage;
 
@@ -941,7 +1006,7 @@ void NetworkHandler::sendChatMessage(Client* client, String message, ChatMessage
 	data.append(1, (char)type);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /************************************
@@ -951,7 +1016,7 @@ void NetworkHandler::sendChatMessage(Client* client, String message, ChatMessage
 void NetworkHandler::sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::JoinGame);
 	SerialString slevelType = SerialString(levelType.str());
 	VarInt length = VarInt(12 + slevelType.getSize() + packid.getSize());
@@ -969,7 +1034,7 @@ void NetworkHandler::sendJoinGame(Client* client, Int entityID, Gamemode gamemod
 	data.append(1, (char)reducedDebugInfo);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /***************************************
@@ -979,7 +1044,7 @@ void NetworkHandler::sendJoinGame(Client* client, Int entityID, Gamemode gamemod
 void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* data2, Int dataLen)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::PluginMessage);
 	SerialString schannel = SerialString(channel);
 	VarInt length = VarInt(packid.getSize() + schannel.getSize() + dataLen);
@@ -992,7 +1057,7 @@ void NetworkHandler::sendPluginMessage(Client* client, String channel, Byte* dat
 	data.append((char*)data2, dataLen);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /******************************************
@@ -1069,7 +1134,7 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 	// TODO: serialize block entities
 
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::ChunkData);
 	VarInt sbitmask = VarInt(bitmask);
 	VarInt columndatasize = VarInt(chunkdata.size());
@@ -1091,7 +1156,12 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 	std::cout << length.toInt() << ", " << data.size() << ", " << counter << "\n";
 
 	// Send the data
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
+
+	// Register the loaded chunk into the client's data
+	eventHandler->runOnServerThread([client, x, z]() {
+		client->loadedChunks.insert(std::pair<Int, Int>(x, z));
+	});
 }
 
 /******************************************
@@ -1100,31 +1170,37 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
  ******************************************/
 void NetworkHandler::sendChunk(Client* client, Int x, Int z, Boolean createChunk, Boolean inOverworld)
 {
-	// Get the chunk column before sending it
-	GetChunkEventArgs e;
-	e.client = client;
-	e.x = x;
-	e.z = z;
-	eventHandler->getChunk(e);
-
-	// If we're creating a chunk then grab its biome data
-	if (createChunk)
+	// Grab the chunk on the server's clock thread
+	EventHandler* handler = eventHandler;
+	NetworkHandler* nethandler = this;
+	handler->runOnServerThread([handler, nethandler, client, x, z, createChunk, inOverworld]
 	{
-		// Create the biome array if needed
-		if (e.chunk.noBiomes())
-			e.chunk.fillBiomes();
+		// Get the chunk column before sending it
+		GetChunkEventArgs e;
+		e.client = client;
+		e.x = x;
+		e.z = z;
+		handler->getChunk(e);
 
-		// Get the biome data
-		GetBiomeEventArgs e2;
-		e2.client = client;
-		e2.x = x;
-		e2.z = z;
-		e2.biomes = &e.chunk.getBiome(0);
-		eventHandler->getBiomes(e2);
-	}
+		// If we're creating a chunk then grab its biome data
+		if (createChunk)
+		{
+			// Create the biome array if needed
+			if (e.chunk.noBiomes())
+				e.chunk.fillBiomes();
 
-	// Send the chunk column
-	sendChunk(client, x, z, e.chunk, createChunk, inOverworld);
+			// Get the biome data
+			GetBiomeEventArgs e2;
+			e2.client = client;
+			e2.x = x;
+			e2.z = z;
+			e2.biomes = &e.chunk.getBiome(0);
+			handler->getBiomes(e2);
+		}
+
+		// Send the chunk column
+		nethandler->sendChunk(client, x, z, e.chunk, createChunk, inOverworld);
+	});
 }
 
 
@@ -1135,7 +1211,7 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, Boolean createChunk
 void NetworkHandler::sendServerDifficulty(Client* client, Difficulty difficulty)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::Difficulty);
 	VarInt length = VarInt(packid.getSize() + 1);
 	data.reserve(length.toInt() + length.getSize());
@@ -1146,7 +1222,7 @@ void NetworkHandler::sendServerDifficulty(Client* client, Difficulty difficulty)
 	data.append(1, (char)difficulty);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /*********************************************
@@ -1156,7 +1232,7 @@ void NetworkHandler::sendServerDifficulty(Client* client, Difficulty difficulty)
 void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::SpawnPosition);
 	SerialPosition spos = SerialPosition(pos);
 	VarInt length = VarInt(packid.getSize() + 8);
@@ -1168,7 +1244,7 @@ void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
 	writeLong(data, spos.getData());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /********************************************
@@ -1178,7 +1254,7 @@ void NetworkHandler::sendSpawnPosition(Client* client, Position pos)
 void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abilities, Float flyingSpeed, Float fovModifier)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::PlayerAbilities);
 	VarInt length = VarInt(packid.getSize() + 9);
 	data.reserve(length.toInt() + length.getSize());
@@ -1191,7 +1267,7 @@ void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abiliti
 	writeFloat(data, fovModifier);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /********************************************
@@ -1201,7 +1277,7 @@ void NetworkHandler::sendPlayerAbilities(Client* client, PlayerAbilities abiliti
 void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Float yaw, Float pitch, PlayerPositionAndLookFlags flags, Int teleportID)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::PlayerPositionAndLook);
 	VarInt steleportID = VarInt(teleportID);
 	VarInt length = VarInt(packid.getSize() + steleportID.getSize() + 33);
@@ -1219,7 +1295,34 @@ void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Fl
 	data.append((char*)steleportID.getData(), steleportID.getSize());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
+}
+
+/*********************************************
+ * NetworkHandler :: sendUnloadChunk         *
+ * Tell the client to unload the given chunk *
+ *********************************************/
+void NetworkHandler::sendUnloadChunk(Client* client, Int x, Int z)
+{
+	// Serialize the data
+	String data;
+	VarInt packid = VarInt((Int)ServerPlayPacket::UnloadChunk);
+	VarInt length = VarInt(packid.getSize() + 8);
+	data.reserve(length.toInt() + length.getSize());
+
+	// Append the data to the string
+	data.append((char*)length.getData(), length.getSize());
+	data.append((char*)packid.getData(), packid.getSize());
+	writeInt(data, x);
+	writeInt(data, z);
+
+	// Send the packet
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
+
+	// Unregister the chunk from the client's data
+	eventHandler->runOnServerThread([client, x, z]() {
+		client->loadedChunks.erase(std::pair<Int, Int>(x, z));
+	});
 }
 
 /***********************************
@@ -1229,7 +1332,7 @@ void NetworkHandler::sendPlayerPositionAndLook(Client* client, PositionF pos, Fl
 void NetworkHandler::sendKeepAlive(Client* client, Long id)
 {
 	// Serialize the data
-	String data = "";
+	String data;
 	VarInt packid = VarInt((Int)ServerPlayPacket::KeepAlive);
 	VarInt length = VarInt(packid.getSize() + 8);
 	data.reserve(length.toInt() + length.getSize());
@@ -1240,7 +1343,7 @@ void NetworkHandler::sendKeepAlive(Client* client, Long id)
 	writeLong(data, id);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->getSocket(), data.c_str(), data.size(), NULL);
 }
 
 /********************************************
@@ -1267,7 +1370,8 @@ NetworkHandler::~NetworkHandler()
 void NetworkHandler::addClient(SOCKET newClient)
 {
 	// Add the client to the list of clients
-	eventHandler->clients.insert(std::make_pair(newClient, new Client(newClient)));
+	// TODO: Make thread-safe
+	eventHandler->clients.insert(new Client(newClient));
 }
 
 /**************************************
@@ -1277,13 +1381,13 @@ void NetworkHandler::addClient(SOCKET newClient)
 void NetworkHandler::disconnectClient(Client* client)
 {
 	// Disconnect the client's socket
-	shutdown(client->socket, SD_BOTH);
-	closesocket(client->socket);
+	shutdown(client->getSocket(), SD_BOTH);
+	closesocket(client->getSocket());
 
 	// Trigger the client disconnected event so that the event handler can clean up the client's data.
 	ClientDisconnectEventArgs e;
 	e.client = client;
-	eventHandler->triggerEvent(&EventHandler::clientDisconnect, eventHandler, e);
+	eventHandler->runOnServerThread(&EventHandler::clientDisconnect, eventHandler, e);
 }
 
 /****************************************************
@@ -1293,7 +1397,9 @@ void NetworkHandler::disconnectClient(Client* client)
  ****************************************************/
 Client* NetworkHandler::getClientFromSocket(SOCKET socket)
 {
-	return eventHandler->clients.find(socket)->second;
+	// TODO: Make thread-safe
+	Client temp = Client(socket);
+	return *eventHandler->clients.find(&temp);
 }
 
 /***********************************
@@ -1309,12 +1415,13 @@ void NetworkHandler::start()
 	while (running)
 	{
 		// Create a list of every client to listen to
+		// TODO: Make eventHandler->clients thread-safe
 		fd_set clientList;
 		if (eventHandler->clients.size() > 0)
 		{
 			int i = 0;
-			for (std::map<SOCKET, Client*>::iterator it = eventHandler->clients.begin(); it != eventHandler->clients.end(); it++, i++)
-				clientList.fd_array[i] = it->first;
+			for (AtomicSet<Client*, ClientComparator>::iterator it = eventHandler->clients.begin(); it != eventHandler->clients.end(); it++, i++)
+				clientList.fd_array[i] = (*it)->getSocket();
 			clientList.fd_count = i;
 			timeval timeout;
 			timeout.tv_usec = 100000;
@@ -1330,10 +1437,10 @@ void NetworkHandler::start()
 					Client* client = getClientFromSocket(clientList.fd_array[i]);
 
 					// Read some data from the client
-					int dataRead = recv(client->socket, buf, BUFFER_SIZE, NULL);
+					int dataRead = recv(client->getSocket(), buf, BUFFER_SIZE, NULL);
 					if (dataRead == SOCKET_ERROR)
 					{
-						std::cout << "Error reading data from " << client->name
+						std::cout << "Error reading data from " << client->getName()
 							<< ": " << WSAGetLastError() << "\n";
 						disconnectClient(client);
 					}

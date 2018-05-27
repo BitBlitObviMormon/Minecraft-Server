@@ -3,6 +3,7 @@
 #include "server/networkhandler.h"
 #include <iostream>
 #include <ctime>
+#include <cmath>
 
 #define DISCONNECT_TIME 10.0
 
@@ -105,40 +106,93 @@ void EventHandler::runTickClock()
  *************************************************************/
 void EventHandler::seedNetwork(NetworkHandler* netHandler) { networkHandler = netHandler; }
 
-/********************************
- * EventHandler :: onTick       *
- * A tick in the game's loop    *
- ********************************/
+/* Turns a position into a chunk position */
+Position toChunkPosition(PositionF position)
+{
+	Position pos;
+	pos.x = (Int)floor(position.x / 16.0);
+	pos.y = (Int)floor(position.y / 16.0);
+	pos.z = (Int)floor(position.z / 16.0);
+	return pos;
+}
+
+/*****************************/
+/* EventHandler :: onTick    */
+/* A tick in the game's loop */
+/*****************************/
 void EventHandler::onTick(Double dt, Int ticksSkipped)
 {
+	// Finish off the job queue before-hand
+	jobQueue.start(false);
+	
 	// Run this on every client
-	for each (std::pair<SOCKET, Client*> var in clients)
+	for each (Client* client in clients)
 	{
-		// Set up the local variables
-		SOCKET socket = var.first;
-		Client* client = var.second;
-
-		// Update the client's ticks
-		client->uptime += 1 + ticksSkipped;
-		client->ticksSinceUpdate += 1 + ticksSkipped;
-
-		// TODO: Update the things that need to be updated every tick
-
-		// If the client has been out for too long, disconnect it. :(
-		if (client->ticksSinceUpdate > static_cast<Double>(DISCONNECT_TIME / tickDelay))
+		// For clients that are currently in play:
+		if (client->getState() == ServerState::Play)
 		{
-			// TODO: Hate to do this, but implement a disconnect.
-		}
-		// Update the things that are only updated once in a while
-		else if (client->ticksSinceUpdate > 20)
-		{
-			// Ask if the player is still alive
-			// TODO: Prompt for a random number and test for it
-			// TODO: Uncomment code when eventhandler no longer runs on several threads
-			networkHandler->sendKeepAlive(client, 0);
+			// Update the client's ticks
+			Long uptime = client->incrementUptime(1 + ticksSkipped);
+			Int ticksSinceUpdate = client->incrementTicksSinceUpdate(1 + ticksSkipped);
 
-			// TODO: Give the client the time
-//			timeUpdate(client);
+			// TODO: Update the things that need to be updated every tick
+
+			// If the client has been out for too long, disconnect it. :(
+			if (ticksSinceUpdate > static_cast<Double>(DISCONNECT_TIME / tickDelay))
+			{
+				// TODO: Hate to do this, but implement a disconnect.
+			}
+			// Update the things that are only updated once in a while
+			else if (ticksSinceUpdate > 20)
+			{
+				// Ask if the player is still alive
+				// TODO: Prompt for a random number and test for it
+				// TODO: Uncomment code when eventhandler no longer runs on several threads
+				networkHandler->sendKeepAlive(client, 0);
+
+				// TODO: Give the client the time
+				//			timeUpdate(client);
+
+				/* Load and unload chunks when necessary
+				// Determine dimensions to check for
+				// TODO: Load chunks in circle instead of square
+				Position chunkPosition = toChunkPosition(client->position);
+				Int minx = chunkPosition.x - client->viewDistance;
+				Int maxx = chunkPosition.x + client->viewDistance;
+				Int minz = chunkPosition.z - client->viewDistance;
+				Int maxz = chunkPosition.z + client->viewDistance;
+				Int diameter = client->viewDistance * 2 + 1;
+				Boolean* chunkLoaded = new Boolean[diameter * diameter];
+
+				// Set the entire array to false
+				for (int i = 0; i < diameter * diameter; ++i)
+					chunkLoaded[i] = false;
+
+				// Check if every chunk that needs to be loaded is loaded and unload every other chunk
+				for each (std::pair<Int, Int> chunk in client->loadedChunks)
+				{
+					// Move the chunk to dimensions that should fit the array
+					Int x = chunk.first - minx;
+					Int z = chunk.second - minz;
+
+					// If the chunk doesn't fit into the array then unload it
+					if (x < 0 || z < 0 || x >= diameter || z >= diameter)
+					{
+						networkHandler->sendUnloadChunk(client, chunk);
+					}
+					else
+						chunkLoaded[x * diameter + z] = true;
+				}
+
+				// Load any chunks that have not yet been loaded
+				for (Int x = 0; x < diameter; ++x)
+					for (Int z = 0; z < diameter; ++z)
+						if (!chunkLoaded[x * diameter + z])
+							networkHandler->sendChunk(client, x, z, true, true);
+
+				// Free the memory
+				delete[] chunkLoaded; */
+			}
 		}
 	}
 }
@@ -178,7 +232,7 @@ void EventHandler::clientDisconnect(ClientDisconnectEventArgs e)
 {
 	// Erase the client
 	// TODO: Alert all other players of the disconnect
-	clients.erase(e.client->socket);
+	clients.erase(e.client);
 }
 
 /*************************************************
@@ -188,8 +242,8 @@ void EventHandler::clientDisconnect(ClientDisconnectEventArgs e)
 void EventHandler::handshake(HandShakeEventArgs e)
 {
 	// Store some info on the client
-	e.client->state = e.state;
-	e.client->protocolVersion = e.protocolVersion;
+	e.client->setState(e.state);
+	e.client->setProtocolVersion(e.protocolVersion);
 }
 
 /*************************************************
@@ -235,21 +289,21 @@ void EventHandler::encryptionResponse(EncryptionResponseEventArgs e)
 void EventHandler::loginStart(LoginStartEventArgs e)
 {
 	// Set some information for the client
-	e.client->name = e.name;
-	e.client->state = ServerState::Play;
-	e.client->gamemode = Gamemode::Survival;
-	e.client->dimension = Dimension::Overworld;
-	e.client->abilities = PlayerAbilities(true, false, false, false); // Invulnerable, but not creative nor flying
-	e.client->pos = PositionF(0.0, -999.0, 0.0); // TODO: Remove this in favor of respawn flag
-	e.client->uptime = 0;
-	e.client->ticksSinceUpdate = 0;
+	e.client->setName(e.name);
+	e.client->setState(ServerState::Play);
+	e.client->setGamemode(Gamemode::Survival);
+	e.client->setDimension(Dimension::Overworld);
+	e.client->setAbilities(PlayerAbilities(true, false, false, false)); // Invulnerable, but not creative nor flying
+	e.client->setPosition(PositionF(0.0, -999.0, 0.0)); // TODO: Remove this in favor of respawn flag
+	e.client->resetUptime();
+	e.client->resetTicksSinceUpdate();
 
 	// Don't doubt the client, just let them in. ;-)
 	// TODO: Create a hash from the client's name
 	networkHandler->sendLoginSuccess(e.client, UUID(e.client), e.name);
 
 	// Let the client join the game
-	networkHandler->sendJoinGame(e.client, e.client->entityID, e.client->gamemode, e.client->dimension, Difficulty::Peaceful, 8, LevelType::Default);
+	networkHandler->sendJoinGame(e.client, e.client->getEntityID(), Gamemode::Survival, Dimension::Overworld, Difficulty::Peaceful, 8, LevelType::Default);
 
 	// Tell the client the server's brand name
 	SerialString brand = SerialString("BareBonesMC");
@@ -262,7 +316,7 @@ void EventHandler::loginStart(LoginStartEventArgs e)
 	networkHandler->sendSpawnPosition(e.client, Position(0, 64, 0));
 
 	// Tell the client what his capabilities are
-	networkHandler->sendPlayerAbilities(e.client, e.client->abilities, 1.0, 1.0);
+	networkHandler->sendPlayerAbilities(e.client, PlayerAbilities(true, false, false, false), 1.0, 1.0);
 }
 
 /*************************************************
@@ -281,9 +335,9 @@ void EventHandler::animation(AnimationEventArgs e)
 void EventHandler::chatMessage(ChatMessageEventArgs e)
 {
 	// Forward the message to every client that is in play mode
-	for (std::map<SOCKET, Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
-		if (it->second->state == ServerState::Play)
-			networkHandler->sendChatMessage(it->second, e.client->name + String(": ") + e.message);
+	for (AtomicSet<Client*, ClientComparator>::iterator it = clients.begin(); it != clients.end(); ++it)
+		if ((*it)->getState() == ServerState::Play)
+			networkHandler->sendChatMessage(*it, e.client->getName() + String(": ") + e.message);
 }
 
 /*************************************************
@@ -302,16 +356,16 @@ void EventHandler::clickWindow(ClickWindowEventArgs e)
 void EventHandler::clientSettings(ClientSettingsEventArgs e)
 {
 	// Save the settings
-	e.client->chatColors = e.chatColors;
-	e.client->chatMode = e.chatMode;
-	e.client->skinParts = e.displayedSkinParts;
-	e.client->locale = e.locale;
-	e.client->mainHand = e.mainHand;
-	e.client->viewDistance = e.viewDistance;
+	e.client->setChatColors(e.chatColors);
+	e.client->setChatMode(e.chatMode);
+	e.client->setSkinParts(e.displayedSkinParts);
+	e.client->setLocale(e.locale);
+	e.client->setMainHand(e.mainHand);
+	e.client->setViewDistance(e.viewDistance);
 
-	// If the player hasn't spawned yet then spawn them
-	// TODO: Check if no chunks are loaded or use flag instead
-	if (e.client->pos.y < -900.0)
+	// If the player hasn't spawned yet then spawn them in
+	// TODO: Create playerSpawned event
+	if (e.client->loadedChunks.empty())
 	{
 		// Send the chunks over
 		for (int x = -3; x <= 3; ++x)
@@ -394,7 +448,7 @@ void EventHandler::heldItemChange(HeldItemChangeEventArgs e)
  *************************************************/
 void EventHandler::keepAlive(KeepAliveEventArgs e)
 {
-	e.client->ticksSinceUpdate = 0;
+	e.client->resetTicksSinceUpdate();
 }
 
 /*************************************************
@@ -430,7 +484,10 @@ void EventHandler::playerDigging(PlayerDiggingEventArgs e)
  *************************************************/
 void EventHandler::playerLook(PlayerLookEventArgs e)
 {
-
+	// Store the data passed by the event
+	e.client->setYaw(e.yaw);
+	e.client->setPitch(e.pitch);
+	e.client->setOnGround(e.onGround);
 }
 
 /*************************************************
@@ -439,7 +496,8 @@ void EventHandler::playerLook(PlayerLookEventArgs e)
  *************************************************/
 void EventHandler::playerOnGround(PlayerOnGroundEventArgs e)
 {
-
+	// Store the data passed by the event
+	e.client->setOnGround(e.onGround);
 }
 
 /*************************************************
@@ -448,7 +506,9 @@ void EventHandler::playerOnGround(PlayerOnGroundEventArgs e)
  *************************************************/
 void EventHandler::playerPosition(PlayerPositionEventArgs e)
 {
-
+	// Store the data passed by the event
+	e.client->setPosition(e.position);
+	e.client->setOnGround(e.onGround);
 }
 
 /*************************************************
@@ -457,7 +517,11 @@ void EventHandler::playerPosition(PlayerPositionEventArgs e)
  *************************************************/
 void EventHandler::playerPositionAndLook(PlayerPositionAndLookEventArgs e)
 {
-
+	// Store the data passed by the event
+	e.client->setPosition(e.position);
+	e.client->setYaw(e.yaw);
+	e.client->setPitch(e.pitch);
+	e.client->setOnGround(e.onGround);
 }
 
 /*************************************************
@@ -522,12 +586,14 @@ void EventHandler::tabComplete(TabCompleteEventArgs e)
 void EventHandler::teleportConfirm(TeleportConfirmEventArgs e)
 {
 	// TODO: Use actual teleport id and check whether they are spawning, respawning, or teleporting using a flag
-	if (e.client->pos.y == -999.0)
+	if (e.client->getPosition().y == -999.0)
 	{
-		e.client->pos.y = 255.0;
-		e.client->yaw = 0.0;
-		e.client->pitch = 90.0;
-		networkHandler->sendPlayerPositionAndLook(e.client, e.client->pos, e.client->yaw, e.client->pitch, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
+		PositionF pos = e.client->getPosition();
+		pos.y = 255.0;
+		e.client->setPosition(pos);
+		e.client->setYaw(0.0);
+		e.client->setPitch(90.0);
+		networkHandler->sendPlayerPositionAndLook(e.client, pos, 0.0, 90.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0);
 	}
 }
 
@@ -621,7 +687,7 @@ BiomeID* EventHandler::getBiomes(GetBiomeEventArgs& e)
  * EventHandler :: EventHandler             *
  * Default Constructor                      *
  ********************************************/
-EventHandler::EventHandler() : running(false), networkHandler(NULL) {}
+EventHandler::EventHandler() : running(false), networkHandler(NULL), clients() {}
 
 /********************************************
  * EventHandler :: EventHandler             *

@@ -2,6 +2,8 @@
 
 #include "client/client.h"
 #include "client/clientevents.h"
+#include "data/jobqueue.h"
+#include "data/atomicset.h"
 #include <map>
 #include <thread>
 
@@ -16,7 +18,8 @@ private:
 	void runTickClock();
 	void seedNetwork(NetworkHandler* networkHandler);
 protected:
-	std::map<SOCKET, Client*> clients;
+	JobQueue jobQueue;
+	AtomicSet<Client*, ClientComparator> clients;
 	NetworkHandler* networkHandler;
 
 	/*****************
@@ -103,9 +106,9 @@ public:
 	 * Runs the given event (may be run on a different thread) *
 	 ***********************************************************/
 	template <typename T, typename P>
-	void triggerEvent(T&& fn, EventHandler* eventHandler, P e)
+	void runOnServerThread(T&& fn, EventHandler* eventHandler, P e)
 	{
-		((eventHandler)->*(fn))(e);
+		jobQueue.push(std::function<void()>([eventHandler, fn, e]() { ((eventHandler)->*(fn))(e); }));
 	}
 
 	/***********************************************************
@@ -113,8 +116,8 @@ public:
 	 * Runs the given event (may be run on a different thread) *
 	 ***********************************************************/
 	template <typename T>
-	void triggerEvent(T&& fn)
+	void runOnServerThread(T&& fn)
 	{
-		fn();
+		jobQueue.push(std::function<void()>(fn));
 	}
 };

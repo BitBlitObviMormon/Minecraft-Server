@@ -5,6 +5,7 @@
 #include "data/entity/entities.h"
 #include "data/entity/blockentities.h"
 #include "server/serverevents.h"
+#include <utility>
 
 #ifdef _WIN32
 #else
@@ -114,12 +115,17 @@ public:
 	void sendPluginMessage(Client* client, String channel, Byte* data, Int dataLen);
 	void sendNamedSoundEffect(Client* client, String name, SoundCategory category, Position pos, Float volume, Float pitch);
 	void sendEntityStatus(Client* client, Int entityID, Byte entityStatus);
-	void sendUnloadChunk(Client* client, Int x, Int y);
+	void sendUnloadChunk(Client* client, Int x, Int z);
+	void sendUnloadChunk(Client* client, std::pair<Int, Int> chunk) { sendUnloadChunk(client, chunk.first, chunk.second); }
 	void sendChangeGameState(Client* client, GameStateReason reason, Float value); // FLOAT?? TODO: See if value should be int
 	void sendKeepAlive(Client* client, Long id);
 	void sendChunkData(Client* client); // TODO: Add args
 	void sendChunk(Client* client, Int x, Int z, Boolean createChunk = false, Boolean inOverworld = true);
 	void sendChunk(Client* client, Int x, Int z, ChunkColumn& column, Boolean createChunk = false, Boolean inOverworld = true);
+	void sendChunk(Client* client, std::pair<Int, Int> chunk, Boolean createChunk = false, Boolean inOverworld = true)
+		{ sendChunk(client, chunk.first, chunk.second, createChunk, inOverworld); }
+	void sendChunk(Client* client, std::pair<Int, Int> chunk, ChunkColumn& column, Boolean createChunk = false, Boolean inOverworld = true)
+		{ sendChunk(client, chunk.first, chunk.second, column, createChunk, inOverworld); }
 	void sendEffect(Client* client, EffectID effectID, Position pos, Int data = 0, Boolean disableRelativeVolume = false);
 	void sendParticle(Client* client, Particle particle, Int num, Byte* data = NULL, Int dataLen = 0);
 	void sendJoinGame(Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);

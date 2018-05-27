@@ -4,6 +4,34 @@
 #include <stdexcept>
 #include <iostream>
 
+
+/******************************************
+ * CountNumVarLength                      *
+ * Reads a variable and counts its length *
+ ******************************************/
+Byte CountNumVarLength(const Byte* data, const Byte maxlength)
+{
+	// Check for null data
+	if (data == NULL)
+		return 0;
+
+	// Parse the data byte by byte
+	Int numRead = 0;
+	Byte read;
+	do
+	{
+		// Read a byte of data
+		read = data[numRead];
+		numRead++;
+
+		// If we read too much data then throw an exception
+		if (numRead > maxlength)
+			throw new std::overflow_error("VarNum is too big");
+	} while ((read & 0x80) != 0); // Stop when we hit a certain number
+
+	return numRead;
+}
+
 /*******************************************
  * ParseNumVar                             *
  * Reads a variable of length x and throws *
@@ -39,7 +67,7 @@ Long parseNumVar(const Byte* data, const Byte maxlength)
  * Takes a long and creates a variable of length x     *
  * It throws an exception if the new value is too long *
  *******************************************************/
-VarNum& makeNumVar(Long value, const Byte maxlength)
+void makeNumVar(Long value, const Byte maxlength, VarNum& num)
 {
 	// Allocate some memory for the value
 	Byte* data = new Byte[maxlength];
@@ -64,7 +92,9 @@ VarNum& makeNumVar(Long value, const Byte maxlength)
 //		data[numWrote] = 0;
 	} while (value != 0);
 
-	return *(new VarNum(data));
+	// Assemble and return the VarNum
+	num.data = data;
+	num.length = CountNumVarLength(data, maxlength);
 }
 
 /*******************************************************
@@ -72,7 +102,7 @@ VarNum& makeNumVar(Long value, const Byte maxlength)
  * Takes an int and creates a variable of length x     *
  * It throws an exception if the new value is too long *
  *******************************************************/
-VarNum& makeNumVar(Int value, const Byte maxlength)
+void makeNumVar(Int value, const Byte maxlength, VarNum& num)
 {
 	// Allocate some memory for the value
 	Byte* data = new Byte[maxlength];
@@ -97,34 +127,9 @@ VarNum& makeNumVar(Int value, const Byte maxlength)
 		data[numWrote] = 0;
 	} while (value != 0);
 
-	return *(new VarNum(data));
-}
-
-/******************************************
- * CountNumVarLength                      *
- * Reads a variable and counts its length *
- ******************************************/
-Byte CountNumVarLength(const Byte* data, const Byte maxlength)
-{
-	// Check for null data
-	if (data == NULL)
-		return 0;
-
-	// Parse the data byte by byte
-	Int numRead = 0;
-	Byte read;
-	do
-	{
-		// Read a byte of data
-		read = data[numRead];
-		numRead++;
-
-		// If we read too much data then throw an exception
-		if (numRead > maxlength)
-			throw new std::overflow_error("VarNum is too big");
-	} while ((read & 0x80) != 0); // Stop when we hit a certain number
-
-	return numRead;
+	// Assemble and return the VarNum
+	num.data = data;
+	num.length = CountNumVarLength(data, maxlength);
 }
 
 /***********************
@@ -163,17 +168,27 @@ VarNum::VarNum(const VarNum& value)
 		data[i] = value.data[i];
 }
 
-/**************************
-* VarNum :: VarNum       *
-* Constructor from a Num *
-**************************/
-VarNum::VarNum(const Long value) { *this = makeNumVar(value, VARNUM_MAX_SIZE); }
+/*********************
+ * VarNum :: VarNum  *
+ * Move Constructor  *
+ *********************/
+VarNum::VarNum(VarNum&& value) : data(value.data), length(value.length)
+{
+	value.data = NULL;
+	value.length = 0;
+}
 
 /**************************
  * VarNum :: VarNum       *
  * Constructor from a Num *
  **************************/
-VarNum::VarNum(const Int value) { *this = makeNumVar(value, VARNUM_MAX_SIZE); }
+VarNum::VarNum(const Long value) { makeNumVar(value, VARNUM_MAX_SIZE, *this); }
+
+/**************************
+ * VarNum :: VarNum       *
+ * Constructor from a Num *
+ **************************/
+VarNum::VarNum(const Int value) { makeNumVar(value, VARNUM_MAX_SIZE, *this); }
 
 /*********************
  * VarNum :: ~VarNum *

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdint.h>
 
 enum class BiomeID : uint8_t

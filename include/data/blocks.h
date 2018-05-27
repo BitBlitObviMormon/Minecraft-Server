@@ -1,6 +1,6 @@
 #pragma once
+
 #include <stdint.h>
-#define MAX_BITS_PER_BLOCK 13
 
 enum class BlockID : uint16_t
 {

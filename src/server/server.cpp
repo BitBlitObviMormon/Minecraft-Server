@@ -29,8 +29,8 @@
  * Server :: Server    *
  * Default Constructor *
  ***********************/
-Server::Server(EventHandler* eventHandler, NetworkHandler* networkHandler)
-	: listenSocket(INVALID_SOCKET), running(false), networkHandler(networkHandler), eventHandler(eventHandler)
+Server::Server(EventHandler* eventHandler, NetworkHandler* networkHandler, const Int port)
+	: listenSocket(INVALID_SOCKET), running(false), networkHandler(networkHandler), eventHandler(eventHandler), port(port)
 {
 	// Create a default server event handler if none was given
 	if (eventHandler == NULL)
@@ -85,7 +85,6 @@ int Server::listenForClients()
 	}
 
 	// Bind the listener to a port
-	int port = 1234;
 	sockaddr_in server = *new sockaddr_in;
 	server.sin_family = AF_INET;
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
@@ -105,7 +104,7 @@ int Server::listenForClients()
 		return 0;
 	}
 
-	std::cout << "Now listening on port " << port << "...\n";
+	std::cout << "Now listening to port " << port << "...\n";
 
 	return 1;
 }
