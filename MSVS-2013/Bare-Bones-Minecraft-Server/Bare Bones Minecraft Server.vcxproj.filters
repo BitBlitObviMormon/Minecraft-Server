@@ -57,8 +57,14 @@
     <ClInclude Include="..\..\include\deprecated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\lib\fastnoise\fastnoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib\fastnoise\fastnoise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\server\networkhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

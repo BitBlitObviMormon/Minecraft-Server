@@ -166,8 +166,10 @@
     <ClInclude Include="..\..\include\server\networkhandler.h" />
     <ClInclude Include="..\..\include\server\server.h" />
     <ClInclude Include="..\..\include\server\serverevents.h" />
+    <ClInclude Include="..\..\lib\fastnoise\fastnoise.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\lib\fastnoise\fastnoise.cpp" />
     <ClCompile Include="..\..\src\client\client.cpp" />
     <ClCompile Include="..\..\src\client\clientevents.cpp" />
     <ClCompile Include="..\..\src\data\biomes.cpp" />
