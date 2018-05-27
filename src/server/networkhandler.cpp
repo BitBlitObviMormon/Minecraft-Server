@@ -1398,7 +1398,7 @@ void NetworkHandler::disconnectClient(Client* client)
 Client* NetworkHandler::getClientFromSocket(SOCKET socket)
 {
 	// TODO: Make thread-safe
-	Client temp = Client(socket);
+	Client temp(socket);
 	return *eventHandler->clients.find(&temp);
 }
 

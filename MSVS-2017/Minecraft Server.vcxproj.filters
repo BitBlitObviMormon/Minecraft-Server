@@ -89,5 +89,8 @@
     <ClInclude Include="..\tests\varnum\varnumtest.h">
       <Filter>Test Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\data\atomicset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

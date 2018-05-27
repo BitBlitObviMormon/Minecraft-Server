@@ -1,6 +1,7 @@
 #include "jobqueuetest.h"
 #include "data/jobqueue.h"
 #include <thread>
+#include <cassert>
 #include <iostream>
 
 #define TIMES_TO_START 3

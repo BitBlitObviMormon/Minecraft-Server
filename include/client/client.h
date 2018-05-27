@@ -123,5 +123,5 @@ public:
 class ClientComparator
 {
 public:
-	bool operator()(Client* lhs, Client* rhs) { return lhs->getSocket() > rhs->getSocket(); }
+	bool operator()(Client* lhs, Client* rhs) const { return lhs->getSocket() > rhs->getSocket(); }
 };

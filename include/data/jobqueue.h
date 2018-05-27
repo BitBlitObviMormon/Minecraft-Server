@@ -11,7 +11,7 @@ class JobQueue
 private:
 	std::thread jobThread;
 	std::mutex queueLock;
-	std::queue< const std::function<void()> > jobQueue;
+	std::queue< std::function<void()> > jobQueue;
 	std::atomic<bool> running;
 	bool executeJobs(bool waitForJobs);
 public:
