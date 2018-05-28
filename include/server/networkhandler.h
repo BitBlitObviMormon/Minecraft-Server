@@ -19,7 +19,7 @@ protected:
 	EventHandler* eventHandler;
 
 	/* Read a packet and trigger the corresponding event below */
-	void readPacket(Client* client, Byte* buffer, Int length);
+	void readPacket(Client* client, Byte* const buffer, Int length, Boolean deleteBuffer = false);
 
 	/***************************
 	 * CLIENT -> SERVER EVENTS *
@@ -250,9 +250,9 @@ public:
 
 	NetworkHandler(EventHandler* eventHandler = NULL);
 	~NetworkHandler();
-	void addClient(SOCKET newClient);
+	void addClient(SOCKET& newClient);
 	void disconnectClient(Client* client);
-	Client* getClientFromSocket(SOCKET socket);
+	Client* getClientFromSocket(SOCKET& socket);
 	void start();
 	void startAsync();
 	void stop();

@@ -23,15 +23,7 @@ Client::Client(SOCKET newClient) : socket(newClient), state(ServerState::Handsha
  * Client :: Client *
  * Destructor       *
  ********************/
-Client::~Client() 
-{
-	// Close the socket if the client is destroyed
-	if (socket != NULL)
-	{
-		closesocket(socket);
-		socket = NULL;
-	}
-}
+Client::~Client() {}
 
 /************************************************
  * Client :: getMainHand                        *

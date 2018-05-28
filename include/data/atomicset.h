@@ -7,10 +7,11 @@
 #include <initializer_list>
 
 // TODO: Thoroughly test Atomic Set and its iterators
-/**************************************************************
- * Atomic Set                                                 *
- * Warning: This set may be atomic, but its contents are not! *
- **************************************************************/
+/*******************************************************************************
+ * Atomic Set                                                                  *
+ * Warning: This set may be atomic, but its contents are not!                  *
+ * We are not responsible for any modification of the data iterators point to! *
+ *******************************************************************************/
 template <class T, class Compare = std::less<T>, class Alloc = std::allocator<T> >
 class AtomicSet
 {
@@ -120,6 +121,8 @@ public:
 		// Constructors
 		iterator() : it(), dataLock(NULL) {}
 		iterator(const iterator& rhs) : it(rhs.it), dataLock(rhs.dataLock) {}
+
+		~iterator() {}
 
 		// Increment / Decrement
 		iterator& operator++()   { ++it; return *this; }

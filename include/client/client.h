@@ -2,6 +2,7 @@
 
 #include "data/datatypes.h"
 #include "data/atomicset.h"
+#include "data/jobqueue.h"
 #include "client/clientevents.h"
 #include "server/serverevents.h"
 #include <utility>
@@ -24,7 +25,7 @@
 
 class Client
 {
-private:
+protected:
 	std::mutex dataLock;						   // This is locked whenever the client is accessed
 	MainHand mainHand;							   // Which hand is the player's main hand
 	Boolean isDead;								   // Whether or not the player is dead
@@ -51,9 +52,10 @@ private:
 	String brand;					 			   // The type of client (usually vanilla unless modded)
 public:
 	AtomicSet< std::pair<Int, Int> > loadedChunks; // All of the chunks that the client currently has loaded (x, z)
+	JobQueue jobs;								   // Add jobs here to process work on that client's thread
 
 	// Default constructor
-	Client(SOCKET newClient = NULL);
+	Client(SOCKET newClient);
 
 	// Destructor
 	~Client();

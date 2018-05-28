@@ -232,7 +232,8 @@ void EventHandler::clientDisconnect(ClientDisconnectEventArgs e)
 {
 	// Erase the client
 	// TODO: Alert all other players of the disconnect
-	clients.erase(e.client);
+	std::cout << e.client->getName() << " has disconnected.\n";
+//	clients.erase(e.client);
 }
 
 /*************************************************

@@ -11,7 +11,7 @@
  * Creates a byte array from another array        *
  * The new array will need to be deleted manually *
  **************************************************/
-Byte* copyBuffer(Byte* data, Int length)
+Byte* copyBuffer(const Byte* data, Int length)
 {
 	// Copy the contents of the buffer to a new array
 	Byte* buf = new Byte[length];
@@ -24,7 +24,7 @@ Byte* copyBuffer(Byte* data, Int length)
  * parseLong              *
  * Reads a long from data *
  **************************/
-Long parseLong(Byte* data)
+Long parseLong(const Byte* data)
 {
 	return (((Long)data[0]) << 56) + (((Long)data[1]) << 48) + (((Long)data[2]) << 40) +
 		   (((Long)data[3]) << 32) + (data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7];
@@ -34,7 +34,7 @@ Long parseLong(Byte* data)
  * parseInt               *
  * Reads an int from data *
  **************************/
-Int parseInt(Byte* data)
+Int parseInt(const Byte* data)
 {
 	return (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
 }
@@ -43,7 +43,7 @@ Int parseInt(Byte* data)
  * parseShort              *
  * Reads a short from data *
  ***************************/
-Short parseShort(Byte* data)
+Short parseShort(const Byte* data)
 {
 	return (data[0] << 8) + data[1];
 }
@@ -52,7 +52,7 @@ Short parseShort(Byte* data)
  * parseDouble              *
  * Reads a double from data *
  ****************************/
-Double parseDouble(Byte* data)
+Double parseDouble(const Byte* data)
 {
 	Long num = parseLong(data);
 	return reinterpret_cast<Double&>(num);
@@ -62,7 +62,7 @@ Double parseDouble(Byte* data)
  * parseFloat              *
  * Reads a float from data *
  ***************************/
-Float parseFloat(Byte* data)
+Float parseFloat(const Byte* data)
 {
 	Int num = parseInt(data);
 	return reinterpret_cast<Float&>(num);
@@ -72,7 +72,7 @@ Float parseFloat(Byte* data)
  * writeLong             *
  * Writes a long to data *
  *************************/
-void writeLong(String& data, Long num)
+void writeLong(String& data, const Long num)
 {
 	data.append(1, (num >> 56) & 0xFF);
 	data.append(1, (num >> 48) & 0xFF);
@@ -88,7 +88,7 @@ void writeLong(String& data, Long num)
  * writeLong             *
  * Writes a long to data *
  *************************/
-void writeLongB(String& data, Long num)
+void writeLongB(String& data, const Long num)
 {
 	data.append(1, (num >> 8) & 0xFF);
 	data.append(1, (num >> 16) & 0xFF);
@@ -104,7 +104,7 @@ void writeLongB(String& data, Long num)
  * writeInt              *
  * Writes an int to data *
  *************************/
-void writeInt(String& data, Int num)
+void writeInt(String& data, const Int num)
 {
 	data.append(1, (num >> 24) & 0xFF);
 	data.append(1, (num >> 16) & 0xFF);
@@ -116,7 +116,7 @@ void writeInt(String& data, Int num)
  * writeShort             *
  * Writes a short to data *
  **************************/
-void writeShort(String& data, Short num)
+void writeShort(String& data, const Short num)
 {
 	data.append(1, (num >> 8) & 0xFF);
 	data.append(1, num & 0xFF);
@@ -127,7 +127,7 @@ void writeShort(String& data, Short num)
  * Writes a double to data *
  ***************************/
 // TODO: Verify cross-platform validity
-void writeDouble(String& data, Double num)
+void writeDouble(String& data, const Double num)
 {
 	writeLong(data, reinterpret_cast<const Long&>(num));
 }
@@ -137,7 +137,7 @@ void writeDouble(String& data, Double num)
  * Writes a float to data *
  **************************/
 // TODO: Verify cross-platform validity
-void writeFloat(String& data, Float num)
+void writeFloat(String& data, const Float num)
 {
 	writeInt(data, reinterpret_cast<const Int&>(num));
 }
@@ -146,7 +146,7 @@ void writeFloat(String& data, Float num)
  * NetworkHandler :: readPacket                              *
  * Reads the packet and fires off any events it gets from it *
  *************************************************************/
-void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
+void NetworkHandler::readPacket(Client* client, Byte* const buffer, Int length, Boolean deleteBuffer)
 {
 	// Read the length of the packet
 	Byte* buf = buffer;
@@ -325,6 +325,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	Int tempLen = len + varPack.getSize() + (varLen.getSize() * 2);
 
 	// If the packet's length is smaller than reality allows then complain
+	// TODO: Check for an invalid packet while reading! This will LEAK MEMORY
 	if (tempLen < 1)
 	{
 		std::cout << "Error: Erroneous packet from " << client->getName()
@@ -334,6 +335,7 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 	else if (tempLen < length)
 	{
 		// Create another array for the next packet
+		// TODO: Save on copying data maybe?
 		buf = buffer + tempLen;
 		length -= tempLen;
 		Byte* tempBuf = new Byte[length];
@@ -341,8 +343,12 @@ void NetworkHandler::readPacket(Client* client, Byte* buffer, Int length)
 			tempBuf[i] = buf[i];
 
 		// Read the next packet
-		readPacket(client, tempBuf, length);
+		readPacket(client, tempBuf, length, true);
 	}
+
+	// If we're supposed to, delete the buffer
+	if (deleteBuffer)
+		delete[] buffer;
 }
 
 /*************************************
@@ -356,11 +362,11 @@ void NetworkHandler::invalidPacket(Client* client, Byte* buffer, Int length, Int
 	e.client = client;
 	e.packetID = packet;
 	e.dataLength = length;
-	Byte* data = copyBuffer(buffer, length);
-	e.data = data;
+	e.data = copyBuffer(buffer, length);
 
 	// Trigger the event before deleting the associated data
-	eventHandler->runOnServerThread(&EventHandler::invalidPacket, eventHandler, e);
+	eventHandler->invalidPacket(e);
+	delete[] e.data;
 }
 
 /*************************************
@@ -373,7 +379,7 @@ void NetworkHandler::invalidState(Client* client, Byte* buffer, Int length)
 	InvalidStateEventArgs e;
 	e.client = client;
 	e.state = client->getState();
-	eventHandler->runOnServerThread(&EventHandler::invalidState, eventHandler, e);
+	eventHandler->invalidState(e);
 }
 
 /***********************************
@@ -398,7 +404,7 @@ void NetworkHandler::handShake(Client* client, Byte* buffer, Int length)
 
 	// Trigger the server's handshake event
 	e.state = (ServerState)VarInt(buffer).toInt();
-	eventHandler->runOnServerThread(&EventHandler::handshake, eventHandler, e);
+	eventHandler->handshake(e);
 }
 
 /****************************************
@@ -412,7 +418,7 @@ void NetworkHandler::handShakeLegacy(Client* client, Byte* buffer, Int length)
 	e.payload = *buffer;
 
 	// Trigger the server's legacy server list ping event
-	eventHandler->runOnServerThread(&EventHandler::legacyServerListPing, eventHandler, e);
+	eventHandler->legacyServerListPing(e);
 }
 
 /*****************************************
@@ -424,7 +430,7 @@ void NetworkHandler::request(Client* client, Byte* buffer, Int length)
 	// Alert the server of the client's request
 	RequestEventArgs e;
 	e.client = client;
-	eventHandler->runOnServerThread(&EventHandler::request, eventHandler, e);
+	eventHandler->request(e);
 }
 
 /************************************
@@ -437,7 +443,7 @@ void NetworkHandler::ping(Client* client, Byte* buffer, Int length)
 	PingEventArgs e;
 	e.client = client;
 	e.payload = parseLong(buffer);
-	eventHandler->runOnServerThread(&EventHandler::ping, eventHandler, e);
+	eventHandler->ping(e);
 }
 
 
@@ -454,7 +460,7 @@ void NetworkHandler::loginStart(Client* client, Byte* buffer, Int length)
 	e.name = name.str();
 
 	// Prompt the server to let the client in
-	eventHandler->runOnServerThread(&EventHandler::loginStart, eventHandler, e);
+	eventHandler->loginStart(e);
 }
 
 
@@ -485,11 +491,9 @@ void NetworkHandler::encryptionResponse(Client* client, Byte* buffer, Int length
 	
 	// Notify the server of the client's response before deleting the associated data
 	EventHandler* handler = eventHandler;
-	eventHandler->runOnServerThread([handler, e] () {
-		handler->encryptionResponse(e);
-		delete[] e.sharedSecret;
-		delete[] e.verifyToken;
-	});
+	eventHandler->encryptionResponse(e);
+	delete[] e.sharedSecret;
+	delete[] e.verifyToken;
 }
 
 /*****************************************
@@ -504,7 +508,7 @@ void NetworkHandler::teleportConfirm(Client* client, Byte* buffer, Int length)
 	e.teleportID = VarInt(buffer).toInt();
 
 	// Alert the server of the client's confirmation
-	eventHandler->runOnServerThread(&EventHandler::teleportConfirm, eventHandler, e);
+	eventHandler->teleportConfirm(e);
 }
 
 /****************************************************
@@ -529,7 +533,7 @@ void NetworkHandler::tabComplete(Client* client, Byte* buffer, Int length)
 		e.lookedAtBlock = SerialPosition(parseLong(buffer)).toPosition();
 
 	// Send the information to the server
-	eventHandler->runOnServerThread(&EventHandler::tabComplete, eventHandler, e);
+	eventHandler->tabComplete(e);
 }
 
 /*****************************************
@@ -544,7 +548,7 @@ void NetworkHandler::chatMessage(Client* client, Byte* buffer, Int length)
 	e.message = SerialString(buffer).str();
 
 	// Send the data to the server for interpreting / broadcasting
-	eventHandler->runOnServerThread(&EventHandler::chatMessage, eventHandler, e);
+	eventHandler->chatMessage(e);
 }
 
 /************************************************************************
@@ -559,7 +563,7 @@ void NetworkHandler::clientStatus(Client* client, Byte* buffer, Int length)
 	e.action = (ClientStatusAction)VarInt(buffer).toInt();
 
 	// Send the event to the server
-	eventHandler->runOnServerThread(&EventHandler::clientStatus, eventHandler, e);
+	eventHandler->clientStatus(e);
 }
 
 /*****************************************************
@@ -593,7 +597,7 @@ void NetworkHandler::clientSettings(Client* client, Byte* buffer, Int length)
 	e.mainHand = (MainHand)VarInt(buffer).toInt();
 
 	// Notify the server of the client's requested settings
-	eventHandler->runOnServerThread(&EventHandler::clientSettings, eventHandler, e);
+	eventHandler->clientSettings(e);
 }
 
 /*******************************************************************
@@ -615,7 +619,7 @@ void NetworkHandler::confirmTransaction(Client* client, Byte* buffer, Int length
 	e.accepted = !!*buffer;
 
 	// Notify the server of the client's confirmation
-	eventHandler->runOnServerThread(&EventHandler::confirmTransaction, eventHandler, e);
+	eventHandler->confirmTransaction(e);
 }
 
 /***************************************
@@ -631,7 +635,7 @@ void NetworkHandler::enchantItem(Client* client, Byte* buffer, Int length)
 	e.enchantment = (EnchantmentPos)*buffer;
 
 	// Notify the server that the client wants to enchant an item
-	eventHandler->runOnServerThread(&EventHandler::enchantItem, eventHandler, e);
+	eventHandler->enchantItem(e);
 }
 
 /*******************************************
@@ -655,7 +659,7 @@ void NetworkHandler::closeWindow(Client* client, Byte* buffer, Int length)
 	e.windowID = *buffer;
 
 	// Tell the server the client wants to close the window
-	eventHandler->runOnServerThread(&EventHandler::closeWindow, eventHandler, e);
+	eventHandler->closeWindow(e);
 }
 
 /**********************************************************************************
@@ -680,7 +684,7 @@ void NetworkHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 		e2.eventCause = "pluginMessage";
 		e2.e = &e;
 		e2.length = e.length;
-		eventHandler->runOnServerThread(&EventHandler::invalidLength, eventHandler, e2);
+		eventHandler->invalidLength(e2);
 		return;
 	}
 
@@ -689,11 +693,8 @@ void NetworkHandler::pluginMessage(Client* client, Byte* buffer, Int length)
 
 	// Tell the server the client is sending a plugin message
 	EventHandler* handler = eventHandler;
-	eventHandler->runOnServerThread([handler, e]()
-	{
-		handler->pluginMessage(e);
-		delete[] e.data;
-	});
+	eventHandler->pluginMessage(e);
+	delete[] e.data;
 }
 
 /*******************************************
@@ -715,7 +716,7 @@ void NetworkHandler::keepAlive(Client* client, Byte* buffer, Int length)
 	KeepAliveEventArgs e;
 	e.client = client;
 	e.id = parseInt(buffer);
-	eventHandler->runOnServerThread(&EventHandler::keepAlive, eventHandler, e);
+	eventHandler->keepAlive(e);
 }
 
 /*********************************************
@@ -735,7 +736,7 @@ void NetworkHandler::playerPosition(Client* client, Byte* buffer, Int length)
 	e.onGround = !!*(buffer += 8);
 
 	// Trigger the event
-	eventHandler->runOnServerThread(&EventHandler::playerPosition, eventHandler, e);
+	eventHandler->playerPosition(e);
 }
 
 /*******************************************************
@@ -759,7 +760,7 @@ void NetworkHandler::playerPositionAndLook(Client* client, Byte* buffer, Int len
 	e.onGround = !!*(buffer += 4);
 
 	// Trigger the event
-	eventHandler->runOnServerThread(&EventHandler::playerPositionAndLook, eventHandler, e);
+	eventHandler->playerPositionAndLook(e);
 }
 
 /**************************************************
@@ -778,7 +779,7 @@ void NetworkHandler::playerLook(Client* client, Byte* buffer, Int length)
 	e.onGround = !!*(buffer += 4);
 
 	// Trigger the event
-	eventHandler->runOnServerThread(&EventHandler::playerLook, eventHandler, e);
+	eventHandler->playerLook(e);
 }
 
 /**************************************************************
@@ -793,7 +794,7 @@ void NetworkHandler::playerOnGround(Client* client, Byte* buffer, Int length)
 	e.onGround = !!*buffer;
 
 	// Trigger the event
-	eventHandler->runOnServerThread(&EventHandler::playerOnGround, eventHandler, e);
+	eventHandler->playerOnGround(e);
 }
 
 /**************************************
@@ -1159,9 +1160,7 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 	send(client->getSocket(), data.c_str(), data.size(), NULL);
 
 	// Register the loaded chunk into the client's data
-	eventHandler->runOnServerThread([client, x, z]() {
-		client->loadedChunks.insert(std::pair<Int, Int>(x, z));
-	});
+	client->loadedChunks.insert(std::pair<Int, Int>(x, z));
 }
 
 /******************************************
@@ -1320,9 +1319,7 @@ void NetworkHandler::sendUnloadChunk(Client* client, Int x, Int z)
 	send(client->getSocket(), data.c_str(), data.size(), NULL);
 
 	// Unregister the chunk from the client's data
-	eventHandler->runOnServerThread([client, x, z]() {
-		client->loadedChunks.erase(std::pair<Int, Int>(x, z));
-	});
+	client->loadedChunks.erase(std::pair<Int, Int>(x, z));
 }
 
 /***********************************
@@ -1367,10 +1364,9 @@ NetworkHandler::~NetworkHandler()
  * NetworkHandler :: addClient       *
  * Handshakes with and adds a client *
  *************************************/
-void NetworkHandler::addClient(SOCKET newClient)
+void NetworkHandler::addClient(SOCKET& newClient)
 {
 	// Add the client to the list of clients
-	// TODO: Make thread-safe
 	eventHandler->clients.insert(new Client(newClient));
 }
 
@@ -1383,11 +1379,12 @@ void NetworkHandler::disconnectClient(Client* client)
 	// Disconnect the client's socket
 	shutdown(client->getSocket(), SD_BOTH);
 	closesocket(client->getSocket());
+	eventHandler->clients.erase(client);
 
 	// Trigger the client disconnected event so that the event handler can clean up the client's data.
 	ClientDisconnectEventArgs e;
 	e.client = client;
-	eventHandler->runOnServerThread(&EventHandler::clientDisconnect, eventHandler, e);
+	eventHandler->clientDisconnect(e);
 }
 
 /****************************************************
@@ -1395,9 +1392,8 @@ void NetworkHandler::disconnectClient(Client* client)
  * Searches for a client using the given socket     *
  * It returns null if it could not find any clients *
  ****************************************************/
-Client* NetworkHandler::getClientFromSocket(SOCKET socket)
+Client* NetworkHandler::getClientFromSocket(SOCKET& socket)
 {
-	// TODO: Make thread-safe
 	Client temp(socket);
 	return *eventHandler->clients.find(&temp);
 }
@@ -1410,7 +1406,6 @@ Client* NetworkHandler::getClientFromSocket(SOCKET socket)
 void NetworkHandler::start()
 {
 	running = true;
-	char buf[BUFFER_SIZE];
 
 	while (running)
 	{
@@ -1437,22 +1432,25 @@ void NetworkHandler::start()
 					Client* client = getClientFromSocket(clientList.fd_array[i]);
 
 					// Read some data from the client
-					int dataRead = recv(client->getSocket(), buf, BUFFER_SIZE, NULL);
+					char* buf = new char[BUFFER_SIZE];
+					int dataRead = recv(clientList.fd_array[i], buf, BUFFER_SIZE, NULL);
 					if (dataRead == SOCKET_ERROR)
 					{
 						std::cout << "Error reading data from " << client->getName()
 							<< ": " << WSAGetLastError() << "\n";
 						disconnectClient(client);
+						delete[] buf; // Make sure no memory is leaked
 					}
 					else if (dataRead > 0)
 					{
-						// Attempt to read the varPack
-						readPacket(client, (Byte*)buf, dataRead);
+						// Attempt to read the varPack, it is up to readPacket to delete buf
+						eventHandler->runOnServerThread([client, buf, dataRead, this]() { this->readPacket(client, (Byte*)buf, dataRead, true); });
 					}
 					// The client is not sending bytes... it disconnected.
 					else
 					{
 						disconnectClient(client);
+						delete[] buf; // Make sure no memory is leaked
 					}
 				}
 			}

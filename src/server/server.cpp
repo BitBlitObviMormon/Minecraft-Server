@@ -89,7 +89,7 @@ int Server::listenForClients()
 	server.sin_family = AF_INET;
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
 	server.sin_port = htons(port);
-	if (bind(listenSocket, (SOCKADDR*)&server, sizeof(server)) == SOCKET_ERROR)
+	if (::bind(listenSocket, (SOCKADDR*)&server, sizeof(server)) == SOCKET_ERROR)
 	{
 		std::cout << "Failed to bind listener: " << WSAGetLastError() << "\n";
 		closesocket(listenSocket);
@@ -150,7 +150,7 @@ void Server::addClient()
 {
 	// Get a connection with the client
 	SOCKET client = accept(listenSocket, NULL, NULL);
-	std::cout << "Found client.\n";
+	std::cout << "Found client: " << client << ".\n";
 
 	// Set up the Client event network
 	networkHandler->addClient(client);
