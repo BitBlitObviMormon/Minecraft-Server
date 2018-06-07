@@ -26,7 +26,7 @@
 // off every 'zix'.)
 //
 
-#include "fastnoise.h"
+#include "FastNoise.h"
 
 #include <math.h>
 #include <assert.h>

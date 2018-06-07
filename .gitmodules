@@ -1,0 +1,6 @@
+[submodule "lib/cNBT"]
+	path = lib/cNBT
+	url = https://github.com/chmod222/cNBT.git
+[submodule "lib/FastNoise"]
+	path = lib/FastNoise
+	url = https://github.com/Auburns/FastNoise.git

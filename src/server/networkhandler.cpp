@@ -90,6 +90,7 @@ void writeLong(String& data, const Long num)
  *************************/
 void writeLongB(String& data, const Long num)
 {
+	data.append(1, num & 0xFF);
 	data.append(1, (num >> 8) & 0xFF);
 	data.append(1, (num >> 16) & 0xFF);
 	data.append(1, (num >> 24) & 0xFF);
@@ -97,7 +98,6 @@ void writeLongB(String& data, const Long num)
 	data.append(1, (num >> 40) & 0xFF);
 	data.append(1, (num >> 48) & 0xFF);
 	data.append(1, (num >> 56) & 0xFF);
-	data.append(1, num & 0xFF);
 }
 
 /*************************
@@ -1093,21 +1093,90 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, ChunkColumn& column
 				bs.push_back(column.chunks[ch].getBlockData(i), MAX_BITS_PER_BLOCK); */
 
 			// Create and send a 1-block palette
-			VarInt paletteLength = VarInt(1);
-			VarInt cobblePalette = VarInt((Int)BlockID::TNT << 4);
-			chunkdata.append(1, 1);
+			VarInt paletteLength = VarInt(16);
+			VarInt palette[16];
+			palette[0] = VarInt((Int)BlockID::Air << 4);
+			palette[1] = VarInt((Int)BlockID::Grass << 4);
+			palette[2] = VarInt((Int)BlockID::Dirt << 4);
+			palette[3] = VarInt((Int)BlockID::Cobblestone << 4);
+			palette[4] = VarInt((Int)BlockID::Stone << 4);
+			palette[5] = VarInt((Int)BlockID::StoneBrick << 4);
+			palette[6] = VarInt((Int)BlockID::RedBricks << 4);
+			palette[7] = VarInt((Int)BlockID::NetherBrick << 4);
+			palette[8] = VarInt((Int)BlockID::Log << 4);
+			palette[9] = VarInt((Int)BlockID::Log2 << 4);
+			palette[10] = VarInt((Int)BlockID::Planks << 4);
+			palette[11] = VarInt((Int)BlockID::Sand << 4);
+			palette[12] = VarInt((Int)BlockID::RedSandstone << 4);
+			palette[13] = VarInt((Int)BlockID::Wool << 4);
+			palette[14] = VarInt((Int)BlockID::Clay << 4);
+			palette[15] = VarInt((Int)BlockID::TNT << 4);
+			chunkdata.append(1, 4);	// Bits per entry
 			chunkdata.append((char*)paletteLength.getData(), paletteLength.getSize());
-			chunkdata.append((char*)cobblePalette.getData(), cobblePalette.getSize());
+			for (int i = 0; i < 16; ++i)
+				chunkdata.append((char*)palette[i].getData(), palette[i].getSize());
 
 			// Send all of the blocks from that palette
-			VarInt chunkdataSize = VarInt(64); // 64 * bitsize
+			VarInt chunkdataSize = VarInt(256); // 64 * bitsize
 			chunkdata.append((char*)chunkdataSize.getData(), chunkdataSize.getSize());
+			for (int i = 0; i < 4096; i += 2)
+				chunkdata.append(1, (i % 16) << 4 | ((i + 1) % 16));
+
+			// Gather the chunk data
+/*			ULong data[832];
+			ULong mask = (1 << 13) - 1;
+//			ULong tempLong = 0;
+//			ULong currentlyWrittenIndex = 0;
+			for (int i = 0; i < 4096; ++i)
+/*			{
+				ULong value = ((ULong)BlockID::Stone) << 4;
+				value &= mask;
+
+				size_t bitPosition = i * 13;
+				size_t firstIndex = bitPosition / 64;
+				size_t secondIndex = ((i + 1) * 13 - 1) / 64;
+				size_t bitOffset = bitPosition % 64;
+
+				if (firstIndex != currentlyWrittenIndex)
+				{
+					writeLong(chunkdata, tempLong);
+					tempLong = 0;
+					currentlyWrittenIndex = firstIndex;
+				}
+
+				tempLong |= (value << 13);
+
+				if (firstIndex != secondIndex)
+				{
+					writeLong(chunkdata, tempLong);
+					currentlyWrittenIndex = secondIndex;
+					tempLong = (value >> (64 - 13));
+				}
+			}
+
+			writeLong(chunkdata, tempLong); *
+			{
+				Int startLong = (i * 13) / 64;
+				Int startOffset = (i * 13) % 64;
+				Int endLong = ((i + 1) * 13 - 1) / 64;
+
+				ULong value = ((ULong)BlockID::Stone) << 4;
+				value &= mask;
+
+				data[startLong] |= (value >> startOffset);
+
+				if (startLong != endLong)
+					data[endLong] = (value >> (64 - startOffset));
+			}
 
 			// Insert the block data
+			for (int i = 0; i < 832; ++i)
+				writeLong(chunkdata, data[i]); */
+
 //			BitStream bs;
 //			for (int i = 0; i < 64; ++i)
 //				bs << (Long)0xFFFFFFFFFFFFFFFF;
-			chunkdata.append(512, '\xff');
+//			chunkdata.append(2048, '\xff');
 //			chunkdata.append(bs.str());
 
 			// Send the block light data
@@ -1172,34 +1241,32 @@ void NetworkHandler::sendChunk(Client* client, Int x, Int z, Boolean createChunk
 	// Grab the chunk on the server's clock thread
 	EventHandler* handler = eventHandler;
 	NetworkHandler* nethandler = this;
-	handler->runOnServerThread([handler, nethandler, client, x, z, createChunk, inOverworld]
+
+	// Get the chunk column before sending it
+	GetChunkEventArgs e;
+	e.client = client;
+	e.x = x;
+	e.z = z;
+	handler->getChunk(e);
+
+	// If we're creating a chunk then grab its biome data
+	if (createChunk)
 	{
-		// Get the chunk column before sending it
-		GetChunkEventArgs e;
-		e.client = client;
-		e.x = x;
-		e.z = z;
-		handler->getChunk(e);
+		// Create the biome array if needed
+		if (e.chunk.noBiomes())
+			e.chunk.fillBiomes();
 
-		// If we're creating a chunk then grab its biome data
-		if (createChunk)
-		{
-			// Create the biome array if needed
-			if (e.chunk.noBiomes())
-				e.chunk.fillBiomes();
+		// Get the biome data
+		GetBiomeEventArgs e2;
+		e2.client = client;
+		e2.x = x;
+		e2.z = z;
+		e2.biomes = &e.chunk.getBiome(0);
+		handler->getBiomes(e2);
+	}
 
-			// Get the biome data
-			GetBiomeEventArgs e2;
-			e2.client = client;
-			e2.x = x;
-			e2.z = z;
-			e2.biomes = &e.chunk.getBiome(0);
-			handler->getBiomes(e2);
-		}
-
-		// Send the chunk column
-		nethandler->sendChunk(client, x, z, e.chunk, createChunk, inOverworld);
-	});
+	// Send the chunk column
+	nethandler->sendChunk(client, x, z, e.chunk, createChunk, inOverworld);
 }
 
 
