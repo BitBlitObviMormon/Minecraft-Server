@@ -4,3 +4,6 @@
 [submodule "lib/FastNoise"]
 	path = lib/FastNoise
 	url = https://github.com/Auburns/FastNoise.git
+[submodule "lib/zlib"]
+	path = lib/zlib
+	url = https://github.com/madler/zlib.git
