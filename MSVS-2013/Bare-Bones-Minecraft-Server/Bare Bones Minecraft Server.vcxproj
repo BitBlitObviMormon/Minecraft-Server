@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -166,10 +166,43 @@
     <ClInclude Include="..\..\include\server\networkhandler.h" />
     <ClInclude Include="..\..\include\server\server.h" />
     <ClInclude Include="..\..\include\server\serverevents.h" />
-    <ClInclude Include="..\..\lib\fastnoise\fastnoise.h" />
+    <ClInclude Include="..\..\lib\cNBT\buffer.h" />
+    <ClInclude Include="..\..\lib\cNBT\list.h" />
+    <ClInclude Include="..\..\lib\cNBT\nbt.h" />
+    <ClInclude Include="..\..\lib\FastNoise\FastNoise.h" />
+    <ClInclude Include="..\..\lib\zlib\crc32.h" />
+    <ClInclude Include="..\..\lib\zlib\deflate.h" />
+    <ClInclude Include="..\..\lib\zlib\gzguts.h" />
+    <ClInclude Include="..\..\lib\zlib\inffast.h" />
+    <ClInclude Include="..\..\lib\zlib\inffixed.h" />
+    <ClInclude Include="..\..\lib\zlib\inftrees.h" />
+    <ClInclude Include="..\..\lib\zlib\trees.h" />
+    <ClInclude Include="..\..\lib\zlib\zconf.h" />
+    <ClInclude Include="..\..\lib\zlib\zlib.h" />
+    <ClInclude Include="..\..\lib\zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\fastnoise\fastnoise.cpp" />
+    <ClCompile Include="..\..\lib\cNBT\buffer.c" />
+    <ClCompile Include="..\..\lib\cNBT\nbt_loading.c" />
+    <ClCompile Include="..\..\lib\cNBT\nbt_parsing.c" />
+    <ClCompile Include="..\..\lib\cNBT\nbt_treeops.c" />
+    <ClCompile Include="..\..\lib\cNBT\nbt_util.c" />
+    <ClCompile Include="..\..\lib\FastNoise\FastNoise.cpp" />
+    <ClCompile Include="..\..\lib\zlib\adler32.c" />
+    <ClCompile Include="..\..\lib\zlib\compress.c" />
+    <ClCompile Include="..\..\lib\zlib\crc32.c" />
+    <ClCompile Include="..\..\lib\zlib\deflate.c" />
+    <ClCompile Include="..\..\lib\zlib\gzclose.c" />
+    <ClCompile Include="..\..\lib\zlib\gzlib.c" />
+    <ClCompile Include="..\..\lib\zlib\gzread.c" />
+    <ClCompile Include="..\..\lib\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\lib\zlib\infback.c" />
+    <ClCompile Include="..\..\lib\zlib\inffast.c" />
+    <ClCompile Include="..\..\lib\zlib\inflate.c" />
+    <ClCompile Include="..\..\lib\zlib\inftrees.c" />
+    <ClCompile Include="..\..\lib\zlib\trees.c" />
+    <ClCompile Include="..\..\lib\zlib\uncompr.c" />
+    <ClCompile Include="..\..\lib\zlib\zutil.c" />
     <ClCompile Include="..\..\src\client\client.cpp" />
     <ClCompile Include="..\..\src\client\clientevents.cpp" />
     <ClCompile Include="..\..\src\data\biomes.cpp" />

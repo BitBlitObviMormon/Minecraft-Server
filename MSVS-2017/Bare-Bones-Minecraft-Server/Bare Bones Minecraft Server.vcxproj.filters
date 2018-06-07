@@ -13,6 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{a6ea6691-dda7-46bb-bb8c-ea0a097fbb48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\FastNoise">
+      <UniqueIdentifier>{a8807744-d9ff-49a7-b1e1-7370c6954af7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\cNBT">
+      <UniqueIdentifier>{5bff1afe-abfa-4628-91f8-25b335de87db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\cNBT\Header Files">
+      <UniqueIdentifier>{2ace7a71-da71-41b4-9d4e-7adb22bc476e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\cNBT\Source Files">
+      <UniqueIdentifier>{68285373-357a-45d9-8d2e-32ed36021541}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\zlib">
+      <UniqueIdentifier>{54e32fa8-6a61-4651-a24b-6abfd50df65c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\zlib\Header Files">
+      <UniqueIdentifier>{5174a203-a71d-45e2-8e23-ae3a54d4770b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries\zlib\Source Files">
+      <UniqueIdentifier>{eb249497-1ea3-4e0a-8766-8cbb81067085}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\server\networkhandler.h">
@@ -57,23 +81,59 @@
     <ClInclude Include="..\..\include\deprecated.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\jobqueue.h">
+    <ClInclude Include="..\..\include\data\atomicset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\data\bitstream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\atomicset.h">
+    <ClInclude Include="..\..\include\data\jobqueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\lib\fastnoise\fastnoise.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\lib\zlib\crc32.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\deflate.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\gzguts.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\inffast.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\inffixed.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\inftrees.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\trees.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\zconf.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\zlib.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\zlib\zutil.h">
+      <Filter>Libraries\zlib\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\FastNoise\FastNoise.h">
+      <Filter>Libraries\FastNoise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\cNBT\buffer.h">
+      <Filter>Libraries\cNBT\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\cNBT\list.h">
+      <Filter>Libraries\cNBT\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\cNBT\nbt.h">
+      <Filter>Libraries\cNBT\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\fastnoise\fastnoise.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\server\networkhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,11 +167,74 @@
     <ClCompile Include="..\..\src\data\datatypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\data\bitstream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\data\jobqueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\bitstream.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\lib\FastNoise\FastNoise.cpp">
+      <Filter>Libraries\FastNoise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\cNBT\buffer.c">
+      <Filter>Libraries\cNBT\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\cNBT\nbt_loading.c">
+      <Filter>Libraries\cNBT\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\cNBT\nbt_parsing.c">
+      <Filter>Libraries\cNBT\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\cNBT\nbt_treeops.c">
+      <Filter>Libraries\cNBT\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\cNBT\nbt_util.c">
+      <Filter>Libraries\cNBT\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\adler32.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\compress.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\crc32.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\deflate.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\gzclose.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\gzlib.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\gzread.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\gzwrite.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\infback.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\inffast.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\inflate.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\inftrees.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\zutil.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\uncompr.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\zlib\trees.c">
+      <Filter>Libraries\zlib\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
