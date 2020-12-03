@@ -11,19 +11,21 @@
 Thumbs.db
 
 # Visual Studio build files
-MSVS-2013/[Dd]ebug/
-MSVS-2013/[Rr]elease/
-MSVS-2013/Bare-Bones-Minecraft-Server/[Dd]ebug/
-MSVS-2013/Bare-Bones-Minecraft-Server/[Rr]elease/
-MSVS-2017/[Dd]ebug/
-MSVS-2017/[Rr]elease/
-MSVS-2017/Bare-Bones-Minecraft-Server/[Dd]ebug/
-MSVS-2017/Bare-Bones-Minecraft-Server/[Rr]elease/
+MSVS/[Dd]ebug/
+MSVS/[Rr]elease/
+MSVS/Bare-Bones-Minecraft-Server/[Dd]ebug/
+MSVS/Bare-Bones-Minecraft-Server/[Rr]elease/
+MSVS/cNBT/[Dd]ebug/
+MSVS/cNBT/[Rr]elease/
+MSVS/FastNoise/[Dd]ebug/
+MSVS/FastNoise/[Rr]elease/
+MSVS/zlib/[Dd]ebug/
+MSVS/zlib/[Rr]elease/
+
 
 # Visual C++ cache files
-MSVS-2017/.vs/
-MSVS-2017/ipch/
-MSVS-2013/ipch/
+MSVS/.vs/
+MSVS/ipch/
 *.aps
 *.ncb
 *.opensdf

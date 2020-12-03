@@ -23,32 +23,32 @@
     <ProjectGuid>{4D00D6F9-C15D-49FD-897E-D28071B5B020}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BareBonesMinecraftServer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -166,43 +166,8 @@
     <ClInclude Include="..\..\include\server\networkhandler.h" />
     <ClInclude Include="..\..\include\server\server.h" />
     <ClInclude Include="..\..\include\server\serverevents.h" />
-    <ClInclude Include="..\..\lib\cNBT\buffer.h" />
-    <ClInclude Include="..\..\lib\cNBT\list.h" />
-    <ClInclude Include="..\..\lib\cNBT\nbt.h" />
-    <ClInclude Include="..\..\lib\FastNoise\FastNoise.h" />
-    <ClInclude Include="..\..\lib\zlib\crc32.h" />
-    <ClInclude Include="..\..\lib\zlib\deflate.h" />
-    <ClInclude Include="..\..\lib\zlib\gzguts.h" />
-    <ClInclude Include="..\..\lib\zlib\inffast.h" />
-    <ClInclude Include="..\..\lib\zlib\inffixed.h" />
-    <ClInclude Include="..\..\lib\zlib\inftrees.h" />
-    <ClInclude Include="..\..\lib\zlib\trees.h" />
-    <ClInclude Include="..\..\lib\zlib\zconf.h" />
-    <ClInclude Include="..\..\lib\zlib\zlib.h" />
-    <ClInclude Include="..\..\lib\zlib\zutil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\cNBT\buffer.c" />
-    <ClCompile Include="..\..\lib\cNBT\nbt_loading.c" />
-    <ClCompile Include="..\..\lib\cNBT\nbt_parsing.c" />
-    <ClCompile Include="..\..\lib\cNBT\nbt_treeops.c" />
-    <ClCompile Include="..\..\lib\cNBT\nbt_util.c" />
-    <ClCompile Include="..\..\lib\FastNoise\FastNoise.cpp" />
-    <ClCompile Include="..\..\lib\zlib\adler32.c" />
-    <ClCompile Include="..\..\lib\zlib\compress.c" />
-    <ClCompile Include="..\..\lib\zlib\crc32.c" />
-    <ClCompile Include="..\..\lib\zlib\deflate.c" />
-    <ClCompile Include="..\..\lib\zlib\gzclose.c" />
-    <ClCompile Include="..\..\lib\zlib\gzlib.c" />
-    <ClCompile Include="..\..\lib\zlib\gzread.c" />
-    <ClCompile Include="..\..\lib\zlib\gzwrite.c" />
-    <ClCompile Include="..\..\lib\zlib\infback.c" />
-    <ClCompile Include="..\..\lib\zlib\inffast.c" />
-    <ClCompile Include="..\..\lib\zlib\inflate.c" />
-    <ClCompile Include="..\..\lib\zlib\inftrees.c" />
-    <ClCompile Include="..\..\lib\zlib\trees.c" />
-    <ClCompile Include="..\..\lib\zlib\uncompr.c" />
-    <ClCompile Include="..\..\lib\zlib\zutil.c" />
     <ClCompile Include="..\..\src\client\client.cpp" />
     <ClCompile Include="..\..\src\client\clientevents.cpp" />
     <ClCompile Include="..\..\src\data\biomes.cpp" />
@@ -216,6 +181,14 @@
     <ClCompile Include="..\..\src\server\networkhandler.cpp" />
     <ClCompile Include="..\..\src\server\server.cpp" />
     <ClCompile Include="..\..\src\server\serverevents.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\cNBT\cNBT.vcxproj">
+      <Project>{35a806e6-b2a9-4457-af3b-00992231a90e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FastNoise\FastNoise.vcxproj">
+      <Project>{ec3b2367-19b0-4599-975d-b5ba3bcadafa}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
