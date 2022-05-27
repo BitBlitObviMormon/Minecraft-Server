@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4552F817-82D6-4AEB-9ACF-3CBAAA4A216F}</ProjectGuid>
     <RootNamespace>MinecraftServer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,6 +46,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)/../include;$(ProjectDir)/..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -59,6 +61,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)/../include;$(ProjectDir)/..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,16 +71,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\tests\atomicset\atomicsettest.cpp" />
-    <ClCompile Include="..\tests\bitstream\bitstreamtest.cpp" />
-    <ClCompile Include="..\tests\jobqueue\jobqueuetest.cpp" />
     <ClCompile Include="..\tests\varnum\varnumtest.cpp" />
     <ClCompile Include="..\driver\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\tests\atomicset\atomicsettest.h" />
-    <ClInclude Include="..\tests\bitstream\bitstreamtest.h" />
-    <ClInclude Include="..\tests\jobqueue\jobqueuetest.h" />
     <ClInclude Include="..\tests\varnum\varnumtest.h" />
     <ClInclude Include="..\include\client\client.h" />
     <ClInclude Include="..\include\client\clientevents.h" />

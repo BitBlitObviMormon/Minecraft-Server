@@ -15,12 +15,12 @@ MSVS/[Dd]ebug/
 MSVS/[Rr]elease/
 MSVS/Bare-Bones-Minecraft-Server/[Dd]ebug/
 MSVS/Bare-Bones-Minecraft-Server/[Rr]elease/
-MSVS/cNBT/[Dd]ebug/
-MSVS/cNBT/[Rr]elease/
-MSVS/FastNoise/[Dd]ebug/
-MSVS/FastNoise/[Rr]elease/
+MSVS/LibNBT++/[Dd]ebug/
+MSVS/LibNBT++/[Rr]elease/
 MSVS/zlib/[Dd]ebug/
 MSVS/zlib/[Rr]elease/
+MSVS/Win32
+MSVS/Win64
 
 
 # Visual C++ cache files

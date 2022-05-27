@@ -1,5 +1,5 @@
 #include "varnumtest.h"
-#include "data/datatypes.h"
+#include "datatypes.h"
 #include <atomic>
 #include <thread>
 #include <chrono>

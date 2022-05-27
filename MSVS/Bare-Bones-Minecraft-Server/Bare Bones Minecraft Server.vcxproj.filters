@@ -18,96 +18,90 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\server\networkhandler.h">
+    <ClInclude Include="..\..\include\serverevents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\networkpackets.h">
+    <ClInclude Include="..\..\include\biomes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\server\server.h">
+    <ClInclude Include="..\..\include\blockentities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\biomes.h">
+    <ClInclude Include="..\..\include\blocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\server\eventhandler.h">
+    <ClInclude Include="..\..\include\client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\entity\blockentities.h">
+    <ClInclude Include="..\..\include\clientevents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\client\clientevents.h">
+    <ClInclude Include="..\..\include\datatypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\entity\entities.h">
+    <ClInclude Include="..\..\include\entities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\server\serverevents.h">
+    <ClInclude Include="..\..\include\eventhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\datatypes.h">
+    <ClInclude Include="..\..\include\lockedclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\client\client.h">
+    <ClInclude Include="..\..\include\networkhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\debug.h">
+    <ClInclude Include="..\..\include\networkpackets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\blocks.h">
+    <ClInclude Include="..\..\include\server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\deprecated.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\include\lib\thread-pool\thread_pool.hpp">
+      <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\data\atomicset.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\data\bitstream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\data\jobqueue.h">
+    <ClInclude Include="..\..\include\uuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\server\networkhandler.cpp">
+    <ClCompile Include="..\..\src\biomes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\server\server.cpp">
+    <ClCompile Include="..\..\src\blockentities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\server\eventhandler.cpp">
+    <ClCompile Include="..\..\src\blocks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\client\clientevents.cpp">
+    <ClCompile Include="..\..\src\client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\entity\entities.cpp">
+    <ClCompile Include="..\..\src\clientevents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\server\serverevents.cpp">
+    <ClCompile Include="..\..\src\datatypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\client\client.cpp">
+    <ClCompile Include="..\..\src\entities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\entity\blockentities.cpp">
+    <ClCompile Include="..\..\src\eventhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\blocks.cpp">
+    <ClCompile Include="..\..\src\networkhandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\biomes.cpp">
+    <ClCompile Include="..\..\src\server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\datatypes.cpp">
+    <ClCompile Include="..\..\src\serverevents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\bitstream.cpp">
+    <ClCompile Include="..\..\src\lockedclient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\data\jobqueue.cpp">
+    <ClCompile Include="..\..\src\uuid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

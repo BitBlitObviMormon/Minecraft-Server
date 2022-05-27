@@ -1,9 +1,9 @@
-[submodule "lib/cNBT"]
-	path = lib/cNBT
-	url = https://github.com/BitBlitObviMormon/cNBT.git
-[submodule "lib/FastNoise"]
-	path = lib/FastNoise
-	url = https://github.com/Auburns/FastNoise.git
 [submodule "lib/zlib"]
 	path = lib/zlib
 	url = https://github.com/BitBlitObviMormon/zlib.git
+[submodule "lib/libnbtplusplus"]
+	path = lib/libnbtplusplus
+	url = https://github.com/BitBlitObviMormon/libnbtplusplus
+[submodule "lib/nbtplusplus"]
+	path = lib/nbtplusplus
+	url = https://github.com/BitBlitObviMormon/libnbtplusplus.git
