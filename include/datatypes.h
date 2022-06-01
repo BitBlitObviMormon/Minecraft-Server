@@ -178,11 +178,11 @@ private:
 	Byte*  lights; // First nibble is block lighting; second nibble is sky lighting
 	Short* blocks; // First 3 nibbles is block id; last nibble is block metadata
 public:
-	ChunkSection() : lights(NULL), blocks(NULL) {}
+	ChunkSection() : lights(nullptr), blocks(nullptr) {}
 	~ChunkSection() { if (lights) delete[] lights; if (blocks) delete[] blocks; }
 	Boolean empty() { return !blocks; }
-	void deleteBlocks() { if (blocks) delete[] blocks; blocks = NULL; }
-	void deleteLights() { if (lights) delete[] lights; lights = NULL; }
+	void deleteBlocks() { if (blocks) delete[] blocks; blocks = nullptr; }
+	void deleteLights() { if (lights) delete[] lights; lights = nullptr; }
 	Short getBlockData(int index) { return blocks[index]; }
 	Short getBlockData(int x, int y, int z) { return getBlockData(y * 256 + z * 16 + x); }
 	BlockID getBlock(int index) { return (BlockID)(((UByte)blocks[index]) >> 4); }
@@ -219,7 +219,7 @@ protected:
 	BiomeID* biomes;
 public:
 	ChunkSection chunks[16];
-	ChunkColumn() : biomes(NULL) {}
+	ChunkColumn() : biomes(nullptr) {}
 	~ChunkColumn() { if (biomes) delete[] biomes; }
 	Boolean noBiomes() { return !biomes; }
 	BiomeID& getBiome(int index) { return biomes[index]; }

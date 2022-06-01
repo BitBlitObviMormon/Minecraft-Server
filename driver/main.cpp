@@ -51,7 +51,7 @@ int main()
 	RunTests();
 
 	// Create and start the server
-	Game game = Game();
+	Game game;
 	Server server(&game);
 	server.start();
 

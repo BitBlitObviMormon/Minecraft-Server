@@ -15,44 +15,91 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\endian_str.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\endian_str.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_array.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_array.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_compound.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_compound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_list.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_string.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\value.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\value_initializer.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\value_initializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\text\json_formatter.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\text\json_formatter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\izlibstream.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\izlibstream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\ozlibstream.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\ozlibstream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\stream_reader.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\stream_writer.cpp">
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_writer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\lib\nbtplusplus\crtp_tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\endian_str.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\make_unique.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\nbt_tags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\nbt_visitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\primitive_detail.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_compound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_primitive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\tagfwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\value.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\nbtplusplus\value_initializer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

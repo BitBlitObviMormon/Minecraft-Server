@@ -901,7 +901,7 @@ void NetworkHandler::sendLoginSuccess(const Client* client, UUID uuid, String us
 	data.append((char*)susername.makeData().get(), susername.size());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /*************************************
@@ -932,7 +932,7 @@ void NetworkHandler::sendChatMessage(const Client* client, String message, ChatM
 	data.append(1, (char)type);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /************************************
@@ -960,7 +960,7 @@ void NetworkHandler::sendJoinGame(const Client* client, Int entityID, Gamemode g
 	data.append(1, (char)reducedDebugInfo);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /***************************************
@@ -983,7 +983,7 @@ void NetworkHandler::sendPluginMessage(const Client* client, String channel, Byt
 	data.append((char*)data2, dataLen);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /******************************************
@@ -1023,7 +1023,7 @@ void NetworkHandler::sendSpawnPosition(const Client* client, Position pos)
 	writeLong(data, spos.makeData());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /********************************************
@@ -1046,7 +1046,7 @@ void NetworkHandler::sendPlayerAbilities(const Client* client, PlayerAbilities a
 	writeFloat(data, fovModifier);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /********************************************
@@ -1074,7 +1074,7 @@ void NetworkHandler::sendPlayerPositionAndLook(const Client* client, PositionF p
 	data.append((char*)steleportID.makeData(), steleportID.size());
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /*********************************************
@@ -1096,7 +1096,7 @@ void NetworkHandler::sendUnloadChunk(const Client* client, Int x, Int z)
 	writeInt(data, z);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /***********************************
@@ -1117,7 +1117,7 @@ void NetworkHandler::sendKeepAlive(const Client* client, Long id)
 	writeLong(data, id);
 
 	// Send the packet
-	send(client->socket, data.c_str(), data.size(), NULL);
+	send(client->socket, data.c_str(), data.size(), 0);
 }
 
 /****************************
@@ -1225,7 +1225,7 @@ void NetworkHandler::sendRemoveTeamMembers(const Client* client, Team team, List
  * Default Constructor                      *
  ********************************************/
 NetworkHandler::NetworkHandler()
-	: running(false), eventHandler(NULL) {}
+	: running(false), eventHandler(nullptr) {}
 
 /********************************************
  * NetworkHandler :: NetworkHandler         *
@@ -1293,9 +1293,10 @@ void NetworkHandler::start()
 	while (running)
 	{
 		// Create a list of every client to listen to
+		// TODO: Make eventHandler->clients thread-safe
 		fd_set clientList;
 		if (eventHandler->clients.size() > 0)
-		{ /*
+		{
 			int i = 0;
 			for (auto it = eventHandler->clients.begin(); it != eventHandler->clients.end(); it++, i++)
 				clientList.fd_array[i] = it->client->socket;
@@ -1305,39 +1306,41 @@ void NetworkHandler::start()
 			int returnVal;
 
 			// Listen to every client on the list
-			if ((returnVal = select(NULL, &clientList, NULL, NULL, &timeout)) > 0)
+			if ((returnVal = select(0, &clientList, nullptr, nullptr, &timeout)) > 0)
 			{
 				// Receive some data from the clients
 				for (int i = 0; i < returnVal; i++)
 				{
 					// Find the client in our list
-					const LockedClient* client = getClientFromSocket(clientList.fd_array[i]);
+					LockedClient* client = getClientFromSocket(clientList.fd_array[i]);
 
 					// Read some data from the client
-					std::unique_ptr<Byte[]> buf(new Byte[BUFFER_SIZE]);
-					int dataRead = recv(clientList.fd_array[i], (char*)buf.get(), BUFFER_SIZE, NULL);
+					char* buf = new char[BUFFER_SIZE];
+					int dataRead = recv(clientList.fd_array[i], buf, BUFFER_SIZE, 0);
 					if (dataRead == SOCKET_ERROR)
 					{
-						std::cout << "Error reading data from " << client->getName()
+						std::cout << "Error reading data from " << client->client->name
 							<< ": " << WSAGetLastError() << "\n";
-						disconnectClient(client);
+						disconnectClient(*client);
+						delete[] buf; // Make sure no memory is leaked
 					}
 					else if (dataRead > 0)
 					{
 						// Attempt to read the varPack, it is up to readPacket to delete buf
-						eventHandler->runOnServerThread([client, buf, dataRead, this]() { this->readPacket(client, buf, dataRead); });
+						eventHandler->exec([client, buf, dataRead, this]() { this->readPacket(*client, std::unique_ptr<Byte[]>((Byte*)buf), dataRead); });
 					}
 					// The client is not sending bytes... it disconnected.
 					else
 					{
-						disconnectClient(client);
+						disconnectClient(*client);
+						delete[] buf; // Make sure no memory is leaked
 					}
 				}
 			}
 			else if (returnVal == SOCKET_ERROR)
 			{
 				std::cout << "Error receiving client message: " << WSAGetLastError() << "\n";
-			} */
+			}
 		}
 		else
 			Sleep(100); // TODO: Replace with conditional wakeup from Server->listenForClients

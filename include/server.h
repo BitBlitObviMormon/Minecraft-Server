@@ -36,7 +36,7 @@ protected:
 	int acceptClients();
 	void addClient();
 public:
-	Server(EventHandler* eventHandler = NULL, NetworkHandler* networkHandler = NULL, const Int port = MC_SERVER_DEFAULT_PORT);
+	Server(EventHandler* eventHandler = nullptr, NetworkHandler* networkHandler = nullptr, const Int port = MC_SERVER_DEFAULT_PORT);
 	~Server();
 	void start(double tps = 20.0);
 	void startAsync(double tps = 20.0);

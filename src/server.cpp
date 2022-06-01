@@ -31,26 +31,26 @@ Server::Server(EventHandler* eventHandler, NetworkHandler* networkHandler, const
 	  listenSocket(INVALID_SOCKET), running(false), networkHandler(networkHandler), eventHandler(eventHandler), port(port)
 {
 	// Create a default server event handler if none was given
-	if (eventHandler == NULL) {
-		eventHandler = new EventHandler();
-		_constructedEventHandler = true;
+	if (eventHandler == nullptr) {
+		this->eventHandler = new EventHandler();
+		this->_constructedEventHandler = true;
 	}
 
 	// Create a default client event handler if none was given
-	if (networkHandler == NULL) {
-		networkHandler = new NetworkHandler();
-		_constructedNetworkHandler = true;
+	if (networkHandler == nullptr) {
+		this->networkHandler = new NetworkHandler();
+		this->_constructedNetworkHandler = true;
 	}
 
 	// Give the event handler and network handler a reference to one another
-	eventHandler->networkHandler = networkHandler;
-	networkHandler->eventHandler = eventHandler;
+	this->eventHandler->networkHandler = this->networkHandler;
+	this->networkHandler->eventHandler = this->eventHandler;
 
 	// Initialize the network sockets
 	sockInit();
 
 	// Start up the server tick timer
-//	eventHandler->startTickClock();
+//	this->eventHandler->startTickClock();
 }
 
 /********************
@@ -131,7 +131,7 @@ int Server::acceptClients()
 		timeout.tv_usec = 100000;
 		int returnVal;
 
-		if ((returnVal = select(NULL, &listener, NULL, NULL, &timeout)) > 0)
+		if ((returnVal = select(0, &listener, nullptr, nullptr, &timeout)) > 0)
 		{
 			new std::thread(&Server::addClient, this);
 		}
@@ -152,7 +152,7 @@ int Server::acceptClients()
 void Server::addClient()
 {
 	// Get a connection with the client
-	SOCKET client = accept(listenSocket, NULL, NULL);
+	SOCKET client = accept(listenSocket, nullptr, nullptr);
 	std::cout << "Found client: " << client << ".\n";
 
 	// Set up the client event network
@@ -191,7 +191,7 @@ void Server::startAsync(double tps) { new std::thread(&Server::start, this, tps)
  *************************/
 void Server::stop()
 {
-	if (networkHandler != NULL)
+	if (networkHandler != nullptr)
 		networkHandler->stop();
 	running = false;
 }

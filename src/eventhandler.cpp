@@ -500,14 +500,22 @@ std::shared_ptr<Client> EventHandler::createClient(SOCKET socket)
 	return std::make_shared<Client>(socket);
 }
 
-/********************************************
- * EventHandler :: EventHandler             *
- * Default Constructor                      *
- ********************************************/
-EventHandler::EventHandler() : networkHandler(NULL), clients() {}
+/********************************
+ * EventHandler :: EventHandler *
+ * Default Constructor          *
+ ********************************/
+EventHandler::EventHandler() : networkHandler(nullptr), clients() {}
 
-/********************************************
- * EventHandler :: EventHandler             *
- * Destructor                               *
- ********************************************/
+/********************************
+ * EventHandler :: EventHandler *
+ * Destructor                   *
+ ********************************/
 EventHandler::~EventHandler() { /* stopTickClock(); */ }
+
+/******************************************
+ * EventHandler :: exec                   *
+ * Executes a function on a server thread *
+ ******************************************/
+void EventHandler::exec(std::function<void(void)> func) {
+	func();
+}

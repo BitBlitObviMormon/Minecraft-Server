@@ -19,24 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\endian_str.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\izlibstream.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\ozlibstream.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\stream_reader.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\io\stream_writer.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_array.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_compound.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_list.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\tag_string.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\text\json_formatter.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\value.cpp" />
-    <ClCompile Include="..\..\lib\libnbtplusplus\src\value_initializer.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\endian_str.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\izlibstream.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\ozlibstream.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_reader.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_writer.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_array.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_compound.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_list.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_string.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\text\json_formatter.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\value.cpp" />
+    <ClCompile Include="..\..\lib\nbtplusplus\src\value_initializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\zlib\zlib.vcxproj">
       <Project>{5a4acda7-a031-46f8-9235-c46063e35d53}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\lib\nbtplusplus\crtp_tag.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\endian_str.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\make_unique.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\nbt_tags.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\nbt_visitor.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\primitive_detail.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tagfwd.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_array.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_compound.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_list.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_primitive.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\tag_string.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\value.h" />
+    <ClInclude Include="..\..\lib\nbtplusplus\value_initializer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -111,7 +128,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/libnbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -131,7 +148,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/libnbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -151,7 +168,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/libnbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
@@ -171,7 +188,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/libnbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
       <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>

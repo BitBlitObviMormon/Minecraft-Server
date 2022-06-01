@@ -6,6 +6,7 @@
 #include <list>
 #include <atomic>
 #include <memory>
+#include <functional>
 #include <shared_mutex>
 
 namespace boost {
@@ -94,4 +95,7 @@ public:
 	/* Our friend, the NetworkHandler */
 	friend class NetworkHandler;
 	friend class Server;
+
+	// Executes a function on a server thread
+	void exec(std::function<void(void)> func);
 };
