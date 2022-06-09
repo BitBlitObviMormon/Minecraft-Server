@@ -114,20 +114,10 @@ void EventHandler::invalidLength(InvalidLengthEventArgs e)
  * EventHandler :: clientDisconnect  *
  * The client has disconnected       *
  *************************************/
-void EventHandler::clientDisconnected(ClientDisconnectedEventArgs e)
+void EventHandler::clientDisconnected(const Client* client)
 {
-	// Erase the client (and mess with a bunch of locks)
-	auto client = e.getWriteAccess();
-	std::unique_lock<std::shared_mutex> writeLock(clientsMutex);
-	String name = client->name;
-	for (auto it = clients.begin(); it != clients.end(); ++it)
-		if (it->client->name == name)
-			clients.erase(it);
-	writeLock.unlock();
-	e.unblockWriteAccess();
-
 	// TODO: Alert all other players of the disconnect
-	std::cout << name << " has disconnected.\n";
+	std::cout << client->name << " has disconnected.\n";
 }
 
 /*************************************************
@@ -148,7 +138,11 @@ void EventHandler::handshake(HandShakeEventArgs e)
  *************************************************/
 void EventHandler::legacyServerListPing(LegacyServerListPingEventArgs e)
 {
+	auto client = e.getReadAccess();
+	networkHandler->sendLegacyKick(client);
 
+	// TODO: Get the shared_ptr directly from LegacyServerListPingEventArgs
+	networkHandler->disconnectClient(std::shared_ptr<const Client>(client));
 }
 
 /*************************************************
@@ -166,7 +160,27 @@ void EventHandler::ping(PingEventArgs e)
  **********************************************/
 void EventHandler::request(RequestEventArgs e)
 {
-	
+	const Client* client = e.getReadAccess();
+	const char* data = "{\n"
+		"    \"version\": {\n"
+		"        \"name\": \"1.18.2\",\n"
+		"        \"protocol\": 758\n"
+		"    },\n"
+		"    \"players\": {\n"
+		"        \"max\": 10,\n"
+		"        \"online\": 1,\n"
+		"        \"sample\": [\n"
+        "             {\n"
+        "                 \"name\": \"thinkofdeath\",\n"
+        "                 \"id\": \"4566e69f-c907-48ee-8d71-d7ba5aa00d20\"\n"
+        "             }\n"
+        "        ]\n"
+		"    },\n"
+		"    \"description\": {\n"
+		"        \"text\": \"Hello C++ world!\"\n"
+		"    }\n"
+		"}\n";
+	networkHandler->sendResponse(client, data);
 }
 
 /*************************************************
@@ -184,7 +198,24 @@ void EventHandler::encryptionResponse(EncryptionResponseEventArgs e)
  *************************************************/
 void EventHandler::loginStart(LoginStartEventArgs e)
 {
+	UUID uuid = UUID::generate::fromNameSHA1(e.name);
+	auto client = e.getWriteAccess();
+	client->name = e.name;
+	client->uuid = uuid;
+	client->yaw = 0.0;
+	client->pitch = 0.0;
+	client->position = PositionF(0.0, 0.0, 0.0);
+	e.unblockWriteAccess(); // Does not unblock read access
+	networkHandler->sendLoginSuccess(client, uuid, e.name);
 	
+	// Send every chunk to the player
+	// TODO: Actually do this
+
+	// As a temporary solution, send exactly one hardcoded chunk.
+
+
+	// Tell the client that the map has finished loading
+	networkHandler->sendPlayerPositionAndLook(client, PositionF(0.0, 0.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0, false);
 }
 
 /*************************************************
@@ -322,10 +353,10 @@ void EventHandler::playerDigging(PlayerDiggingEventArgs e)
 
 }
 
-/*************************************************
- * EventHandler :: playerPositionAndLook         *
- * The client is changing its position and angle *
- *************************************************/
+/********************************************************
+ * EventHandler :: playerMoved                          *
+ * The client may be changing its position and/or angle *
+ ********************************************************/
 void EventHandler::playerMoved(PlayerMovedEventArgs e)
 {
 	// Store the data passed by the event
@@ -495,9 +526,9 @@ BiomeID* EventHandler::getBiomes(GetBiomeEventArgs& e)
  * EventHandler :: createClient *
  * Creates a client object      *
  ********************************/
-std::shared_ptr<Client> EventHandler::createClient(SOCKET socket)
+Client* EventHandler::createClient(SOCKET socket)
 {
-	return std::make_shared<Client>(socket);
+	return new Client(socket);
 }
 
 /********************************

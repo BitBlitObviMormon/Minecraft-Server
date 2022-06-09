@@ -22,13 +22,17 @@ private:
 	UUID(const boost::uuids::uuid& uuid);
 public:
 	UUID();
+	UUID(const Byte* data);
+	UUID(const ULong first, const ULong second);
 	UUID(const UUID& uuid);
+	UUID(UUID&& uuid);
 	UUID(const String& str);
 	~UUID();
 	const String str();
 	const Byte* makeData();
-	Int length() { return UUID_LENGTH; }
+	Int size() { return UUID_LENGTH; }
 	UUID& operator=(const UUID& rhs);
+	Boolean operator==(const UUID& rhs) const;
 	friend std::ostream& operator<<(std::ostream& os, const UUID& uuid);
 	friend std::istream& operator>>(std::istream& is, UUID& uuid);
 

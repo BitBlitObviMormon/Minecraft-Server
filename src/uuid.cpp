@@ -1,5 +1,7 @@
 #include "uuid.h"
 #include <sstream>
+#include <algorithm>
+#include <boost/endian.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -26,6 +28,29 @@ struct generators {
  ***********************/
 UUID::UUID() : uuid(new boost::uuids::uuid()) {}
 
+/*************************
+ * UUID :: UUID          *
+ * constructor from data *
+ *************************/
+UUID::UUID(const Byte* data) : uuid(new boost::uuids::uuid()) {
+	std::copy_n(data, UUID_LENGTH, uuid->data);
+}
+
+/**********************************
+ * UUID :: UUID                   *
+ * constructor from two Longs     *
+ * (It's been two longs! Har har) *
+ **********************************/
+UUID::UUID(const ULong first, const ULong second) : uuid(new boost::uuids::uuid()) {
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::copy((char*)&first, (char*)&first + sizeof(first), uuid->data);
+	std::copy((char*)&second, (char*)&second + sizeof(second), uuid->data + sizeof(first));
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::reverse_copy((char*)&first, (char*)&first + sizeof(first), uuid->data);
+	std::reverse_copy((char*)&second, (char*)&second + sizeof(second), uuid->data + sizeof(first));
+#endif
+}
+
 /********************
  * UUID :: UUID     *
  * copy constructor *
@@ -37,6 +62,12 @@ UUID::UUID(const UUID& uuid) : UUID(*uuid.uuid) {}
  * Private copy constructor *
  ****************************/
 UUID::UUID(const boost::uuids::uuid& uuid) : uuid(new boost::uuids::uuid(uuid)) {}
+
+/********************
+ * UUID :: UUID     *
+ * move constructor *
+ ********************/
+UUID::UUID(UUID&& uuid) : uuid(std::move(uuid.uuid)) {}
 
 /********************
  * UUID :: UUID     *
@@ -72,11 +103,22 @@ const Byte* UUID::makeData() { return (Byte*)uuid->data; }
  ************************/
 UUID& UUID::operator=(const UUID& rhs) { *this->uuid = *rhs.uuid; return *this; }
 
+/************************
+ * UUID :: == operator  *
+ * Compares two UUIDs   *
+ ************************/
+Boolean UUID::operator==(const UUID& rhs) const {
+	Boolean retVal = true;
+	for (int i = 0; i < UUID_LENGTH; ++i)
+		retVal = retVal && (uuid->data[i] == rhs.uuid->data[i]);
+	return retVal;
+}
+
 /****************************
  * UUID << operator         *
  * Allows printing of UUIDs *
  ****************************/
-std::ostream& operator<<(std::ostream& os, const UUID& uuid) { return os << uuid.uuid; }
+std::ostream& operator<<(std::ostream& os, const UUID& uuid) { return os << *uuid.uuid; }
 
 /*************************
  * UUID >> operator      *

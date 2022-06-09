@@ -58,20 +58,20 @@ ClientEventArgs::ClientEventArgs(ClientEventArgs&& e)
  * ClientEventArgs :: getReadAccess()                 *
  * Returns a pointer of the client (with read access) *
  ******************************************************/
-std::shared_ptr<const Client> ClientEventArgs::getReadAccess()
+const Client* ClientEventArgs::getReadAccess()
 {
 	// Give the thread read-only access before giving the user a readable client variable.
 	if (_readLock.lock == nullptr)
 		_readLock.lock = std::make_unique< upgrade_lock<upgrade_mutex> >(upgrade_lock<upgrade_mutex>(*mutexPtr));
 
-	return client;
+	return client.get();
 }
 
 /*******************************************************
  * ClientEventArgs :: getWriteAccess()                 *
  * Returns a pointer of the client (with write access) *
  *******************************************************/
-std::shared_ptr<Client> ClientEventArgs::getWriteAccess()
+Client* ClientEventArgs::getWriteAccess()
 {
 	// Get read access first
 	if (_readLock.lock == nullptr)
@@ -82,7 +82,7 @@ std::shared_ptr<Client> ClientEventArgs::getWriteAccess()
 	if (_writeLock.lock == nullptr)
 		_writeLock.lock = std::make_unique< upgrade_to_unique_lock<upgrade_mutex> >(upgrade_to_unique_lock<upgrade_mutex>(*_readLock.lock));
 
-	return client;
+	return client.get();
 }
 
 /***************************************************************

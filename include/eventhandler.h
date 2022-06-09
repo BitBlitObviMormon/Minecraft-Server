@@ -38,7 +38,7 @@ protected:
 	virtual void invalidPacket(InvalidPacketEventArgs e);
 	virtual void invalidState(InvalidPacketEventArgs e);
 	virtual void invalidLength(InvalidLengthEventArgs e);
-	virtual void clientDisconnected(ClientDisconnectedEventArgs e);
+	virtual void clientDisconnected(const Client* client);
 
 	/* HANDSHAKING EVENTS */
 	virtual void handshake(HandShakeEventArgs e);
@@ -85,7 +85,7 @@ protected:
 	virtual ChunkSection& getChunkSection(GetChunkEventArgs& e);
 	virtual ChunkColumn& getChunk(GetChunkEventArgs& e);
 	virtual BiomeID* getBiomes(GetBiomeEventArgs& e);
-	virtual std::shared_ptr<Client> createClient(SOCKET socket);
+	virtual Client* createClient(SOCKET socket);
 
 public:
 	/* Constructors */

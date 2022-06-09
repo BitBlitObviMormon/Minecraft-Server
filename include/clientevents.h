@@ -42,8 +42,8 @@ public:
 	// Read-only client data. DO NOT USE after unblockReadAccess!
 	ClientEventArgs(std::shared_ptr<Client> client, boost::upgrade_mutex* mutexPtr);
 	ClientEventArgs(ClientEventArgs&& e);
-	std::shared_ptr<Client> getWriteAccess();
-	std::shared_ptr<const Client> getReadAccess();
+	Client* getWriteAccess();
+	const Client* getReadAccess();
 	void unblockWriteAccess();
 	void unblockReadAccess();
 };
@@ -75,13 +75,6 @@ public:
 		: ClientEventArgs(std::move(e)), length(length), actualLength(actualLength), packetID(packetID), data(data) {}
 	InvalidLengthEventArgs(InvalidLengthEventArgs&& e)
 		: ClientEventArgs(std::move(e)), length(e.length), actualLength(e.actualLength), packetID(e.packetID), data(e.data) {}
-};
-
-class ClientDisconnectedEventArgs : public ClientEventArgs {
-public:
-	ClientDisconnectedEventArgs(std::shared_ptr<Client> client, boost::upgrade_mutex* mutexPtr) : ClientEventArgs(client, mutexPtr) {}
-	ClientDisconnectedEventArgs(ClientEventArgs&& e) : ClientEventArgs(std::move(e)) {}
-	ClientDisconnectedEventArgs(ClientDisconnectedEventArgs&& e) : ClientEventArgs(std::move(e)) {}
 };
 
 class HandShakeEventArgs : public ClientEventArgs

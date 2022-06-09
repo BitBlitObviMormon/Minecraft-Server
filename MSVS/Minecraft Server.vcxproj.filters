@@ -24,6 +24,24 @@
     <ClCompile Include="..\tests\varnum\varnumtest.cpp">
       <Filter>Test Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\string\stringtest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\position\positiontest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\uuid\uuidtest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\angle\angletest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\nbt\nbttest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\slot\slottest.cpp">
+      <Filter>Test Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\data\blocks.h">
@@ -73,6 +91,24 @@
     </ClInclude>
     <ClInclude Include="..\include\data\atomicset.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\string\stringtest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\position\positiontest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\uuid\uuidtest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\angle\angletest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\nbt\nbttest.h">
+      <Filter>Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tests\slot\slottest.h">
+      <Filter>Test Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,61 +3,46 @@
 #include <iostream>
 #include <algorithm>
 
-/******************************************
- * CountVarNumLength                      *
- * Reads a variable and counts its length *
- ******************************************/
-Byte countVarNumLength(const Byte* data, const Byte maxlength)
+auto constexpr SEGMENT_BITS = 0x7f;
+auto constexpr CONTINUE_BIT = 0x80;
+#define STR(x) #x
+
+/****************************************
+ * VarInt :: parseVarInt                *
+ * Reads a VarInt and captures its data *
+ ****************************************/
+Int VarInt::parseVarInt(const Byte* data, const Boolean copyData) // data can be a nullptr
 {
-	// Check for null data
-	if (data == nullptr)
+	if (data == nullptr) {
+		if (copyData) {
+			this->length = 1;
+			this->data[0] = 0;
+		}
+
 		return 0;
+	}
+	else {
+		Int value = 0;
+		Int position = 0;
+		Byte i = 0;
+		Byte currentByte;
 
-	// Parse the data byte by byte
-	Int numRead = 0;
-	Byte read;
-	do
-	{
-		// Read a byte of data
-		read = data[numRead];
-		numRead++;
+		while (true) {
+			if (copyData) this->data[i] = data[i];
+			currentByte = data[i++];
+			value |= (currentByte & SEGMENT_BITS) << position;
 
-		// If we read too much data then throw an exception
-		if (numRead > maxlength)
-			throw new std::overflow_error("VarNum is too big");
-	} while ((read & 0x80) != 0); // Stop when we hit a certain number
+			if ((currentByte & CONTINUE_BIT) == 0) break;
 
-	return numRead;
-}
+			position += 7;
 
-/***************************************************
- * ParseVarNum                                     *
- * Returns the length of a VarNum's data.          *
- * Returns -1 if the length exceeds the max given. *
- ***************************************************/
-Long parseVarNum(const Byte* data, const Byte maxlength)
-{
-	// Check for null data
-	if (data == nullptr)
-		return 0;
+			if (position >= sizeof(Int) * 8) throw new std::runtime_error("VarInt is too big");
+		}
 
-	// Parse the data byte by byte
-	Int numRead = 0;
-	Long result = 0;
-	Byte read;
-	do
-	{
-		// Read a byte of data
-		read = data[numRead];
-		result |= ((read & 0x7f) << (7 * numRead));
-		numRead++;
+		if (copyData) this->length = i;
 
-		// If we read too much data then throw an exception
-		if (numRead > maxlength)
-			return -1;
-	} while ((read & 0x80) != 0); // Stop when we hit a certain number
-
-	return result;
+		return value;
+	}
 }
 
 /***********************
@@ -66,15 +51,7 @@ Long parseVarNum(const Byte* data, const Byte maxlength)
  ***********************/
 VarInt::VarInt(const Byte* data) // data can be a nullptr
 {
-	length = countVarNumLength(data, VARINT_MAX_SIZE);
-	if (length == VARNUM_PARSE_ERROR)
-		throw new std::overflow_error("VarInt is too big");
-	else if (length > 0)
-		std::copy_n(data, VARINT_MAX_SIZE, this->data);
-	else { // Make value zero for nullptr
-		this->data[0] = '\0';
-		length = 1;
-	}
+	parseVarInt(data, true);
 }
 
 /*********************
@@ -93,29 +70,17 @@ VarInt::VarInt(const VarInt& value)
  ************************/
 VarInt::VarInt(const Int value)
 {
-	Byte numWrote = 0;
-	Int copyVal = value;
-	do
-	{
-		// Calculate a byte
-		Byte temp = (Byte)(value & 0x7f);
-		copyVal = (Int)(((UInt)value) >> 7); // Logical right-shift
-		if (copyVal != 0)
-			temp |= 0x80;
+	Int temp = value;
+	length = 0;
+	while (true) {
+		if ((temp & ~SEGMENT_BITS) == 0) {
+			data[length++] = (Byte)temp;
+			return;
+		}
 
-		// Write the calculated byte
-		data[numWrote++] = temp;
-
-		// Check if we exceeded the array
-		if (numWrote >= VARINT_MAX_SIZE)
-			throw new std::overflow_error("VarInt is too big");
-		else // Write the null byte at the end
-			data[numWrote] = 0;
-
-	} while (value != 0);
-
-	// Assemble and return the VarNum
-	length = numWrote;
+		data[length++] = ((temp & SEGMENT_BITS) | CONTINUE_BIT);
+		temp = (Int)(((UInt)temp) >> 7); // Logical right-shift
+	}
 }
 
 /****************************
@@ -134,7 +99,45 @@ VarInt& VarInt::operator=(const VarInt& rhs)
  * VarInt :: toInt        *
  * Converts VarInt to Int *
  **************************/
-Int VarInt::toInt() const { return (Int)parseVarNum(data, VARINT_MAX_SIZE); }
+Int VarInt::toInt() const { return ((VarInt*)this)->parseVarInt(data, false); }
+
+/******************************************
+ * VarLong :: parseVarLong                *
+ * Reads a VarLong and captures its data  *
+ ******************************************/
+Long VarLong::parseVarLong(const Byte* data, const Boolean copyData) // data can be a nullptr
+{
+	if (data == nullptr) {
+		if (copyData) {
+			this->length = 1;
+			this->data[0] = 0;
+		}
+
+		return 0;
+	}
+	else {
+		Long value = 0;
+		Long position = 0;
+		Byte i = 0;
+		Byte currentByte;
+
+		while (true) {
+			if (copyData) this->data[i] = data[i];
+			currentByte = data[i++];
+			value |= ((Long)(currentByte & SEGMENT_BITS)) << position;
+
+			if ((currentByte & CONTINUE_BIT) == 0) break;
+
+			position += 7;
+
+			if (position >= sizeof(Long) * 8) throw new std::runtime_error("VarLong is too big");
+		}
+
+		if (copyData) this->length = i;
+
+		return value;
+	}
+}
 
 /***********************
  * VarLong :: VarLong  *
@@ -142,15 +145,7 @@ Int VarInt::toInt() const { return (Int)parseVarNum(data, VARINT_MAX_SIZE); }
  ***********************/
 VarLong::VarLong(const Byte* data) // data can be a nullptr
 {
-	length = countVarNumLength(data, VARLONG_MAX_SIZE);
-	if (length == VARNUM_PARSE_ERROR)
-		throw new std::overflow_error("VarLong is too big");
-	else if (length > 0)
-		std::copy_n(data, VARLONG_MAX_SIZE, this->data);
-	else { // Make value zero for nullptr
-		this->data[0] = '\0';
-		length = 1;
-	}
+	parseVarLong(data, true);
 }
 
 /**********************
@@ -169,33 +164,21 @@ VarLong::VarLong(const VarLong& value)
  *************************/
 VarLong::VarLong(const Long value)
 {
-	Byte numWrote = 0;
-	Long copyVal = value;
-	do
-	{
-		// Calculate a byte
-		Byte temp = (Byte)(value & 0x7f);
-		copyVal = (Long)(((ULong)value) >> 7); // Logical right-shift
-		if (copyVal != 0)
-			temp |= 0x80;
+	Long temp = value;
+	length = 0;
+	while (true) {
+		if ((temp & ~((Long)SEGMENT_BITS)) == 0) {
+			data[length++] = (Byte)temp;
+			return;
+		}
 
-		// Write the calculated byte
-		data[numWrote++] = temp;
-
-		// Check if we exceeded the array
-		if (numWrote >= VARLONG_MAX_SIZE)
-			throw new std::overflow_error("VarLong is too big");
-		else // Write the null byte at the end
-			data[numWrote] = 0;
-
-	} while (value != 0);
-
-	// Assemble and return the VarNum
-	length = numWrote;
+		data[length++] = ((temp & SEGMENT_BITS) | CONTINUE_BIT);
+		temp = (Long)(((ULong)temp) >> 7); // Logical right-shift
+	}
 }
 
 /****************************
- * VarLong :: operator=      *
+ * VarLong :: operator=     *
  * Copy Assignment Operator *
  ****************************/
 VarLong& VarLong::operator=(const VarLong& rhs)
@@ -210,13 +193,14 @@ VarLong& VarLong::operator=(const VarLong& rhs)
  * VarLong :: toLong        *
  * Converts VarLong to Long *
  ****************************/
-Long VarLong::toLong() const { return parseVarNum(data, VARLONG_MAX_SIZE); }
+Long VarLong::toLong() const { return ((VarLong*)this)->parseVarLong(data, false);
+}
 
-/*********************************
- * SerialString :: SerialString  *
- * Default Constructor           *
- *********************************/
-SerialString::SerialString(const Byte* data)
+/*****************************
+ * SerialChat :: SerialChat  *
+ * Default Constructor       *
+ *****************************/
+SerialChat::SerialChat(const Byte* data)
 {
 	if (data != nullptr)
 	{
@@ -229,13 +213,15 @@ SerialString::SerialString(const Byte* data)
 		this->data.reserve(len);
 		this->data.append((const char*)data, len);
 	}
+
+	checkSize();
 }
 
 /***************************************
- * SerialString :: makeData            *
+ * SerialChat :: makeData              *
  * Creates an array of serialized data *
  ***************************************/
-std::unique_ptr<Byte[]> SerialString::makeData() const
+std::unique_ptr<Byte[]> SerialChat::makeData() const
 {
 	// Create a buffer to copy the contents onto
 	Int totalLength = size();
@@ -248,6 +234,66 @@ std::unique_ptr<Byte[]> SerialString::makeData() const
 
 	// Return ownership to the data
 	return std::unique_ptr<Byte[]>(base);
+}
+
+/**************************************************
+ * SerialChat :: checkSize                        *
+ * Throws an exception if the string is too large *
+ **************************************************/
+void SerialChat::checkSize() const {
+	if (data.size() > SERIALCHAT_MAX_LENGTH)
+		throw std::length_error("SerialChat exceeds " STR(SERIALCHAT_MAX_LENGTH) " bytes.");
+}
+
+/**************************************************
+ * SerialString :: checkSize                      *
+ * Throws an exception if the string is too large *
+ **************************************************/
+void SerialString::checkSize() const {
+	if (data.size() > SERIALSTRING_MAX_LENGTH)
+		throw std::length_error("SerialString exceeds " STR(SERIALSTRING_MAX_LENGTH) " bytes.");
+}
+
+Position::operator PositionF() const { return PositionF(x, y, z); }
+Position::operator PositionL() const { return PositionL(x, y, z); }
+Position::operator SerialPosition() const { return SerialPosition(x, y, z); }
+PositionL::operator PositionF() const { return PositionF(x, y, z); }
+PositionL::operator Position() const { return Position(x, y, z); }
+PositionL::operator SerialPosition() const { return SerialPosition(x, y, z); }
+PositionF::operator Position() const { return Position(x, y, z); }
+PositionF::operator PositionL() const { return PositionL(x, y, z); }
+PositionF::operator SerialPosition() const { return SerialPosition(x, y, z); }
+
+/****************************************************
+ * SerialPosition :: SerialPosition                 *
+ * Throws an exception if any value is out of range *
+ ****************************************************/
+void SerialPosition::checkData(const Int x, const Int y, const Int z) const {
+	if (x > SERIALPOSITION_X_MAX) throw std::overflow_error("X value in SerialPosition exceeds " STR(SERIALPOSITION_X_MAX) ".");
+	else if (x < SERIALPOSITION_X_MIN) throw std::underflow_error("X value in SerialPosition exceeds " STR(SERIALPOSITION_X_MIN) ".");
+	else if (y > SERIALPOSITION_Y_MAX) throw std::overflow_error("Y value in SerialPosition exceeds " STR(SERIALPOSITION_Y_MAX) ".");
+	else if (y < SERIALPOSITION_Y_MIN) throw std::underflow_error("Y value in SerialPosition exceeds " STR(SERIALPOSITION_Y_MIN) ".");
+	else if (z > SERIALPOSITION_Z_MAX) throw std::overflow_error("Z value in SerialPosition exceeds " STR(SERIALPOSITION_Z_MAX) ".");
+	else if (z < SERIALPOSITION_Z_MIN) throw std::underflow_error("Z value in SerialPosition exceeds " STR(SERIALPOSITION_Z_MIN) ".");
+}
+
+Long SerialPosition::toData(const Int x, const Int y, const Int z) const {
+	return ((ULong)(x & 0x3FFFFFF) << 38) | ((ULong)(z & 0x3FFFFFF) << 12) | ((ULong)y & 0xFFF);
+}
+
+const Int SerialPosition::getX() const {
+	Int retVal = data >> 38;
+	return retVal >= -SERIALPOSITION_X_MIN ? retVal - (-SERIALPOSITION_X_MIN << 1) : retVal;
+}
+
+const Int SerialPosition::getY() const {
+	Int retVal = data & 0xFFF;
+	return retVal >= -SERIALPOSITION_Y_MIN ? retVal - (-SERIALPOSITION_Y_MIN << 1) : retVal;
+}
+
+const Int SerialPosition::getZ() const {
+	Int retVal = (data >> 12) & 0x3FFFFFF;
+	return retVal >= -SERIALPOSITION_Z_MIN ? retVal - (-SERIALPOSITION_Z_MIN << 1) : retVal;
 }
 
 /*****************************************************************

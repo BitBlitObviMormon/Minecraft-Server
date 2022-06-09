@@ -8,16 +8,23 @@
 #include <string>
 #include <iostream>
 #include <stdint.h>
+#include <stdlib.h>
 
 // Size definitions
 constexpr auto VARNUM_PARSE_ERROR = -1;
 constexpr auto VARINT_MAX_SIZE = 5;
 constexpr auto VARLONG_MAX_SIZE = 10;
-constexpr auto VARNUM_MAX_SIZE = 100;
 constexpr auto SERIALSTRING_MAX_LENGTH = 32767;
 constexpr auto SERIALSTRING_MAX_SIZE = 131071;
 constexpr auto SERIALCHAT_MAX_LENGTH = 262144;
 constexpr auto SERIALCHAT_MAX_SIZE = 1048579;
+constexpr auto SERIALPOSITION_X_MIN = -0x2000000;
+constexpr auto SERIALPOSITION_X_MAX = 0x1ffffff;
+constexpr auto SERIALPOSITION_Z_MIN = -0x2000000;
+constexpr auto SERIALPOSITION_Z_MAX = 0x1ffffff;
+constexpr auto SERIALPOSITION_Y_MIN = -0x800;
+constexpr auto SERIALPOSITION_Y_MAX = 0x7ff;
+
 
 // Simple types
 typedef bool Boolean;
@@ -46,6 +53,7 @@ class VarInt
 protected:
 	Byte length;
 	Byte data[VARINT_MAX_SIZE];
+	Int parseVarInt(const Byte* data, const Boolean copyData);
 public:
 	VarInt(const Byte* data = nullptr);
 	VarInt(const VarInt& value);
@@ -65,6 +73,7 @@ class VarLong
 protected:
 	Byte length;
 	Byte data[VARLONG_MAX_SIZE];
+	Long parseVarLong(const Byte* data, const Boolean copyData);
 public:
 	VarLong(const Byte* data = nullptr);
 	VarLong(const VarLong& value);
@@ -75,38 +84,55 @@ public:
 	Long toLong() const;
 };
 
-/*******************************************
- * SerialString                            *
- * A serializable string used in Minecraft *
- *******************************************/
-class SerialString
+/************************************
+ * SerialChat                       *
+ * A serializable string with a     *
+ * max length of 262,144 characters *
+ ************************************/
+class SerialChat
 {
 protected:
 	// Byte*  data;   // A UTF-8 string with no null terminator
 	VarInt lenInt; // Length of the array
 	String data;
+	virtual void checkSize() const;
 public:
-	SerialString(const Byte* data = nullptr);
-	SerialString(const String& str) : data(str), lenInt(str.length()) {}
-	SerialString(const SerialString& str) : data(str.data), lenInt(str.data.length()) {}
-	SerialString& operator=(const SerialString& rhs) { data = rhs.data; return *this; }
+	SerialChat(const Byte* data = nullptr);
+	SerialChat(const String& str) : data(str), lenInt(str.length()) { checkSize(); }
+	SerialChat(const SerialChat& str) : data(str.data), lenInt(str.data.length()) { checkSize(); }
+	SerialChat& operator=(const SerialChat& rhs) { data = rhs.data; checkSize(); return *this; }
+	SerialChat& operator=(const std::string& rhs) { data = rhs; checkSize(); return *this; }
+	SerialChat& operator=(const char* rhs) { data = rhs; checkSize(); return *this; }
+	bool operator==(const SerialChat& rhs) const { return rhs.data == data; }
 	const String str() const { return data; }
 	const Int length() const { return data.length(); }
 	const Int size() const { return lenInt.size() + data.length(); }
 	std::unique_ptr<Byte[]> makeData() const;
 };
 
-/***********************************************
- * Chat                                        *
- * The serializable string with the max length *
- ***********************************************/
-class Chat : public SerialString
+/***********************************
+ * SerialString                    *
+ * A serializable string with a    *
+ * max length of 32,767 characters *
+ ***********************************/
+class SerialString : public SerialChat
 {
+protected:
+	void checkSize() const override;
 public:
-	Chat(const Byte* data = nullptr) : SerialString(data) {}
-	Chat(const String& str) : SerialString(str) {}
-	Chat(const Chat& str) : SerialString(str) {}
+	SerialString(const Byte* data = nullptr) : SerialChat(data) { checkSize(); }
+	SerialString(const String& str) : SerialChat(str) { checkSize(); }
+	SerialString(const SerialString& str) : SerialChat(str) { checkSize(); }
+	SerialString& operator=(const SerialString& rhs) { data = rhs.data; checkSize(); return *this; }
+	SerialString& operator=(const std::string& rhs) { data = rhs; checkSize(); return *this; }
+	SerialString& operator=(const char* rhs) { data = rhs; checkSize(); return *this; }
+	bool operator==(const SerialString& rhs) const { return rhs.data == data; }
 };
+#undef SERIALSTRING_STR
+
+class PositionL;
+class PositionF;
+class SerialPosition;
 
 /*****************************
  * Position                  *
@@ -119,6 +145,13 @@ public:
 	Int y;
 	Int z;
 	Position(const Int x = 0, const Int y = 0, const Int z = 0) : x(x), y(y), z(z) {}
+	Position(const Position& pos) : Position(pos.x, pos.y, pos.z) {}
+	Position(Position&& pos) : x(std::move(pos.x)), y(std::move(pos.y)), z(std::move(pos.z)) {}
+	Position& operator=(const Position& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
+	Boolean operator==(const Position& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
+	operator PositionF() const;
+	operator PositionL() const;
+	explicit operator SerialPosition() const;
 };
 
 /*****************************
@@ -132,6 +165,13 @@ public:
 	Long y;
 	Long z;
 	PositionL(const Long x = 0, const Long y = 0, const Long z = 0) : x(x), y(y), z(z) {}
+	PositionL(const PositionL& pos) : PositionL(pos.x, pos.y, pos.z) {}
+	PositionL(PositionL&& pos) : x(std::move(pos.x)), y(std::move(pos.y)), z(std::move(pos.z)) {}
+	PositionL& operator=(const PositionL& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
+	Boolean operator==(const PositionL& rhs) { return x == rhs.x && y == rhs.y && z == rhs.z; }
+	operator PositionF() const;
+	explicit operator Position() const;
+	explicit operator SerialPosition() const;
 };
 
 /*****************************
@@ -145,6 +185,13 @@ public:
 	Double y;
 	Double z;
 	PositionF(const Double x = 0.0, const Double y = 0.0, const Double z = 0.0) : x(x), y(y), z(z) {}
+	PositionF(const PositionF& pos) : PositionF(pos.x, pos.y, pos.z) {}
+	PositionF(PositionF&& pos) : x(std::move(pos.x)), y(std::move(pos.y)), z(std::move(pos.z)) {}
+	PositionF& operator=(const PositionF& rhs) { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
+	Boolean operator==(const PositionF& rhs) { return x == rhs.x && y == rhs.y && z == rhs.z; }
+	operator Position() const;
+	operator PositionL() const;
+	explicit operator SerialPosition() const;
 };
 
 /*****************************
@@ -155,15 +202,26 @@ class SerialPosition
 {
 private:
 	Long data;
+	void checkData(const Int x, const Int y, const Int z) const;
+	void checkData(const Position pos) const { checkData(pos.x, pos.y, pos.z); }
+	Long toData(const Int x, const Int y, const Int z) const;
+	Long toData(const Position pos) { return toData(pos.x, pos.y, pos.z); }
 public:
-	SerialPosition(Long data = 0) : data(data) {}
-	SerialPosition(Int x, Int y, Int z) : data(((Long)(x & 0x3FFFFFF) << 38) | ((Long)(y & 0xFFF) << 26) | (Long)(z & 0x3FFFFFF)) {}
-	SerialPosition(Position pos) : SerialPosition(pos.x, pos.y, pos.z) {}
-	const Int getX() const { return data >> 38; }
-	const Int getY() const { return (data >> 26) & 0xFFF; }
-	const Int getZ() const { return data << 38 >> 38; }
+	SerialPosition(const Int x, const Int y, const Int z) : data(toData(x, y, z)) { checkData(x, y, z); };
+	SerialPosition(const Long data = 0) : data(data) {}
+	SerialPosition(const Position& pos) : SerialPosition(pos.x, pos.y, pos.z) {}
+	SerialPosition(const SerialPosition& pos) : data(pos.data) {}
+	SerialPosition(SerialPosition&& pos) : data(std::move(pos.data)) {}
+	const Int getX() const;
+	const Int getY() const;
+	const Int getZ() const;
 	const Long makeData() const { return data; }
 	const Position toPosition() const { return Position(getX(), getY(), getZ()); }
+	SerialPosition& operator=(const SerialPosition& rhs) { data = rhs.data; return *this; }
+	Boolean operator==(const SerialPosition& rhs) { return data == rhs.data; }
+	operator Position() const { return Position(getX(), getY(), getZ()); }
+	operator PositionL() const { return PositionL(getX(), getY(), getZ()); }
+	operator PositionF() const { return PositionF(getX(), getY(), getZ()); }
 };
 
 /************************

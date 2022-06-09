@@ -1,19 +1,36 @@
-#include <iostream>
-#include <memory>
-
 // Set to true to run all of the given tests
-#define RUN_TESTS 0
+#define RUN_TESTS true
 
 #if(RUN_TESTS)
+	#include <iostream>
+	#include <memory>
+	#include "tests/angle/angletest.h"
+	#include "tests/nbt/nbttest.h"
+	#include "tests/position/positiontest.h"
+	#include "tests/slot/slottest.h"
+	#include "tests/string/stringtest.h"
+	#include "tests/uuid/uuidtest.h"
 	#include "tests/varnum/varnumtest.h"
 
 	// Comment any of these definitions to run that test
+//	#define AngleTest()
+//	#define NBTTest()
+//	#define PositionTest()
+//	#define SlotTest()
+//	#define StringTest()
+//	#define UUIDTest()
 //	#define VarNumTest()
 
 	// Runs all of the tests to make sure that certain code works
 	void RunTests()
 	{
-		// Test the VarNums
+		// Execute all of the tests (if enabled)
+		AngleTest();
+		NBTTest();
+		PositionTest();
+		SlotTest();
+		StringTest();
+		UUIDTest();
 		VarNumTest();
 
 		// Wait for the user to press enter before exiting
@@ -24,23 +41,25 @@
 	#define RunTests()
 #endif
 
+///////////////
+// MAIN FILE //
+///////////////
 #include "server.h"
 using namespace std;
 
 class Player : public Client
 {
-private:
 public:
-	Player(SOCKET socket) : Client(socket) {}
+	Short damage;
+	Player(SOCKET socket) : Client(socket), damage(0) {}
 };
 
 class Game : public EventHandler
 {
-private:
 public:
 	Game() : EventHandler() {}
-	shared_ptr<Client> createClient(SOCKET socket) override {
-		return static_pointer_cast<Client>(make_shared<Player>(socket));
+	Client* createClient(SOCKET socket) override {
+		return new Player(socket);
 	}
 };
 

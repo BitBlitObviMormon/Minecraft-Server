@@ -71,10 +71,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\tests\angle\angletest.cpp" />
+    <ClCompile Include="..\tests\nbt\nbttest.cpp" />
+    <ClCompile Include="..\tests\position\positiontest.cpp" />
+    <ClCompile Include="..\tests\slot\slottest.cpp" />
+    <ClCompile Include="..\tests\string\stringtest.cpp" />
+    <ClCompile Include="..\tests\uuid\uuidtest.cpp" />
     <ClCompile Include="..\tests\varnum\varnumtest.cpp" />
     <ClCompile Include="..\driver\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\tests\angle\angletest.h" />
+    <ClInclude Include="..\tests\nbt\nbttest.h" />
+    <ClInclude Include="..\tests\position\positiontest.h" />
+    <ClInclude Include="..\tests\slot\slottest.h" />
+    <ClInclude Include="..\tests\string\stringtest.h" />
+    <ClInclude Include="..\tests\uuid\uuidtest.h" />
     <ClInclude Include="..\tests\varnum\varnumtest.h" />
     <ClInclude Include="..\include\client\client.h" />
     <ClInclude Include="..\include\client\clientevents.h" />
