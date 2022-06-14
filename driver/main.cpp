@@ -13,6 +13,7 @@
 	#include "tests/varnum/varnumtest.h"
 
 	// Comment any of these definitions to run that test
+	// Any tests that are not commented out will not be run
 //	#define AngleTest()
 //	#define NBTTest()
 //	#define PositionTest()
@@ -44,7 +45,7 @@
 ///////////////
 // MAIN FILE //
 ///////////////
-#include "server.h"
+#include <bbms/server.h>
 using namespace std;
 
 class Player : public Client

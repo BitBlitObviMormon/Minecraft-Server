@@ -19,52 +19,56 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lib\nbtplusplus\src\endian_str.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\io\izlibstream.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\io\ozlibstream.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_reader.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\io\stream_writer.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\tag.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_array.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_compound.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_list.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\tag_string.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\text\json_formatter.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\value.cpp" />
-    <ClCompile Include="..\..\lib\nbtplusplus\src\value_initializer.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\Descriptions.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\DummyDescriptions.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\GlobalFixture.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\LinkedList.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\RealDescriptions.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\Root.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\TestSuite.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\TestTracker.cpp" />
+    <ClCompile Include="..\..\lib\cxxtest\cxxtest\ValueTraits.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\zlib\zlib.vcxproj">
-      <Project>{5a4acda7-a031-46f8-9235-c46063e35d53}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\lib\nbtplusplus\crtp_tag.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\endian_str.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\io\izlibstream.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\io\ozlibstream.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\io\stream_reader.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\io\stream_writer.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\io\zlib_streambuf.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\make_unique.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\nbt_tags.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\nbt_visitor.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\primitive_detail.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tagfwd.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag_array.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag_compound.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag_list.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag_primitive.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\tag_string.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\value.h" />
-    <ClInclude Include="..\..\lib\nbtplusplus\value_initializer.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\Descriptions.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\DummyDescriptions.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\ErrorFormatter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\ErrorPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\Flags.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\GlobalFixture.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\Gui.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\LinkedList.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\Mock.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\MSVCErrorPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\ParenPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\QtGui.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\RealDescriptions.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\SelfTest.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\StdHeaders.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\StdioFilePrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\StdioPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\StdTestSuite.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\StdValueTraits.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TeeListener.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TestListener.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TestMain.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TestRunner.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TestSuite.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\TestTracker.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\unix.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\ValueTraits.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\Win32Gui.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\X11Gui.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\XmlFormatter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\XmlPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\XUnitPrinter.h" />
+    <ClInclude Include="..\..\lib\cxxtest\cxxtest\YesNoRunner.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4c2d247d-e100-4f2c-a2f8-8472c109e815}</ProjectGuid>
-    <RootNamespace>LibNBT</RootNamespace>
+    <ProjectGuid>{da15c493-7f57-4ff6-8f7f-2799d48e39bf}</ProjectGuid>
+    <RootNamespace>CxxTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -133,8 +137,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/cxxtest</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -153,8 +157,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/cxxtest</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -173,8 +177,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/cxxtest</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -193,8 +197,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/nbtplusplus;$(ProjectDir)/../../lib/zlib</AdditionalIncludeDirectories>
-      <PrecompiledHeaderOutputFile />
+      <AdditionalIncludeDirectories>$(ProjectDir)/../../lib/cxxtest</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>

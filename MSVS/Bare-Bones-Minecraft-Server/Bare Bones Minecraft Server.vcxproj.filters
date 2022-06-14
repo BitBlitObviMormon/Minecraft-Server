@@ -18,52 +18,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\serverevents.h">
+    <ClInclude Include="..\..\include\bbms\uuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\biomes.h">
+    <ClInclude Include="..\..\include\bbms\biomes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\blockentities.h">
+    <ClInclude Include="..\..\include\bbms\blockentities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\blocks.h">
+    <ClInclude Include="..\..\include\bbms\blocks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\client.h">
+    <ClInclude Include="..\..\include\bbms\client.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\clientevents.h">
+    <ClInclude Include="..\..\include\bbms\clientevents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\datatypes.h">
+    <ClInclude Include="..\..\include\bbms\datatypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\entities.h">
+    <ClInclude Include="..\..\include\bbms\entities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\eventhandler.h">
+    <ClInclude Include="..\..\include\bbms\eventhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\lockedclient.h">
+    <ClInclude Include="..\..\include\bbms\lockedclient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\networkhandler.h">
+    <ClInclude Include="..\..\include\bbms\nbt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\networkpackets.h">
+    <ClInclude Include="..\..\include\bbms\networkhandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\server.h">
+    <ClInclude Include="..\..\include\bbms\networkpackets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\lib\thread-pool\thread_pool.hpp">
-      <Filter>Libraries</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\uuid.h">
+    <ClInclude Include="..\..\include\bbms\server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\nbt.h">
+    <ClInclude Include="..\..\include\bbms\serverevents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

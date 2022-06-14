@@ -4,3 +4,6 @@
 [submodule "lib/nbtplusplus"]
 	path = lib/nbtplusplus
 	url = https://github.com/BitBlitObviMormon/libnbtplusplus.git
+[submodule "lib/cxxtest"]
+	path = lib/cxxtest
+	url = https://github.com/BitBlitObviMormon/cxxtest.git
