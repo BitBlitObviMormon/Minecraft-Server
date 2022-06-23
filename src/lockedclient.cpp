@@ -1,4 +1,4 @@
-#include "lockedclient.h"
+#include "bbms/lockedclient.h"
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/shared_lock_guard.hpp>
 

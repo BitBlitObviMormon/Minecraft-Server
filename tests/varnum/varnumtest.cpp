@@ -1,5 +1,5 @@
 #include "varnumtest.h"
-#include "datatypes.h"
+#include <bbms/datatypes.h>
 #include <assert.h>
 
 /*************************************************************

@@ -1,5 +1,5 @@
 #include "stringtest.h"
-#include "datatypes.h"
+#include <bbms/datatypes.h>
 #include <assert.h>
 #include <string.h>
 #pragma warning( disable : 4703 ) // Don't worry about potential uninitialized pointers. They get initialized or throw an assert

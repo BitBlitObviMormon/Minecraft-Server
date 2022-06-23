@@ -1,6 +1,6 @@
-#include "networkhandler.h"
-#include "eventhandler.h"
-#include "networkpackets.h"
+#include "bbms/networkhandler.h"
+#include "bbms/eventhandler.h"
+#include "bbms/networkpackets.h"
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>

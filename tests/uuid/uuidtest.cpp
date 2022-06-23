@@ -1,5 +1,5 @@
 #include "uuidtest.h"
-#include "uuid.h"
+#include <bbms/uuid.h>
 #include <assert.h>
 
 /************************************************************
