@@ -13,7 +13,7 @@
 	#include "tests/varnum/varnumtest.h"
 
 	// Comment any of these definitions to run that test
-	// Any tests that are not commented out will not be run
+	// Any tests that are commented out will not be run
 //	#define AngleTest()
 //	#define NBTTest()
 //	#define PositionTest()

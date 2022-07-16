@@ -9,6 +9,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <stdlib.h>
+#include <nbtplusplus/nbt_tags.h>
 
 // Size definitions
 constexpr auto VARNUM_PARSE_ERROR = -1;
@@ -24,7 +25,6 @@ constexpr auto SERIALPOSITION_Z_MIN = -0x2000000;
 constexpr auto SERIALPOSITION_Z_MAX = 0x1ffffff;
 constexpr auto SERIALPOSITION_Y_MIN = -0x800;
 constexpr auto SERIALPOSITION_Y_MAX = 0x7ff;
-
 
 // Simple types
 typedef bool Boolean;
@@ -306,35 +306,26 @@ public:
 	// TODO: Create ChunkSection
 };
 
-/*********************************
- * EntityData                *
- * The metadata each entity uses *
- *********************************/
-class EntityData
-{
-private:
-public:
-	// Todo: Create EntityData
-};
-
 /**********************************************
  * Slot                                       *
  * An item stack in an inventory or container *
  **********************************************/
-class Slot
-{
-private:
+class Slot {
 public:
-	// TODO: Create Slot
+	nbt::tag_compound nbt;
+	Byte count;
+	Int id;
+	Slot() : nbt(), count(0), id(0) {}
+	Boolean empty() { return !count; }
 };
 
 /**************
  * NBT        *
  * An NBT Tag *
- **************/
+ **************
 class NBT
 {
 private:
 public:
 	// TODO: Create NBT
-};
+}; */

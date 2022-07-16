@@ -8,7 +8,7 @@
 using namespace std;
 void VarNumTest() {
 	// Create the integer limits
-	cout << "VarInt / VarLong Tests\n\tInteger limits\n";
+	cout << "VarInt / VarLong Tests\n\tTesting integer limits\n";
 	Int maxint = 0x7FFFFFFF;
 	Int minint = -(Int)0x80000000;
 	Long maxlong = 0x7FFFFFFFFFFFFFFF;
@@ -37,7 +37,7 @@ void VarNumTest() {
 	assert(minvong.toLong() == minlong);
 	assert(nullvong.toLong() == null);
 
-	cout << "\tData parsing\n";
+	cout << "\tVerifying data\n";
 
 	// Check that VarInts can parse their own data
 	assert(VarInt(maxvint.makeData()).toInt() == maxvint.toInt());

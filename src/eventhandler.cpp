@@ -1,68 +1,17 @@
 #include "bbms/eventhandler.h"
 #include "bbms/networkhandler.h"
+#include "bbms/networkpackets.h"
 #include <iostream>
+#include <sstream>
 #include <ctime>
 #include <cmath>
+#include <algorithm>
+#include <boost/endian.hpp>
 #include <boost/asio/thread_pool.hpp>
+#include <nbtplusplus/nbt_tags.h>
+#include <nbtplusplus/io/stream_writer.h>
 
 constexpr float DISCONNECT_TIME = 10.0;
-
-/**********************************
- * toBytes                        *
- * Converts an integer to 4 bytes *
- **********************************/
-void toBytes(const Int value, char* bytes)
-{
-	bytes[0] = (value >> 24) & 0xFF;
-	bytes[1] = (value >> 16) & 0xFF;
-	bytes[2] = (value >> 8) & 0xFF;
-	bytes[3] = value & 0xFF;
-}
-
-/******************************
- * toBytes                    *
- * Converts a long to 8 bytes *
- ******************************/
-void toBytes(const Long value, char* bytes)
-{
-	bytes[0] = (value >> 56) & 0xFF;
-	bytes[1] = (value >> 48) & 0xFF;
-	bytes[2] = (value >> 40) & 0xFF;
-	bytes[3] = (value >> 32) & 0xFF;
-	bytes[4] = (value >> 24) & 0xFF;
-	bytes[5] = (value >> 16) & 0xFF;
-	bytes[6] = (value >> 8) & 0xFF;
-	bytes[7] = value & 0xFF;
-}
-
-/********************************
- * toBytes                      *
- * Converts a double to 8 bytes *
- ********************************/
-void toBytes(const double value, char* bytes)
-{
-	Long val = reinterpret_cast<const Long&>(value);
-	toBytes(val, bytes);
-}
-
-/*******************************
- * toBytes                     *
- * Converts a float to 4 bytes *
- *******************************/
-void toBytes(const float value, char* bytes)
-{
-	Int val = reinterpret_cast<const Int&>(value);
-	toBytes(val, bytes);
-}
-
-/**********************************
- * toBytes                        *
- * Converts a position to 8 bytes *
- **********************************/
-void toBytes(const SerialPosition value, char* bytes)
-{
-	toBytes(value.makeData(), bytes);
-}
 
 /* Turns a position into a chunk position */
 Position toChunkPosition(PositionF position)
@@ -207,12 +156,158 @@ void EventHandler::loginStart(LoginStartEventArgs e)
 	client->position = PositionF(0.0, 0.0, 0.0);
 	e.unblockWriteAccess(); // Does not unblock read access
 	networkHandler->sendLoginSuccess(client, uuid, e.name);
+
+	// Send the join game packet
+	{
+		JoinGameEventArgs args;
+		client->entityID = generateEntityID();
+		args.entityID = client->entityID;
+		args.dimensions.push_back("bbms:default_dimension");
+		args.registryCodec = nbt::tag_compound {
+			{ "minecraft:dimension_type", nbt::tag_compound {
+				{"type", "minecraft:dimension_type"},
+				{"value", nbt::tag_list {
+					nbt::tag_compound {
+						{"name", "bbms:default_dimension"},
+						{"id", 0},
+						{"element", nbt::tag_compound {
+							{"ambient_light", 1.0f},
+							{"bed_works", true},
+							{"coordinate_scale", 1.0},
+							{"effects", "minecraft:overworld"},
+							{"has_ceiling", false},
+							{"has_raids", true},
+							{"has_skylight", true},
+							{"height", 256},
+							{"logical_height", 256},
+							{"min_y", 0},
+							{"infiniburn", "#minecraft:infiniburn_overworld"},
+							{"natural", true},
+							{"piglin_safe", false},
+							{"respawn_anchor_works", false},
+							{"ultrawarm", false}
+						}}
+					}
+				}}
+			}},
+			{ "minecraft:worldgen/biome", nbt::tag_compound {
+				{"type", "minecraft:worldgen/biome"},
+				{"value", nbt::tag_list {
+					nbt::tag_compound {
+						{"name", "bbms:default_biome"},
+						{"id", 0},
+						{"element", nbt::tag_compound {
+							{"category", "none"},
+							{"downfall", 0.5f},
+							{"precipitation", "none"},
+							{"temperature", 0.5f},
+							{"effects", nbt::tag_compound {
+								{"fog_color", 12638463},
+								{"sky_color", 8103167},
+								{"water_color", 4159204},
+								{"water_fog_color", 329011},
+								{"mood_sound", nbt::tag_compound {
+									{"block_search_extent", 8},
+									{"offset", 2.0},
+									{"sound", "minecraft:ambient.cave"},
+									{"tick_delay", 6000}
+								}}
+							}}
+						}}
+					}
+				}}
+			}},
+			{ "minecraft:chat_type", nbt::tag_compound {
+				{"type", "minecraft:chat_type"},
+				{"value", nbt::tag_list {
+
+				}}
+			}},
+		};
+
+		networkHandler->sendJoinGame(client, args);
+	}
 	
 	// Send every chunk to the player
 	// TODO: Actually do this
 
 	// As a temporary solution, send exactly one hardcoded chunk.
 
+	// Send 8 chunks of air, one chunk of stone, and 7 chunks of air
+	String blockData;
+	VarInt nullInt(0); // The VarInt representation of zero
+	for (int i = 0; i < 16; ++i) {
+		if (i == 8) {
+			// Big endian for 4,096 blocks
+			blockData.append(1, 0);
+			blockData.append(1, 0x1000);
+
+			// Paletted container for all one block (stone)
+			blockData.append(1, 0); // 0 bit palette (single value)
+			VarInt block(1);
+			blockData.append((char*)block.makeData(), block.size());
+		}
+		else {
+			blockData.append(2, 0); // No blocks in the count
+
+			// Paletted container for all one block (air)
+			blockData.append(1, 0); // 0 bit palette (single value)
+			VarInt block(0);
+			blockData.append((char*)block.makeData(), block.size());
+		}
+
+		// Add length to array even though there is no array?...
+//		blockData.append((char*)nullInt.makeData(), nullInt.size());
+
+		// Send the biome data
+		// Paletted container for all one biome
+		blockData.append(1, 0); // 0 bit palette (single value)
+		VarInt biome(0);
+		blockData.append((char*)biome.makeData(), biome.size());
+
+		// Add length to array even though there is no array?...
+//		blockData.append((char*)nullInt.makeData(), nullInt.size());
+	}
+
+	// The heightmap of the chunk (fake hardcoded heightmap)
+	nbt::tag_compound heightmap{
+		{ "", nbt::tag_compound {
+			{ "MOTION_BLOCKING", nbt::tag_long_array {
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0100804020100804, 0x0100804020100804, 0x0100804020100804, 0x0100804020100804,
+				0x0000000020100804
+			}}}
+		}
+	};
+	std::stringstream heightmapStream;
+	nbt::io::stream_writer nbtWriter(heightmapStream, endian::endianness::big);
+	heightmap.write_payload(nbtWriter);
+	String heightmapData = heightmapStream.str();
+
+	String chunkData;
+	chunkData.append(8, 0); // 8 bytes of null data (chunk position [0, 0])
+	chunkData.append(heightmapData.c_str(), heightmapData.length()); // Heightmap NBT
+	VarInt blockDataSize(blockData.length()); // The length of the block data
+	chunkData.append((char*)blockDataSize.makeData(), blockDataSize.size());
+	chunkData.append(blockData); // The block data
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no block entities
+	chunkData.append(1, (char)true); // Edges should be trusted for block light updates
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Sky Light Mask
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Block Light Mask
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Empty Sky Light Mask
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Empty Block Light Mask
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Sky Light arrays
+	chunkData.append((char*)nullInt.makeData(), nullInt.size()); // Send no Block Light arrays
+
+	// Send the chunk data packet
+	networkHandler->sendPacket(client, chunkData.c_str(), chunkData.length(), (Int)ServerPlayPacket::ChunkData);
 
 	// Tell the client that the map has finished loading
 	networkHandler->sendPlayerPositionAndLook(client, PositionF(0.0, 0.0, 0.0), 0.0, 0.0, PlayerPositionAndLookFlags(false, false, false, false, false), 0, false);
@@ -531,11 +626,20 @@ Client* EventHandler::createClient(SOCKET socket)
 	return new Client(socket);
 }
 
+/************************************
+ * EventHandler :: generateEntityID *
+ * Generates a new entity id        *
+ ************************************/
+Int EventHandler::generateEntityID()
+{
+	return nextEntityID++;
+}
+
 /********************************
  * EventHandler :: EventHandler *
  * Default Constructor          *
  ********************************/
-EventHandler::EventHandler() : networkHandler(nullptr), clients() {}
+EventHandler::EventHandler() : networkHandler(nullptr), clients(), clientsMutex(), nextEntityID(1), tpool() {}
 
 /********************************
  * EventHandler :: EventHandler *

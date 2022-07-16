@@ -7,7 +7,7 @@
  ************************************************************/
 using namespace std;
 void UUIDTest() {
-	cout << "UUID Test\n\tConstruction\n";
+	cout << "UUID Test\n\tTesting construction\n";
 
 	// Some data prepping
 	Byte bytes0[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -61,7 +61,7 @@ void UUIDTest() {
 		assert(u1Data[i] == bytes1[i]);
 	}
 
-	cout << "\tAssignment\n";
+	cout << "\tTesting assignment\n";
 	assert((u1 = u0) == b0);
 	assert(u1 == b0);
 

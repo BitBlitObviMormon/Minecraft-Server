@@ -24,7 +24,7 @@ protected:
 	std::unique_ptr<boost::asio::thread_pool> tpool;
 	std::list<LockedClient> clients;
 	std::shared_mutex clientsMutex;
-	std::atomic<Long> nextEntityID;
+	std::atomic<Int> nextEntityID;
 
 	/*****************
 	 * SERVER EVENTS *
@@ -86,6 +86,7 @@ protected:
 	virtual ChunkColumn& getChunk(GetChunkEventArgs& e);
 	virtual BiomeID* getBiomes(GetBiomeEventArgs& e);
 	virtual Client* createClient(SOCKET socket);
+	virtual Int generateEntityID();
 
 public:
 	/* Constructors */

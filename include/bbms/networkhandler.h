@@ -23,9 +23,6 @@ protected:
 	/* Get a client from its socket alone */
 	virtual LockedClient* getClientFromSocket(SOCKET& socket);
 
-	/* Send all of the data */
-	virtual Int send(SOCKET s, const char* buf, Int len, Int flags);
-
 	/* Read a packet and trigger the corresponding event below */
 	virtual void readPacket(LockedClient& client, std::unique_ptr<Byte[]> buffer, Int length);
 
@@ -100,6 +97,12 @@ protected:
 	virtual void playerBlockPlacement(LockedClient& client, const Byte* buffer, Int length);
 	virtual void useItem(LockedClient& client, const Byte* buffer, Int length);
 public:
+	/* Sends raw data */
+	virtual Int send(const Client* client, const char* buf, Int len, Int flags);
+
+	/* Sends a packet */
+	virtual Int sendPacket(const Client* client, const char* buf, Int len, Int packetID, Int flags = 0);
+
 	/****************************
 	 * SERVER -> CLIENT PACKETS *
 	 ****************************/
@@ -153,7 +156,7 @@ public:
 		{ sendChunk(client, chunk.first, chunk.second, column, createChunk, inOverworld); }
 	virtual Int sendEffect(const Client* client, EffectID effectID, Position pos, Int data = 0, Boolean disableRelativeVolume = false);
 	virtual Int sendParticle(const Client* client, Particle particle, Int num, Byte* data = nullptr, Int dataLen = 0);
-	virtual Int sendJoinGame(const Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo = false);
+	virtual Int sendJoinGame(const Client* client, const JoinGameEventArgs& e);
 	virtual Int sendMap(const Client* client, Map map);
 	virtual Int sendEntityRelativeMove(const Client* client, Int entityID, PositionF deltaPos, Boolean isOnGround);
 	virtual Int sendEntityLookAndRelativeMove(const Client* client, Int entityID, PositionF deltaPos, Byte yaw, Byte pitch, Boolean isOnGround);

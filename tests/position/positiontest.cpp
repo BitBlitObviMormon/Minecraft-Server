@@ -8,7 +8,7 @@
  ************************************************************/
 using namespace std;
 void PositionTest() {
-	cout << "Position Test\n\tAssignment\n";
+	cout << "Position Test\n\tTesting assignment\n";
 
 	SerialPosition* pos0; // Null position
 	SerialPosition* pos1; // Null position
@@ -64,7 +64,7 @@ void PositionTest() {
 	assert(pos7->getZ() == SERIALPOSITION_Z_MIN);
 
 	// Clean up previous data
-	cout << "\tException checking\n";
+	cout << "\tTesting exception throwing\n";
 	delete pos0;
 	delete pos1;
 	delete pos2;

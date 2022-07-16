@@ -4,6 +4,9 @@
 #include <iostream>
 #include <thread>
 #include <boost/asio.hpp>
+#include <boost/endian.hpp>
+#include <nbtplusplus/nbt_tags.h>
+#include <nbtplusplus/io/stream_writer.h>
 
 /**************************************************
  * copyBuffer                                     *
@@ -24,8 +27,16 @@ std::unique_ptr<Byte[]> copyBuffer(const Byte* data, Int length)
  **************************/
 Long parseLong(const Byte* data)
 {
-	return (((Long)data[0]) << 56) + (((Long)data[1]) << 48) + (((Long)data[2]) << 40) +
-		   (((Long)data[3]) << 32) + (data[4] << 24) + (data[5] << 16) + (data[6] << 8) + data[7];
+	Long retVal;
+	char* ptr = (char*)&retVal;
+
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::reverse_copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#endif
+
+	return retVal;
 }
 
 /**************************
@@ -34,7 +45,16 @@ Long parseLong(const Byte* data)
  **************************/
 Int parseInt(const Byte* data)
 {
-	return (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + data[3];
+	Int retVal;
+	char* ptr = (char*)&retVal;
+
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::reverse_copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#endif
+
+	return retVal;
 }
 
 /***************************
@@ -43,7 +63,16 @@ Int parseInt(const Byte* data)
  ***************************/
 Short parseShort(const Byte* data)
 {
-	return (data[0] << 8) + data[1];
+	Short retVal;
+	char* ptr = (char*)&retVal;
+
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	std::reverse_copy((char*)data, (char*)data + sizeof(retVal), ptr);
+#endif
+
+	return retVal;
 }
 
 /****************************
@@ -72,30 +101,27 @@ Float parseFloat(const Byte* data)
  *************************/
 void writeLong(String& data, const Long num)
 {
-	data.append(1, (num >> 56) & 0xFF);
-	data.append(1, (num >> 48) & 0xFF);
-	data.append(1, (num >> 40) & 0xFF);
-	data.append(1, (num >> 32) & 0xFF);
-	data.append(1, (num >> 24) & 0xFF);
-	data.append(1, (num >> 16) & 0xFF);
-	data.append(1, (num >> 8) & 0xFF);
-	data.append(1, num & 0xFF);
-}
+	char* ptr = (char*)&num;
 
-/*************************
- * writeLong             *
- * Writes a long to data *
- *************************/
-void writeLongB(String& data, const Long num)
-{
-	data.append(1, num & 0xFF);
-	data.append(1, (num >> 8) & 0xFF);
-	data.append(1, (num >> 16) & 0xFF);
-	data.append(1, (num >> 24) & 0xFF);
-	data.append(1, (num >> 32) & 0xFF);
-	data.append(1, (num >> 40) & 0xFF);
-	data.append(1, (num >> 48) & 0xFF);
-	data.append(1, (num >> 56) & 0xFF);
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[0]);
+	data.append(1, ptr[1]);
+	data.append(1, ptr[2]);
+	data.append(1, ptr[3]);
+	data.append(1, ptr[4]);
+	data.append(1, ptr[5]);
+	data.append(1, ptr[6]);
+	data.append(1, ptr[7]);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[7]);
+	data.append(1, ptr[6]);
+	data.append(1, ptr[5]);
+	data.append(1, ptr[4]);
+	data.append(1, ptr[3]);
+	data.append(1, ptr[2]);
+	data.append(1, ptr[1]);
+	data.append(1, ptr[0]);
+#endif
 }
 
 /*************************
@@ -104,10 +130,19 @@ void writeLongB(String& data, const Long num)
  *************************/
 void writeInt(String& data, const Int num)
 {
-	data.append(1, (num >> 24) & 0xFF);
-	data.append(1, (num >> 16) & 0xFF);
-	data.append(1, (num >> 8) & 0xFF);
-	data.append(1, num & 0xFF);
+	char* ptr = (char*)&num;
+
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[0]);
+	data.append(1, ptr[1]);
+	data.append(1, ptr[2]);
+	data.append(1, ptr[3]);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[3]);
+	data.append(1, ptr[2]);
+	data.append(1, ptr[1]);
+	data.append(1, ptr[0]);
+#endif
 }
 
 /**************************
@@ -116,8 +151,15 @@ void writeInt(String& data, const Int num)
  **************************/
 void writeShort(String& data, const Short num)
 {
-	data.append(1, (num >> 8) & 0xFF);
-	data.append(1, num & 0xFF);
+	char* ptr = (char*)&num;
+
+#if(BOOST_ENDIAN_BIG_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[0]);
+	data.append(1, ptr[1]);
+#elif(BOOST_ENDIAN_LITTLE_BYTE == BOOST_VERSION_NUMBER_AVAILABLE)
+	data.append(1, ptr[1]);
+	data.append(1, ptr[0]);
+#endif
 }
 
 /***************************
@@ -1052,21 +1094,12 @@ void NetworkHandler::useItem(LockedClient& client, const Byte* buffer, Int lengt
  ****************************************************/
 Int NetworkHandler::sendResponse(const Client* client, String json) {
 	// Serialize the data
-	String data;
 	SerialString sJSON(json);
-	VarInt packid((Int)ServerStatusPacket::Pong);
-	VarInt length(packid.size() + sJSON.size());
 
-	// Append the data to a string
-	data.reserve(length.toInt() + length.size());
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
-	data.append((char*)sJSON.makeData().get(), sJSON.length());
-
-	std::cout << sJSON.makeData() << "\n";
+	std::cout << (char*)sJSON.makeData().get() << "\n";
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, (char*)sJSON.makeData().get(), sJSON.length(), (Int)ServerStatusPacket::Response);
 }
 
 
@@ -1077,18 +1110,17 @@ Int NetworkHandler::sendResponse(const Client* client, String json) {
 Int NetworkHandler::sendPong(const Client* client, Long payload) {
 	// Serialize the data
 	String data;
-	VarInt packid((Int)ServerStatusPacket::Pong);
-	VarInt length(packid.size() + sizeof(payload));
 
 	// Append the data to a string
-	data.reserve(length.toInt() + length.size());
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	writeLong(data, payload);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerStatusPacket::Pong);
 }
+
+/**********************************
+ * SERVER => CLIENT LOGIN PACKETS *
+ **********************************/
 
 /***************************************************
  * NetworkHandler :: sendLoginSuccess              *
@@ -1098,20 +1130,21 @@ Int NetworkHandler::sendLoginSuccess(const Client* client, UUID uuid, String use
 {
 	// Serialize the data
 	String data;
-	VarInt packid((Int)ServerLoginPacket::LoginSuccess);
 	SerialString susername = SerialString(username);
-	VarInt length(packid.size() + uuid.size() + susername.size());
+	VarInt nullInt(0);
 
 	// Append the data to the string
-	data.reserve(length.toInt() + length.size());
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
+	data.reserve(susername.size() + uuid.size());
 	data.append((char*)uuid.makeData(), uuid.size());
 	data.append((char*)susername.makeData().get(), susername.size());
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerLoginPacket::LoginSuccess);
 }
+
+/*********************************
+ * SERVER => CLIENT PLAY PACKETS *
+ *********************************/
 
 /*************************************
  * NetworkHandler :: sendChatMessage *
@@ -1119,9 +1152,8 @@ Int NetworkHandler::sendLoginSuccess(const Client* client, UUID uuid, String use
  *************************************/
 Int NetworkHandler::sendChatMessage(const Client* client, String message, ChatMessageType type, Boolean isJson)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::ChatMessage);
 	SerialString smessage;
 
 	// If the text is in JSON format then send it directly
@@ -1131,45 +1163,79 @@ Int NetworkHandler::sendChatMessage(const Client* client, String message, ChatMe
 	else
 		smessage = SerialString(String("{ \"text\": \"") + message + String("\" }"));
 
-	VarInt length(packid.size() + smessage.size() + 1);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(smessage.size() + 1);
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	data.append((char*)smessage.makeData().get(), smessage.size());
 	data.append(1, (char)type);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::ChatMessage); */
+
+	return 0;
 }
 
 /************************************
  * NetworkHandler :: sendJoinGame   *
  * Tell the client to join the game *
  ************************************/
-Int NetworkHandler::sendJoinGame(const Client* client, Int entityID, Gamemode gamemode, Dimension dimension, Difficulty difficulty, Byte maxPlayers, LevelType levelType, Boolean reducedDebugInfo)
+Int NetworkHandler::sendJoinGame(const Client* client, const JoinGameEventArgs& e)
 {
 	// Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::JoinGame);
-	SerialString slevelType(levelType.str());
-	VarInt length(12 + slevelType.size() + packid.size());
-	data.reserve(length.toInt() + length.size());
+	writeInt(data, e.entityID);
+	data.append(1, (char)e.isHardcore);
+	data.append(1, (char)e.gamemode);
+	data.append(1, (char)e.previousGamemode);
+	
+	// Append all of the dimensions to the data
+	VarInt worldCount(e.dimensions.size());
+	for (String dimension : e.dimensions) {
+		SerialString str(dimension);
+		data.append((char*)str.makeData().get(), str.size());
+	}
 
-	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
-	writeInt(data, entityID);
-	data.append(1, (char)gamemode);
-	writeInt(data, (Int)dimension);
-	data.append(1, (char)difficulty);
-	data.append(1, maxPlayers);
-	data.append((char*)slevelType.makeData().get(), slevelType.size());
-	data.append(1, (char)reducedDebugInfo);
+	// Append the registry codec to the data
+	std::stringstream codecStream;
+	nbt::io::stream_writer nbtWriter(codecStream, endian::endianness::big);
+	e.registryCodec.write_payload(nbtWriter);
+	data.append(codecStream.str());
+
+	// Send the spawn dimension info
+	SerialString spawnDimensionType(e.spawnDimensionType);
+	SerialString spawnDimensionName(e.spawnDimensionName);
+	data.append((char*)spawnDimensionType.makeData().get(), spawnDimensionType.size());
+	data.append((char*)spawnDimensionName.makeData().get(), spawnDimensionName.size());
+
+	// Send the rest
+	writeLong(data, e.biomeNoiseHash); // Biome noise
+	VarInt maxPlayers(e.maxPlayers);
+	VarInt viewDistance(e.viewDistance);
+	VarInt simulationDistance(e.simulationDistance);
+	data.append((char*)maxPlayers.makeData(), maxPlayers.size()); // Unused data (max players on server)
+	data.append((char*)viewDistance.makeData(), viewDistance.size()); // Client render distance
+	data.append((char*)simulationDistance.makeData(), simulationDistance.size()); // Client entity simulation distance
+	data.append(1, (char)e.reducedDebugInfo); // Whether the client should get full debug info or not
+	data.append(1, (char)e.enableRespawnScreen);
+	data.append(1, (char)e.isDebug);
+	data.append(1, (char)e.isSuperflat);
+
+	// Send the death location if the player has died
+	if (e.deathDimension != "") {
+		data.append(1, (char)true); // There is a death location
+		SerialString deathDimension(e.deathDimension);
+		SerialPosition deathLocation(e.deathLocation);
+		data.append((char*)deathDimension.makeData().get(), deathDimension.size());
+		writeLong(data, deathLocation.makeData());
+	}
+	else {
+		data.append(1, (char)false); // There is no death location
+	}
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::JoinGame);
+
+	return 0;
 }
 
 /***************************************
@@ -1178,21 +1244,19 @@ Int NetworkHandler::sendJoinGame(const Client* client, Int entityID, Gamemode ga
  ***************************************/
 Int NetworkHandler::sendPluginMessage(const Client* client, String channel, Byte* data2, Int dataLen)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::PluginMessage);
 	SerialString schannel(channel);
-	VarInt length(packid.size() + schannel.size() + dataLen);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(schannel.size() + dataLen);
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	data.append((char*)schannel.makeData().get(), schannel.size());
 	data.append((char*)data2, dataLen);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::PluginMessage); */
+
+	return 0;
 }
 
 /******************************************
@@ -1219,20 +1283,18 @@ Int NetworkHandler::sendChunk(const Client* client, Int x, Int z, Boolean create
  *********************************************/
 Int NetworkHandler::sendSpawnPosition(const Client* client, Position pos)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::SpawnPosition);
 	SerialPosition spos = SerialPosition(pos);
-	VarInt length(packid.size() + 8);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(8);
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	writeLong(data, spos.makeData());
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::SpawnPosition); */
+
+	return 0;
 }
 
 /********************************************
@@ -1241,21 +1303,19 @@ Int NetworkHandler::sendSpawnPosition(const Client* client, Position pos)
  ********************************************/
 Int NetworkHandler::sendPlayerAbilities(const Client* client, PlayerAbilities abilities, Float flyingSpeed, Float fovModifier)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::PlayerAbilities);
-	VarInt length(packid.size() + 9);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(sizeof(abilities.getFlags()) + sizeof(flyingSpeed) + sizeof(fovModifier));
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	data.append(1, abilities.getFlags());
 	writeFloat(data, flyingSpeed);
 	writeFloat(data, fovModifier);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::PlayerAbilities); */
+
+	return 0;
 }
 
 /********************************************
@@ -1264,17 +1324,13 @@ Int NetworkHandler::sendPlayerAbilities(const Client* client, PlayerAbilities ab
  ********************************************/
 Int NetworkHandler::sendPlayerPositionAndLook(const Client* client, PositionF pos, Float yaw, Float pitch, PlayerPositionAndLookFlags flags, Int teleportID, Boolean dismountVehicle)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::PlayerPositionAndLook);
 	VarInt steleportID(teleportID);
-	VarInt length(packid.size() + steleportID.size()
-	      + sizeof(Double) * 3 + sizeof(Float) * 2 + sizeof(flags) + sizeof(dismountVehicle));
+	VarInt length(steleportID.size() + sizeof(Double) * 3 + sizeof(Float) * 2 + sizeof(flags.getFlags()) + sizeof(dismountVehicle));
 	data.reserve(length.toInt() + length.size());
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	writeDouble(data, pos.x);
 	writeDouble(data, pos.y);
 	writeDouble(data, pos.z);
@@ -1285,7 +1341,9 @@ Int NetworkHandler::sendPlayerPositionAndLook(const Client* client, PositionF po
 	data.append(1, (char)dismountVehicle);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::PlayerPositionAndLook); */
+
+	return 0;
 }
 
 /*********************************************
@@ -1294,20 +1352,18 @@ Int NetworkHandler::sendPlayerPositionAndLook(const Client* client, PositionF po
  *********************************************/
 Int NetworkHandler::sendUnloadChunk(const Client* client, Int x, Int z)
 {
-	// Serialize the data
+	/* Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::UnloadChunk);
-	VarInt length(packid.size() + 8);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(sizeof(x) + sizeof(z));
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	writeInt(data, x);
 	writeInt(data, z);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::UnloadChunk); */
+
+	return 0;
 }
 
 /***********************************
@@ -1318,17 +1374,13 @@ Int NetworkHandler::sendKeepAlive(const Client* client, Long id)
 {
 	// Serialize the data
 	String data;
-	VarInt packid((Int)ServerPlayPacket::KeepAlive);
-	VarInt length(packid.size() + 8);
-	data.reserve(length.toInt() + length.size());
+	data.reserve(sizeof(id));
 
 	// Append the data to the string
-	data.append((char*)length.makeData(), length.size());
-	data.append((char*)packid.makeData(), packid.size());
 	writeLong(data, id);
 
 	// Send the packet
-	return send(client->socket, data.c_str(), data.size(), 0);
+	return sendPacket(client, data.c_str(), data.size(), (Int)ServerPlayPacket::KeepAlive);
 }
 
 /****************************************
@@ -1337,8 +1389,8 @@ Int NetworkHandler::sendKeepAlive(const Client* client, Long id)
  ****************************************/
 Int NetworkHandler::sendLegacyKick(const Client* client) {
 	// Send a predefined kick packet for legacy clients
-	const String data = "\xff\x00\x23\x00\xa7\x00\x31\x00\x00\x00\x7f\x00\x37\x00\x00\x00\x31\x00\x2e\x00\x34\x00\x2e\x00\x32\x00\x00\x00\x41\x00\x20\x00\x4d\x00\x69\x00\x6e\x00\x65\x00\x63\x00\x72\x00\x61\x00\x66\x00\x74\x00\x20\x00\x53\x00\x65\x00\x72\x00\x76\x00\x65\x00\x72\x00\x00\x00\x30\x00\x00\x00\x32\x00\x30";
-	return send(client->socket, data.c_str(), data.size(), 0);
+	const String data = "\xfe\xff\x00\x23\x00\xa7\x00\x31\x00\x00\x00\x7f\x00\x37\x00\x00\x00\x31\x00\x2e\x00\x34\x00\x2e\x00\x32\x00\x00\x00\x41\x00\x20\x00\x4d\x00\x69\x00\x6e\x00\x65\x00\x63\x00\x72\x00\x61\x00\x66\x00\x74\x00\x20\x00\x53\x00\x65\x00\x72\x00\x76\x00\x65\x00\x72\x00\x00\x00\x30\x00\x00\x00\x32\x00\x30";
+	return send(client, data.c_str(), data.size(), 0); // Use legacy send protocol
 }
 
 /****************************
@@ -1510,8 +1562,8 @@ LockedClient* NetworkHandler::getClientFromSocket(SOCKET& socket)
  * Returns an error code if it failed *
  * or zero if nothing went wrong      *
  **************************************/
-Int NetworkHandler::send(SOCKET s, const char* buf, Int len, Int flags) {
-	Int dataRead = ::send(s, buf, len, flags);
+Int NetworkHandler::send(const Client* client, const char* buf, Int len, Int flags) {
+	Int dataRead = ::send(client->socket, buf, len, flags);
 
 #ifdef _WIN32
 	if (dataRead == SOCKET_ERROR) return WSAGetLastError();
@@ -1521,9 +1573,30 @@ Int NetworkHandler::send(SOCKET s, const char* buf, Int len, Int flags) {
 
 	// Send the rest of the data
 	if (dataRead < len)
-		return send(s, buf + dataRead, len - dataRead, flags);
+		return send(client, buf + dataRead, len - dataRead, flags);
 	else
 		return 0;
+}
+
+/**************************************
+ * NetworkHandler :: sendPacket       *
+ * Sends data without breaking it up  *
+ * Returns an error code if it failed *
+ * or zero if nothing went wrong      *
+ * TODO: Check for encryption and     *
+ * compression                        *
+ **************************************/
+Int NetworkHandler::sendPacket(const Client* client, const char* buf, Int len, Int packetID, Int flags) {
+	// Create uncompressed data to send
+	String data;
+	VarInt packid(packetID);
+	VarInt length(packid.size() + len);
+	data.reserve(length.toInt() + length.size());
+	data.append((char*)length.makeData(), length.size());
+	data.append((char*)packid.makeData(), packid.size());
+	data.append(buf, len);
+
+	return send(client, data.c_str(), data.length(), 0);
 }
 
 /***********************************

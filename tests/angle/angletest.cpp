@@ -7,7 +7,7 @@
  ***********************************************************/
 using namespace std;
 void AngleTest() {
-	cout << "Angle Test\n\tSize check\n";
+	cout << "Angle Test\n\tVerifying size\n";
 
 	Byte angle;
 	assert(sizeof(angle) == 1);

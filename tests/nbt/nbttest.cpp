@@ -7,9 +7,9 @@
  *********************************************************/
 using namespace std;
 void NBTTest() {
-	cout << "NBT / SNBT Tests\n\tFile Checks\n";
+//	cout << "NBT / SNBT Tests\n\tFile Checks\n";
 
 	// TODO: Check some files
 
-	cout << "\tFinished\n\n";
+//	cout << "\tFinished\n\n";
 }

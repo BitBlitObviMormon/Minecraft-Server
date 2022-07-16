@@ -11,19 +11,9 @@
 Thumbs.db
 
 # Visual Studio build files
-MSVS/[Dd]ebug/
-MSVS/[Rr]elease/
-MSVS/Bare-Bones-Minecraft-Server/[Dd]ebug/
-MSVS/Bare-Bones-Minecraft-Server/[Rr]elease/
-MSVS/CxxTest/[Dd]ebug/
-MSVS/CxxTest/[Rr]elease/
-MSVS/LibNBT++/[Dd]ebug/
-MSVS/LibNBT++/[Rr]elease/
-MSVS/LibNBT++ Tests/[Dd]ebug/
-MSVS/LibNBT++ Tests/[Rr]elease/
+[Dd]ebug/
+[Rr]elease/
 MSVS/LibNBT++ Tests/test.cpp
-MSVS/zlib/[Dd]ebug/
-MSVS/zlib/[Rr]elease/
 MSVS/Win32
 MSVS/Win64
 

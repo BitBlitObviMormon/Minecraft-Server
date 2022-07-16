@@ -2,6 +2,7 @@
 
 #include "uuid.h"
 #include "datatypes.h"
+#include <nbtplusplus/nbt_tags.h>
 #include <vector>
 
 enum struct ServerState
@@ -281,6 +282,7 @@ class Particle
 
 enum struct Gamemode
 {
+	NoGamemode = -1,
 	Survival = 0,
 	Creative = 1,
 	Adventure = 2,
@@ -1045,4 +1047,30 @@ enum struct Sound
 	/* Weather */
 	Rain = 491,
 	RainAbove = 492
+};
+
+class JoinGameEventArgs {
+public:
+	Int entityID;					 // Used by the client to keep track of its entity id
+	Boolean isHardcore;				 // Will the client kick itself after death?
+	Gamemode gamemode;				 // The player's current gamemode
+	Gamemode previousGamemode;		 // Not sure what this variable is for; apparently stores previous gamemode?
+	List<String> dimensions;		 // A list of dimensions that can be found in the world
+	nbt::tag_compound registryCodec; // All of the biome, dimension, and chat registries
+	String spawnDimensionType;		 // The type of dimension the client will spawn into
+	String spawnDimensionName;		 // The dimension the client will spawn into
+	Long biomeNoiseHash;			 // Used by clients to generate biome noise
+	Int maxPlayers;					 // Unused by clients
+	Int viewDistance;				 // Distance the client will view chunks
+	Int simulationDistance;			 // Distance the client will process entities
+	Boolean reducedDebugInfo;		 // Shows the client less info
+	Boolean enableRespawnScreen;	 // Equivalent to doImmediateRespawn=true
+	Boolean isDebug;				 // Makes the terrain unalterable if true
+	Boolean isSuperflat;			 // Changes void fog and sets horizon to y=0 instead of y=63
+	String deathDimension;			 // Optional, will be ignored if "". Represents the dimension the player died in.
+	Position deathLocation;			 // Optional, will be ignored if deathDimension is "". Represents the position the player died in.
+
+	JoinGameEventArgs() : entityID(0), isHardcore(false), gamemode(Gamemode::Survival), previousGamemode(Gamemode::Survival),
+		spawnDimensionName(""), spawnDimensionType(""), biomeNoiseHash(0xc0bb1edba5eba115), maxPlayers(8), viewDistance(2), simulationDistance(5),
+		reducedDebugInfo(false), enableRespawnScreen(true), isDebug(false), isSuperflat(false), deathDimension(""), deathLocation(0, 0, 0) {}
 };
